@@ -2,7 +2,7 @@
 
 ## 1. 状态与决策
 
-本文同时记录目标边界与 **Desktop MVP 0.5.0 的实际实现**。Electron 安全壳、受控 preload、Main 模板库/原生对话框/串行队列、JSONL Worker 客户端，以及 .NET 8 C# STA Word Worker 已经接通；浏览器运行仍通过同一页面状态机使用 mock adapter。
+本文同时记录目标边界与 **Desktop MVP 0.6.0 的实际实现**。Electron 安全壳、受控 preload、Main 模板库/原生对话框/串行队列、JSONL Worker 客户端，以及 .NET 8 C# STA Word Worker 已经接通；浏览器运行仍通过同一页面状态机使用 mock adapter。
 
 采用以下分层：
 
@@ -125,7 +125,19 @@ interface Md2WordApi {
 
 ## 3. 数据存储
 
-0.5.0 的运行数据继续使用 Electron `app.getPath('userData')`，但 Portable 发布的受管模板库按产品要求放到用户可见 EXE 同级目录。开发态仍把模板放在 `userData`，避免污染源码目录：
+### Setup 安装版（0.6.0）
+
+NSIS `customInstall` 写入安装目录的 `resources/md2word-installed`，内容固定为 `setup`；便携归档不包含该文件。Main 仅在打包状态读取普通文件标记，标记损坏则初始化失败；Setup 使用 `userData/templates`，优先于继承的 Portable 环境变量。目录/ZIP 与单文件 Portable 的原路径规则不变。
+
+安装目录中的 `templates/*` 是随包只读种子。Main 逐包复制到用户模板库：已存在的包跳过（包括用户清空后的索引），不存在的包先复制到目标根内的隐藏临时目录，再通过重命名发布；拒绝目录链接、文件链接和特殊文件，失败清理临时目录。之后由原 `TemplateStore` 和 Worker 正常校验。不会直接操作 Word，也不改变 IPC 或模板索引契约。
+
+安装器默认不删除 AppData；升级重建应用目录时，用户模板仍保留在外部用户数据目录。未来公开种子更新不会覆盖用户已经编辑的同名包，用户可另行导入需要的新版本。详见 [Setup 安装验收](../testing/setup-installation.md)。
+
+`build.publish=null`，不生成自动更新服务配置；当前未实现自动更新。Setup 与 Portable 各有独立文件名，发布目录整理保留四种交付物及配套离线说明、模板目录。
+
+GitHub 发布由独立 Actions 工作流完成，不启用应用自动更新。托管 Windows runner 使用 Visual Studio 官方 Word PIA，经现有 `OfficeInteropWordPath` 编译属性传入；Word COM 仍只在用户本机 Worker 的 STA 线程运行。CI 不安装或模拟 Word 来宣称真实转换通过。
+
+0.6.0 的运行数据继续使用 Electron `app.getPath('userData')`，但 Portable 发布的受管模板库按产品要求放到用户可见 EXE 同级目录。开发态与 Setup 安装版把模板放在 `userData/templates`，避免污染源码目录或写入安装目录：
 
 ```text
 <portable-executable-directory>/

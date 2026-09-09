@@ -15,7 +15,7 @@ describe("CapabilitiesPage", () => {
     );
 
     expect(screen.getByRole("heading", { name: "MD2Word 支持能力说明" })).toBeInTheDocument();
-    expect(screen.getByText("v0.5.0")).toBeInTheDocument();
+    expect(screen.getByText("v0.6.0")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: /Front Matter/ }));
     fireEvent.change(screen.getByLabelText("搜索能力说明"), { target: { value: "word_heading_numbering" } });

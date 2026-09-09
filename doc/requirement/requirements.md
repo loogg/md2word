@@ -5,11 +5,11 @@
 | 项目 | 内容 |
 |---|---|
 | 产品名 | MD2Word 文档生成器 |
-| 当前里程碑 | Desktop MVP 0.5.0 |
+| 当前里程碑 | Desktop MVP 0.6.0 |
 | 目标平台 | Windows |
 | 当前实现 | React Renderer + Electron Main (Node.js) + 独立 .NET 8 C# Word Worker |
 | 转换依赖 | 外部 Pandoc + Microsoft Word COM + Open XML |
-| 文档状态 | 0.5.0 Desktop MVP 实现与验收基线，2026-07-20 |
+| 文档状态 | 0.6.0 Setup 安装版增量，2026-09-09；保留历史验收记录 |
 
 ## 2. 背景与目标
 
@@ -40,6 +40,12 @@
 
 ## 4. 当前里程碑范围
 
+### 0.6.0 安装分发增量
+
+0.6.0 继承 0.5.0 转换契约，新增 NSIS Setup 安装版。`package:win` 必须同时交付便携目录、Portable ZIP、单文件 Portable EXE 和 `MD2Word-<version>-win-x64-setup.exe`，不减少现有交付形式。安装向导默认面向当前用户，支持选择目录和桌面/开始菜单快捷方式，安装完成不自动启动。
+
+Setup 的受管模板库位于 `userData/templates`；首次启动复制安装包内的公开模板包，已有包、用户导入、编辑和空索引不覆盖。复制单包必须原子发布并拒绝链接/特殊文件。升级与默认卸载保留用户模板。用户通过“打开模板库”添加其他完整包，不修改安装目录中的模板种子。安装身份由 NSIS 写入的标记确定，不接受 Renderer 提供路径或模式。用例与实际结果见 [Setup 验收](../testing/setup-installation.md)。下文标明 0.5.0 的记录为继承基线，0.6.0 验证单独记录。
+
 ### 4.1 包含
 
 - 四个桌面导航页面：生成 Word、模板管理、能力说明、环境与设置；页面通过统一 adapter 同时支持 Electron 真实后端和浏览器 mock 预览。
@@ -60,7 +66,7 @@
 - 相对本地图片嵌入（包括 Word 对非 ASCII 文件名 URI 的二次转义恢复），以及正文书签范围内随文图片按 section 版心和正段落缩进进行的等比缩小、自动扩展行距收口。
 - Markdown/HTML 内部链接的 ASCII 安全 Word 书签生成、同目标链接归并重写及成品链接—书签唯一匹配校验。
 - 浏览器 mock 仍保留两个合成演示模板、本地存储、模拟任务和模拟环境，且与真实桌面能力明确区分。
-- Windows x64 候选直接构建到 `release`，交付未压缩 Portable 目录、单文件 Portable EXE、Portable ZIP 与 EXE 同级 `templates/reference`，文件名包含版本和 `x64`。自定义模板分发复用同一可执行文件，把仓库外完整私有模板包目录手工复制为 EXE 同级 `templates/<package-name>`，包名可自定义；私有模板不参与构建，也不得进入基线 ZIP 或 Git。
+- Windows x64 候选直接构建到 `release`，交付未压缩 Portable 目录、单文件 Portable EXE、Portable ZIP、Setup EXE 与便携 EXE 同级 `templates/reference`，文件名包含版本和 `x64`。自定义模板分发复用同一可执行文件，把仓库外完整私有模板包目录手工复制为 EXE 同级 `templates/<package-name>`，包名可自定义；私有模板不参与构建，也不得进入基线 ZIP 或 Git。
 
 ### 4.2 不包含
 
@@ -128,7 +134,7 @@ admonition 固定色板如下，Worker 不提供 CSS 覆盖项：
 | FR-T05 | 可编辑名称、说明、DOCX、CSS 与 Mermaid 默认值。DOCX/CSS 改变后必须立即使旧校验失效并重新校验。 |
 | FR-T06 | 可将一个有效模板设为默认；任一时刻最多一个默认模板。删除默认模板后优先把第一个有效模板设为默认，无有效模板则进入无默认状态。 |
 | FR-T07 | 删除前显示确认，说明只删除应用管理目录中的副本，不删除用户原文件。最后一个模板允许删除，但生成页进入空态。 |
-| FR-T08 | Electron 导入时把 DOCX/CSS 规范化复制为 Main 管理的 `templates/user/<template-id>/template.docx` 与 `style.css`，不继续引用原位置。每个模板包只保留一个精简 `index.json`，不保存完整 validation、styleMappings 或稳定 `profile.json`；Main 加载时重新校验文件并在内存恢复 Renderer 所需完整结果。开发运行的模板包容器位于应用 `userData/templates`；打包后的 Windows Portable 形态统一使用 `MD2Word.exe` 同级 `templates`。Main 必须遍历该容器的直接子目录并合并其中 `index.json`，同时拒绝跨包重复 ID 或多个默认模板；旧版 version 1 根级/子包索引只读兼容。 |
+| FR-T08 | Electron 导入时把 DOCX/CSS 规范化复制为 Main 管理的 `templates/user/<template-id>/template.docx` 与 `style.css`，不继续引用原位置。每个模板包只保留一个精简 `index.json`，不保存完整 validation、styleMappings 或稳定 `profile.json`；Main 加载时重新校验文件并在内存恢复 Renderer 所需完整结果。开发运行与 Setup 安装版的模板包容器位于应用 `userData/templates`；打包后的 Windows Portable 形态统一使用 `MD2Word.exe` 同级 `templates`。Main 必须遍历该容器的直接子目录并合并其中 `index.json`，同时拒绝跨包重复 ID 或多个默认模板；旧版 version 1 根级/子包索引只读兼容。 |
 | FR-T09 | 校验结果至少区分 `valid`、`warning`、`invalid`，并为每个问题提供稳定错误码、目标、严重级别和说明；可解释问题应携带稳定 `capabilityId`，页面提供到对应能力条目的入口。 |
 | FR-T10 | Windows 打包只提供 `package:win` 基线命令：不读取私有路径，把 `resources/templates` 作为完整公开模板包容器，遍历每个带 `index.json` 的直接子目录，经 Worker 校验索引登记的每一组 DOCX/CSS，并只把索引及登记文件原样复制到 `release/templates`，不得临时生成或改写索引。可手工增加明确无业务内容的完整公开包。自定义模板分发由操作人把仓库外完整模板包目录复制为 EXE 同级 `templates/<package-name>`；应用启动时自动发现，无需重新打包，包名可自定义。所有暂存、私有包和 release 均不得进入 Git；源码构建完成时成品 `templates` 必须只包含已审核的源码公开包，之后手工加入的私有包不得上传。 |
 
@@ -222,7 +228,7 @@ admonition 固定色板如下，Worker 不提供 CSS 覆盖项：
 12. 类型检查、Lint、TypeScript/C# 单元测试、Worker 协议 smoke、生产构建和 Electron E2E 在发布候选上通过；真实 Word 用例需显式开启且不得使用业务文档。
 13. 关键页面沿用已完成桌面验收的 1440x900 与 1280x800 布局；有可见 UI 变化时必须重拍截图。八张桌面截图已于 2026-07-20 重新生成并完成视觉复核，其中能力页展示 Front Matter，添加模板窗口已在 1440x900 及 Electron 最小窗口 1100x720 下断言完整位于应用视口内。
 14. 仓库中的 DOCX 只能位于 `resources/templates/<package>/<template-id>/template.docx`，且必须是明确合成、可公开、经 Worker 校验的模板源码；当前只有 `resources/templates/reference/public-reference-template/template.docx`。仓库不得包含真实业务 Markdown、转换产物、凭据或新增旧目录硬编码。
-15. `release` 直接产出带版本/架构的未压缩 Portable 目录、Portable EXE、Portable ZIP、离线能力说明及单文件 EXE 同级 `templates`，不生成额外校验清单，且不得残留 `public`、`win-unpacked` 或 builder 元数据。目录版和 ZIP 内的离线说明均非空；模板根不得有 `index.json`，基线 `reference/index.json` 必须只有 `public-reference-template`。目录版按 1 个模板通过 packaged E2E；任意完整私有模板包可在构建后直接复制为 `templates/<package-name>`，但不得被 Git 跟踪或上传 GitHub。
+15. `release` 直接产出带版本/架构的未压缩 Portable 目录、Portable EXE、Portable ZIP、Setup EXE、离线能力说明及单文件 EXE 同级 `templates`，不生成额外校验清单，且不得残留 `public`、`win-unpacked` 或 builder 元数据。目录版和 ZIP 内的离线说明均非空；模板根不得有 `index.json`，基线 `reference/index.json` 必须只有 `public-reference-template`。目录版按 1 个模板通过 packaged E2E；任意完整私有模板包可在构建后直接复制为 `templates/<package-name>`，但不得被 Git 跟踪或上传 GitHub。
 
 2026-07-20 的 0.5.0 候选已通过能力清单/生成文档同步检查、95 项 Vitest（23 个测试文件，新增能力清单深校验、搜索/深链和重复 ID 拒绝）、包含 `describe-capabilities` 的协议 smoke、生产构建、四页 Electron E2E、8 张截图生成/视觉复核、三种 Windows x64 打包及目录版 packaged E2E。同日追加的复杂合成专项已实际重跑 Word/Mermaid 双门控，结果为 137/137 通过、0 跳过；9 页 Word 原生 PDF 与最终 DOCX 的结构/视觉审计 30/30 通过，模板原生正文对和 DOM 导入正文对的可见间距差为 0.12pt，未发现可见 HTML、`w:altChunk`、临时样式、外部关系、浮动/文本框或非契约空段残留。重复转换结构指标一致，Mermaid `auto/off/required` 分支和真实 Electron -> Main -> Worker -> Word 用例均通过，最终无本次新建的 WINWORD 残留。专项证据见 `doc/testing/comprehensive-synthetic-acceptance.md`。
 

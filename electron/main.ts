@@ -16,6 +16,7 @@ import { registerIpcHandlers } from "./ipc";
 import { createMainWindow } from "./main-window";
 import { sanitizeWorkerEvent } from "./sanitize";
 import { resolveTemplateLibraryRoot } from "./runtime-paths";
+import { isSetupInstallation, seedInstalledTemplatePackages } from "./installed-templates";
 import { TemplateStore } from "./template-store";
 import { TemplateDraftValidationService, WorkerTemplateValidator } from "./template-validation-service";
 import { WorkerJsonlClient } from "./worker-jsonl-client";
@@ -125,8 +126,10 @@ async function createRuntime(): Promise<{
   const appRoot = app.isPackaged ? app.getAppPath() : path.resolve(moduleDirectory, "..");
   const resourcesRoot = app.isPackaged ? process.resourcesPath : path.join(appRoot, "resources");
   const userData = app.getPath("userData");
+  const isInstalled = app.isPackaged && await isSetupInstallation(resourcesRoot);
   const templatesRoot = resolveTemplateLibraryRoot({
     isPackaged: app.isPackaged,
+    isInstalled,
     userDataPath: userData,
     executablePath: process.execPath,
     portableExecutableDirectory: process.env.PORTABLE_EXECUTABLE_DIR,
@@ -185,6 +188,9 @@ async function createRuntime(): Promise<{
     return capabilityCatalogPromise;
   };
   const templateValidator = new WorkerTemplateValidator(worker);
+  if (isInstalled) {
+    await seedInstalledTemplatePackages(path.join(path.dirname(process.execPath), "templates"), templatesRoot);
+  }
   const templates = new TemplateStore({ templatesRoot, builtinCssPath, validator: templateValidator });
   await templates.initialize();
   const draftValidation = new TemplateDraftValidationService({

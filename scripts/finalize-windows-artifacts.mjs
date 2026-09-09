@@ -13,6 +13,7 @@ const baseName = `MD2Word-${version}-win-${architecture}`;
 const artifactNames = [
   `${baseName}-portable.exe`,
   `${baseName}-portable.zip`,
+  `${baseName}-setup.exe`,
 ];
 const portableDirectoryName = `${baseName}-portable`;
 const templatesDirectoryName = "templates";

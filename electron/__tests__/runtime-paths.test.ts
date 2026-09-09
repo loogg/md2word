@@ -3,6 +3,15 @@ import { describe, expect, it } from "vitest";
 import { resolveTemplateLibraryRoot } from "../runtime-paths";
 
 describe("resolveTemplateLibraryRoot", () => {
+  it("keeps Setup templates in userData even if a portable environment variable is inherited", () => {
+    expect(resolveTemplateLibraryRoot({
+      isPackaged: true,
+      isInstalled: true,
+      userDataPath: "C:\\AppData\\MD2Word",
+      executablePath: "C:\\Programs\\MD2Word\\MD2Word.exe",
+      portableExecutableDirectory: "D:\\Other Portable App",
+    })).toBe(path.normalize("C:\\AppData\\MD2Word\\templates"));
+  });
   it("keeps development templates under userData", () => {
     expect(resolveTemplateLibraryRoot({
       isPackaged: false,

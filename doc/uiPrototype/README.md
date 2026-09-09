@@ -2,7 +2,7 @@
 
 ## 目的与运行边界
 
-当前里程碑是 **Desktop MVP 0.5.0**。同一套 React 页面通过 adapter 选择运行后端：
+当前里程碑是 **Desktop MVP 0.6.0**。同一套 React 页面通过 adapter 选择运行后端：
 
 - Electron 中使用真实 preload、Main、模板库、原生对话框、C# Worker、Word COM 和受控 shell 动作。
 - 普通浏览器中使用 mock adapter，保留 UI 预览、合成模板、本地存储和模拟任务；不会生成 DOCX。
@@ -50,6 +50,10 @@
 只预览浏览器 mock 时，可以继续使用两个合成演示模板、模拟另存为、模拟失败/取消和“重置演示数据”；这些结论不能替代上述桌面验收。
 
 ## 运行与检查
+
+GitHub 的标签发布与手动构建见 [GitHub 发布流程](../development/github-release.md)。CI 使用 Visual Studio 官方 Word PIA 编译，只运行不依赖 Word COM 的检查；本机真实转换与安装生命周期验收仍单独记录。
+
+0.6.0 的 `package:win` 同时生成便携目录、ZIP、Portable EXE 和 Setup EXE。Setup 的安装、升级、用户模板保留和默认卸载验收命令见 [Setup 安装版验收](../testing/setup-installation.md)。Setup 使用用户数据目录中的模板库，便携版继续使用 EXE 同级模板库；以下 0.5.0 结果作为历史基线保留。
 
 安装依赖：
 
@@ -159,13 +163,21 @@ Mermaid 固定使用 `@mermaid-js/mermaid-cli@11.16.0` 与 `puppeteer@25.3.0`，
 
 本次构建仍报告 `AngleSharp 1.3.0` 的既有 `NU1902` 告警；未升级依赖。上面的复杂 DOCX/PDF 专项为历史证据，本次未重跑。
 
+### 2026-09-09 Setup 0.6.0 验证
+
+类型检查、Lint、101 项 Vitest、Worker 常规测试（126 通过、11 跳过）、Worker 协议 smoke、生产构建和四种交付形式的打包均通过。便携目录启动检查、开发桌面与安装版的真实 Word/Mermaid 转换通过；安装版的独立模板库、首次导入和重启保持用例通过。同版本覆盖安装返回 0，模板文件哈希不变；默认卸载返回 0，安装注册/快捷方式已清理，用户模板保留。详细命令、范围及签名/依赖限制见 [Setup 验收记录](../testing/setup-installation.md)。九张 0.6.0 桌面截图已生成并逐张复核，新增模板存储提示截图；README 成功流程截图保留为此前的通用操作示例。
+
 ## 截图清单
 
 截图必须来自完成交互验证后的真实页面，不得使用设计稿或手工拼图。统一保存为 PNG，不包含用户名、真实路径、业务模板或业务正文。
 
+README 使用说明的补充截图使用公开参考模板与运行时生成的 `output/readme-demo.md`；输入只含明确标注的合成标题、段落、列表和表格，生成的 DOCX 留在忽略目录中，不提交。通过 Computer Use 操作实际桌面页面，截图只保留应用主窗口，不包含文件对话框中的私人路径。
+
+2026-09-09 的 README 文档整理将首页改为“从源码部署”和“工具使用说明”两部分；架构、完整能力契约和历史验收结果由本文及相应专项文档承接。通过 Computer Use 在现有 0.5.0 便携目录版完成了选择合成 Markdown、原生另存为和真实 Word 转换，页面显示“生成完成”及兼容提示，并补拍结果区域。README 的 17 个本地链接/入口及全部 npm 脚本名称检查通过，4 张配图均存在，Pandoc GFM HTML 预览生成通过，`git diff --check` 通过。此轮仅修改文档和截图，没有修改应用代码，也未重跑整套构建或测试；前述测试结果属于此前的代码验证。
+
 以下文件已于 2026-09-09 使用中性样式的运行时合成 DOCX/CSS/Markdown 和真实 Electron 页面重拍并逐张复核，不含组织标识、用户名、真实路径或业务正文：
 
-| 文件 | 尺寸 | 0.5.0 内容 | 状态 |
+| 文件 | 尺寸 | 当前内容 | 状态 |
 |---|---:|---|---|
 | `screenshots/generate-word-1440x900.png` | 1440x900 | 桌面生成页、合成模板与已登记 Markdown | 已自动生成并人工复核 |
 | `screenshots/template-selector-1440x900.png` | 1440x900 | 两个合成模板的搜索选择弹层 | 已自动生成并人工复核 |
@@ -173,26 +185,28 @@ Mermaid 固定使用 `@mermaid-js/mermaid-cli@11.16.0` 与 `puppeteer@25.3.0`，
 | `screenshots/template-editor-1440x900.png` | 1440x900 | 添加模板字段、文件选择与底部操作 | 已通过 1440x900 / 1100x720 视口完整可见断言及人工复核 |
 | `screenshots/capabilities-1440x900.png` | 1440x900 | 当前 Worker 版本、四类能力说明与 Front Matter 元数据 | 已自动生成并人工复核 |
 | `screenshots/settings-1440x900.png` | 1440x900 | 真实 Word/Pandoc/Worker/Mermaid 诊断，CLI 显示固定 11.16.0 | 已自动生成并人工复核 |
+| `screenshots/settings-template-storage-1440x900.png` | 1440x900 | 0.6.0：便携版/安装版模板位置提示与打开模板库入口 | 已自动断言文案可见并视觉复核 |
 | `screenshots/settings-word-missing-1440x900.png` | 1440x900 | 受控注入的 Word 缺失阻塞态 | 已自动生成并人工复核 |
 | `screenshots/generate-word-1280x800.png` | 1280x800 | 最小目标尺寸桌面生成页 | 已自动生成并人工复核 |
+| `screenshots/readme-success.png` | 1429x895 | README：公开参考模板完成合成文档转换，滚动到结果和输出操作区域 | Computer Use 实际窗口截图，原始 JPEG 无裁切转存 PNG，已视觉复核 |
 
-### 当前桌面页面预览（0.5.0 截图）
+### 当前桌面页面预览（0.6.0；README 成功示例为此前的通用流程）
 
-![0.5.0 生成 Word 紧凑模板摘要](screenshots/generate-word-1440x900.png)
+![0.6.0 生成 Word 紧凑模板摘要](screenshots/generate-word-1440x900.png)
 
-![0.5.0 模板搜索选择弹层](screenshots/template-selector-1440x900.png)
+![0.6.0 模板搜索选择弹层](screenshots/template-selector-1440x900.png)
 
-![0.5.0 模板管理与校验状态对齐](screenshots/templates-1440x900.png)
+![0.6.0 模板管理与校验状态对齐](screenshots/templates-1440x900.png)
 
-![0.5.0 添加模板窗口完整显示](screenshots/template-editor-1440x900.png)
+![0.6.0 添加模板窗口完整显示](screenshots/template-editor-1440x900.png)
 
-![0.5.0 Front Matter 能力说明](screenshots/capabilities-1440x900.png)
+![0.6.0 Front Matter 能力说明](screenshots/capabilities-1440x900.png)
 
-![0.5.0 真实环境与设置](screenshots/settings-1440x900.png)
+![0.6.0 真实环境与设置](screenshots/settings-1440x900.png)
 
-![0.5.0 Word 环境缺失](screenshots/settings-word-missing-1440x900.png)
+![0.6.0 Word 环境缺失](screenshots/settings-word-missing-1440x900.png)
 
-![0.5.0 最小尺寸生成页](screenshots/generate-word-1280x800.png)
+![0.6.0 最小尺寸生成页](screenshots/generate-word-1280x800.png)
 
 ## Adapter 边界
 

@@ -5,6 +5,7 @@ export interface TemplateLibraryPathOptions {
   userDataPath: string;
   executablePath: string;
   portableExecutableDirectory?: string;
+  isInstalled?: boolean;
 }
 
 function absoluteDirectory(candidate: string | undefined): string | undefined {
@@ -17,7 +18,7 @@ function absoluteDirectory(candidate: string | undefined): string | undefined {
  * deliberately keep the template library beside the user-visible executable.
  */
 export function resolveTemplateLibraryRoot(options: TemplateLibraryPathOptions): string {
-  if (!options.isPackaged) return path.join(path.resolve(options.userDataPath), "templates");
+  if (!options.isPackaged || options.isInstalled) return path.join(path.resolve(options.userDataPath), "templates");
 
   const executableDirectory =
     absoluteDirectory(options.portableExecutableDirectory)

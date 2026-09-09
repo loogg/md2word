@@ -1,8 +1,9 @@
 import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const workerPath = path.resolve("worker/publish/win-x64/Md2Word.Worker.exe");
+const productVersion = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version;
 const publishedResourceRoot = path.resolve("worker/publish/win-x64/resources/conversion");
 const requiredPublishedResources = [
   "capabilities.json",
@@ -102,7 +103,7 @@ if (
   capabilities.type !== "result"
   || capabilities.requestId !== "smoke-capabilities"
   || capabilities.result?.schemaVersion !== "1.1"
-  || capabilities.result?.productVersion !== "0.5.0"
+  || capabilities.result?.productVersion !== productVersion
   || !Array.isArray(capabilities.result?.frontMatter)
   || !capabilities.result.frontMatter.some((item) => item.key === "word_heading_numbering")
 ) {

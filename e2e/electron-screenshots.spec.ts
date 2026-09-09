@@ -159,6 +159,11 @@ test("refreshes the Desktop MVP screenshot acceptance set", async () => {
     await expect(window.getByRole("heading", { name: "在启动 Word 前先把环境说清楚", exact: true })).toBeVisible();
     await window.screenshot({ path: path.join(screenshotDirectory, "settings-1440x900.png"), animations: "disabled", scale: "css" });
 
+    await window.getByRole("button", { name: "打开模板库目录", exact: true }).scrollIntoViewIfNeeded();
+    await expect(window.getByText("便携版使用 EXE 同级 templates；安装版使用用户数据目录，由 Main 原子维护。", { exact: true })).toBeVisible();
+    await window.screenshot({ path: path.join(screenshotDirectory, "settings-template-storage-1440x900.png"), animations: "disabled", scale: "css" });
+    await window.getByRole("heading", { name: "在启动 Word 前先把环境说清楚", exact: true }).scrollIntoViewIfNeeded();
+
     await application.evaluate(({ ipcMain }) => {
       ipcMain.removeHandler("md2word:environment:check");
       ipcMain.handle("md2word:environment:check", async () => ({
@@ -170,7 +175,7 @@ test("refreshes the Desktop MVP screenshot acceptance set", async () => {
             { id: "windows", name: "Windows", version: "Windows 11 · x64", detail: "当前系统可运行桌面版。", status: "ready", required: true },
             { id: "word", name: "Microsoft Word", version: "未检测到", detail: "未发现可用的 Microsoft Word。", status: "blocked", required: true },
             { id: "pandoc", name: "Pandoc", version: "已检测", detail: "已通过本机命令检查。", status: "ready", required: true },
-            { id: "worker", name: "C# Word Worker", version: "0.5.0", detail: "Worker JSONL 协议可用。", status: "ready", required: true },
+            { id: "worker", name: "C# Word Worker", version: "0.6.0", detail: "Worker JSONL 协议可用。", status: "ready", required: true },
             { id: "mermaid", name: "Mermaid CLI", version: "不可用", detail: "可选组件未安装。", status: "optional-missing", required: false },
           ],
         },

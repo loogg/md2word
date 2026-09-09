@@ -1,6 +1,6 @@
 # MD2Word UI 规格
 
-本文对应 **Desktop MVP 0.5.0**。同一套 React 页面通过 adapter 运行在两种后端：Electron 使用真实 Main/Worker 能力，普通浏览器使用 mock 预览。界面必须按运行时能力切换文案与控件，不能用浏览器演示结论代替桌面验收。
+本文对应 **Desktop MVP 0.6.0**。同一套 React 页面通过 adapter 运行在两种后端：Electron 使用真实 Main/Worker 能力，普通浏览器使用 mock 预览。界面必须按运行时能力切换文案与控件，不能用浏览器演示结论代替桌面验收。
 
 ## 1. 设计目标
 
@@ -163,12 +163,14 @@ Mermaid 选项说明必须明确：`off` 保留代码；`auto` 单图失败会�
 
 ## 6. 环境与设置页面
 
+- 0.6.0 的模板库提示同时说明“便携版使用 EXE 同级 templates；安装版使用用户数据目录”，打开目录仍通过同一个无参数 Main 接口完成。安装版首次启动可见公开参考模板，导入和编辑交互不变。
+
 - 环境卡：Windows、Microsoft Word、Pandoc、C# Worker、Mermaid。
 - 每张卡显示状态、版本或路径摘要、必要性以及一条解释。
 - Word/Pandoc/Worker 缺失为阻塞；Mermaid 可用需同时检测到 npx 和本机 Microsoft Edge 或 Google Chrome，缺失默认是可选警告，模板选择 `required` 时阻止生成。
 - Mermaid 卡说明固定使用 `@mermaid-js/mermaid-cli@11.16.0`、`puppeteer@25.3.0` 和本地浏览器；首次使用可能由 npx 获取固定工具包，系统浏览器启动失败时还可能获取受管 `chrome-headless-shell` 到应用私有缓存，但文档内容不会上传。不得向普通用户展示 npm stderr、图源正文或私人绝对路径。
 - `重新检测` 在 Electron 中调用真实环境检查，在浏览器中刷新合成状态，并显示检查时间。
-- Electron 模板库区说明 Portable 发布版位于 `MD2Word.exe` 同级 `templates`、当前目录由 Main 管理，并提供受控打开目录；开发运行实际落到 `userData`，浏览器只说明 localStorage，不伪造可打开路径。
+- Electron 模板库区说明 Portable 发布版位于 `MD2Word.exe` 同级 `templates`、当前目录由 Main 管理，并提供受控打开目录；开发运行与 Setup 安装版实际落到 `userData/templates`，浏览器只说明 localStorage，不伪造可打开路径。
 - `重置演示数据` 只在浏览器 mock 出现，确认后恢复两个初始模板和默认环境状态；桌面运行不提供一键删除真实模板的伪“重置”。
 
 ## 7. 反馈与文案规则
@@ -205,4 +207,4 @@ Mermaid 选项说明必须明确：`off` 保留代码；`auto` 单图失败会�
 | 1440x900 | 环境缺失 | 阻塞项与可选项区分清楚 |
 | 1440x900 | 能力说明 / Front Matter | 版本信息、四个分类、搜索、元数据卡与限制声明可读，无横向滚动 |
 
-截图文件统一放在 `doc/uiPrototype/screenshots/`，命名和完成状态由 [UI 与桌面验收说明](../uiPrototype/README.md) 管理。0.1 浏览器截图只作历史布局基线；八张 0.5.0 截图已于 2026-09-09 使用中性合成样式在 Electron 桌面运行态重新生成并完成视觉复核，新增 Front Matter 能力页截图；添加模板窗口同时在 1440x900 及 Electron 最小窗口 1100x720 下断言完整位于应用视口内；后续一旦页面结构、文案或状态可见性变化必须再次生成。
+截图文件统一放在 `doc/uiPrototype/screenshots/`，命名和完成状态由 [UI 与桌面验收说明](../uiPrototype/README.md) 管理。0.1 浏览器截图只作历史布局基线；九张 0.6.0 桌面截图已于 2026-09-09 使用中性合成样式在 Electron 桌面运行态重新生成并完成视觉复核，包含 Front Matter 能力页及新增模板存储提示截图；添加模板窗口同时在 1440x900 及 Electron 最小窗口 1100x720 下断言完整位于应用视口内；后续一旦页面结构、文案或状态可见性变化必须再次生成。

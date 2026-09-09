@@ -1,0 +1,129 @@
+name: Windows release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - name: Preserve versioned resource bytes
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+          cache: npm
+
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Verify release version
+        id: version
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ($version -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') { throw 'Invalid application version' }
+          if ($env:GITHUB_REF -like 'refs/tags/*' -and $env:GITHUB_REF_NAME -ne "v$version") {
+            throw 'Tag must match package.json version'
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Locate official Visual Studio Word PIA
+        run: |
+          $roots = @(
+            (Join-Path $env:ProgramFiles 'Microsoft Visual Studio/Shared/Visual Studio Tools for Office/PIA'),
+            (Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Shared/Visual Studio Tools for Office/PIA')
+          )
+          $candidates = @($roots | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object {
+            Get-ChildItem -LiteralPath $_ -Filter Microsoft.Office.Interop.Word.dll -Recurse -File
+          })
+          $pia = $candidates | Where-Object {
+            $assembly = [Reflection.AssemblyName]::GetAssemblyName($_.FullName)
+            $token = [Convert]::ToHexString($assembly.GetPublicKeyToken()).ToLowerInvariant()
+            $assembly.Name -eq 'Microsoft.Office.Interop.Word' -and $assembly.Version.Major -eq 15 -and $token -eq '71e9bce111e9429c'
+          } | Select-Object -First 1
+          if (-not $pia) { throw 'Official Word 15 PIA is missing from the Visual Studio Office workload' }
+          "OfficeInteropWordPath=$($pia.FullName)" >> $env:GITHUB_ENV
+          Write-Output 'Using the official Visual Studio Word PIA for compilation; Word COM tests remain local.'
+
+      - name: Install Pandoc
+        run: |
+          choco install pandoc --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          (Join-Path $env:ProgramFiles 'Pandoc') >> $env:GITHUB_PATH
+
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Frontend and storage tests
+        run: npm run test
+      - name: Worker tests without Word COM
+        run: npm run test:worker
+      - name: Build Windows packages
+        run: npm run package:win
+      - name: Worker protocol smoke
+        run: npm run test:protocol
+
+      - name: Upload Portable ZIP and Setup EXE
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: MD2Word-${{ steps.version.outputs.version }}-windows-x64
+          path: |
+            release/MD2Word-${{ steps.version.outputs.version }}-win-x64-portable.zip
+            release/MD2Word-${{ steps.version.outputs.version }}-win-x64-setup.exe
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+      - name: Publish tagged release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          $zip = "release/MD2Word-${env:RELEASE_VERSION}-win-x64-portable.zip"
+          $setup = "release/MD2Word-${env:RELEASE_VERSION}-win-x64-setup.exe"
+          @'
+          Windows x64 packages: Portable ZIP and Setup installer.
+
+          Microsoft Word desktop and Pandoc are required for conversion. The Setup installer keeps templates in user data; Portable uses its adjacent templates folder.
+
+          Packages are unsigned. GitHub Actions runs compilation and tests without Word COM; real Word conversion and installer lifecycle checks are performed separately on a Windows Word host.
+          '@ | Set-Content -LiteralPath release-notes.md -Encoding utf8
+          $existing = gh release view $tag --repo $env:GITHUB_REPOSITORY --json isDraft 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            if (-not ($existing | ConvertFrom-Json).isDraft) { throw 'Release is already published; use a new version tag' }
+          } else {
+            gh release create $tag --repo $env:GITHUB_REPOSITORY --verify-tag --draft --title "MD2Word $env:RELEASE_VERSION" --notes-file release-notes.md
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          gh release upload $tag $zip $setup --repo $env:GITHUB_REPOSITORY --clobber
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          gh release edit $tag --repo $env:GITHUB_REPOSITORY --draft=false

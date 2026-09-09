@@ -79,7 +79,7 @@ test("desktop shell exposes only the narrow API and keeps the four-page workflow
     const environment = await window.evaluate(() => window.md2word!.environment.check());
     expect(environment.items.filter((item) => item.required).every((item) => item.status === "ready")).toBe(true);
     const capabilities = await window.evaluate(() => window.md2word!.capabilities.describe());
-    expect(capabilities).toMatchObject({ schemaVersion: "1.1", productVersion: "0.5.0", protocolVersion: "1.0" });
+    expect(capabilities).toMatchObject({ schemaVersion: "1.1", productVersion: "0.6.0", protocolVersion: "1.0" });
     expect(capabilities.frontMatter.map((item) => item.key)).toContain("word_heading_numbering");
 
     await window.getByRole("button", { name: "模板管理 管理 DOCX 与 CSS", exact: true }).click();

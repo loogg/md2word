@@ -21,7 +21,7 @@ function run(command, args) {
       env: process.env,
       shell: false,
       stdio: "inherit",
-      windowsHide: false,
+      windowsHide: true,
     });
     child.once("error", reject);
     child.once("exit", (code, signal) => {
@@ -53,6 +53,7 @@ async function cleanupLegacyReleaseLayout() {
     `${legacyBaseName}-portable`,
     `${legacyBaseName}-portable.exe`,
     `${legacyBaseName}-portable.zip`,
+    `${legacyBaseName}-setup.exe`,
     `${legacyBaseName}-SHA256SUMS.txt`,
     "templates",
     "public",
@@ -94,6 +95,7 @@ async function packageWindows() {
       "--win",
       "portable",
       "zip",
+      "nsis",
       "--x64",
       "--config.directories.output=release",
       `--config.win.artifactName=${artifactName}`,

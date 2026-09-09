@@ -10,7 +10,7 @@ MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.6.1（Desktop M
 
 GitHub 的 `Windows release` 工作流会为版本标签构建 Portable ZIP 和 Setup EXE，并作为 Release 附件提供下载；手动运行时可从 Actions artifact 下载。操作与环境说明见 [GitHub 发布流程](doc/development/github-release.md)。
 
-`v0.6.0` 已在 GitHub 完成构建并发布上述两个附件；`v0.6.1` 正在准备发布，新增随包模板制作指南。
+**`v0.6.1` 已公开发布**，Portable ZIP 和 Setup EXE 均包含离线模板制作指南；原有 `v0.6.0` 保持不变。
 
 仓库与 Release 现已公开。发布内容仅含脱敏源码和公开合成模板，用户自己的文档与模板仍由本机管理。
 
@@ -112,7 +112,7 @@ Worker、真实 Word/Mermaid、桌面交互和打包测试的完整命令及已�
 
 0.6.0 已通过类型检查、Lint、101 项前端/存储测试、Worker 常规测试、真实桌面转换和四种交付物构建；Setup 的安装、同版本覆盖安装、用户模板保留及默认卸载也已实际验证。范围与限制见 [Setup 验收记录](doc/testing/setup-installation.md)。
 
-0.6.1 已通过本地类型检查、Lint、101 项前端/存储测试、Worker 常规测试、构建及带指南的打包检查；本次未重复真实 Word 和安装生命周期专项。GitHub 发布结果将在完成后更新。
+0.6.1 已通过本地类型检查、Lint、101 项前端/存储测试、Worker 常规测试、构建及带指南的打包检查；本次未重复真实 Word 和安装生命周期专项。GitHub 同版本构建与发布也已通过，发布的 ZIP 已下载核对版本、完整性及指南内容。
 
 <a id="usage"></a>
 

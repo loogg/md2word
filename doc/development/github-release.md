@@ -8,7 +8,7 @@
 - 针对分支（通常为 `master`）手动运行 `Windows release` 时只生成 Actions artifact；针对匹配版本的标签运行时，同样创建 Release。
 - Actions artifact 和 Release 附件只包含 `MD2Word-<version>-win-x64-portable.zip` 与 `MD2Word-<version>-win-x64-setup.exe`。本机 `package:win` 仍保留四种交付形式。
 - Release 先建立草稿，两个附件上传成功后再发布。已发布的版本不覆盖，应修改版本后使用新标签。
-- 仓库保持 Private，Release 与 Actions 产物继承仓库访问边界；工作流不修改仓库可见性。无需保存个人令牌，发布使用该次任务的 GitHub token。
+- 仓库按用户授权保持 Public，源码、Release 与 Actions 产物公开；发布内容仅限脱敏源码和公开合成模板，不包含用户私有文档。工作流不修改仓库可见性。无需保存个人令牌，发布使用该次任务的 GitHub token。
 
 ## 构建环境与检查边界
 
@@ -51,4 +51,4 @@ gh workflow run windows-release.yml --ref v0.6.1
 | `MD2Word-0.6.0-win-x64-portable.zip` | 170,510,284 |
 | `MD2Word-0.6.0-win-x64-setup.exe` | 112,846,559 |
 
-Actions 同时保留包含这两个文件的下载包，保留期为 7 天。仓库仍为 Private，默认且唯一分支为 `master`。安装包当前未签名，真实 Word/安装生命周期的本机结果与 CI 结果分开记录。
+Actions 同时保留包含这两个文件的下载包，保留期为 7 天。首次发布时仓库为 Private；2026-09-09 用户已明确授权保持 Public 并继续发布。默认且唯一分支为 `master`。安装包当前未签名，真实 Word/安装生命周期的本机结果与 CI 结果分开记录。

@@ -1,0 +1,25 @@
+/* Built-in baseline mapping from normalized HTML roles to existing Word paragraph styles. */
+p.manual-body-paragraph {
+  mso-style-name: "正文";
+}
+
+p.manual-table-paragraph {
+  mso-style-name: "正文";
+}
+
+li.manual-body-item,
+p.manual-body-item-paragraph {
+  mso-style-name: "正文";
+}
+
+p.manual-figure-caption {
+  mso-style-name: "图注";
+}
+
+p.manual-code-block-paragraph {
+  mso-style-name: "CodeBlock";
+}
+
+code.manual-inline-code {
+  mso-style-name: "正文";
+}

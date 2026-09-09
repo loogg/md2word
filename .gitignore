@@ -1,0 +1,46 @@
+# Dependencies and build outputs
+node_modules/
+dist/
+dist-electron/
+coverage/
+*.tsbuildinfo
+
+# Runtime and test artifacts
+output/
+.playwright-cli/
+.playwright/
+playwright-report/
+test-results/
+tmp/
+temp/
+logs/
+*.log
+*.worddom.html
+*.worddom.docx
+*.worddom.assets/
+
+# Local template and document data
+templates/local/
+runtime-data/
+*.docx
+*.docm
+
+# Only synthetic, public template DOCX files in complete source packages may be tracked.
+!resources/templates/*/*/template.docx
+
+# Future Electron / .NET outputs
+release/
+out/
+worker/publish/
+bin/
+obj/
+
+# Environment and IDE
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/*
+!.vscode/extensions.json
+Thumbs.db
+.DS_Store

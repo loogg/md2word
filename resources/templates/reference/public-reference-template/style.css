@@ -1,0 +1,38 @@
+/* Public reference profile: explicitly binds semantic roles to generic Word-native styles. */
+p.manual-body-paragraph,
+p.manual-table-paragraph,
+p.manual-figure-image-paragraph {
+  mso-style-name: "Normal";
+}
+
+ol > li.manual-body-list-item {
+  mso-style-name: "List Number";
+}
+
+ul > li.manual-body-list-item {
+  mso-style-name: "List Paragraph";
+}
+
+h1 { mso-style-name: "Heading 1"; }
+h2 { mso-style-name: "Heading 2"; }
+h3 { mso-style-name: "Heading 3"; }
+h4 { mso-style-name: "Heading 4"; }
+h5 { mso-style-name: "Heading 5"; }
+h6 { mso-style-name: "Heading 6"; }
+
+p.manual-figure-caption,
+p.manual-table-caption {
+  mso-style-name: "Caption";
+}
+
+p.manual-code-block-paragraph {
+  mso-style-name: "No Spacing";
+}
+
+code.manual-inline-code {
+  mso-style-name: "Normal";
+}
+
+p.manual-admonition-paragraph {
+  mso-style-name: "Intense Quote";
+}

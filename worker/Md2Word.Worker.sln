@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Md2Word.Worker", "Md2Word.Worker\Md2Word.Worker.csproj", "{76E4147A-B971-4C4A-A8A3-F73523901E7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Md2Word.Worker.Tests", "Md2Word.Worker.Tests\Md2Word.Worker.Tests.csproj", "{DC725295-7936-4D79-97D8-70023C0BE7BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{76E4147A-B971-4C4A-A8A3-F73523901E7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76E4147A-B971-4C4A-A8A3-F73523901E7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76E4147A-B971-4C4A-A8A3-F73523901E7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76E4147A-B971-4C4A-A8A3-F73523901E7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC725295-7936-4D79-97D8-70023C0BE7BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC725295-7936-4D79-97D8-70023C0BE7BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC725295-7936-4D79-97D8-70023C0BE7BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC725295-7936-4D79-97D8-70023C0BE7BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

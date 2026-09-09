@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0",
+  "sourcePackage": "industrial-manual-delivery",
+  "filters": [
+    {
+      "name": "shared-admonitions.lua",
+      "sourceRelativePath": "scripts/shared-admonitions.lua",
+      "sha256": "57f641da862abb70bed5e922def887733126abd240a34bd16ac85f49ee130a0f"
+    },
+    {
+      "name": "worddom-schema-table-width.lua",
+      "sourceRelativePath": "scripts/worddom-schema-table-width.lua",
+      "sha256": "18a7138727f243bb1b78f6b838b9366d74c725f1337282931e4ea1f86175afc2"
+    },
+    {
+      "name": "shared-heading-remap.lua",
+      "sourceRelativePath": "scripts/shared-heading-remap.lua",
+      "sha256": "36d6d031791dd4d2594e2c5b47f54453b03db0f685ccd6cec52733e38900cd9f"
+    },
+    {
+      "name": "shared-figure-numbering.lua",
+      "sourceRelativePath": "scripts/shared-figure-numbering.lua",
+      "sha256": "f86425a6e911f2e38bab4dd942f081865529f5579ba87449cb7dc4df8f1a6806"
+    }
+  ]
+}

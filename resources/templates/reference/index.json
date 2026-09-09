@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "profiles": [
+    {
+      "id": "public-reference-template",
+      "name": "公开参考模板",
+      "description": "可公开分发的合成模板，仅使用 Word 原生样式，不含业务内容。",
+      "mermaidDefaults": {
+        "mode": "auto",
+        "format": "png"
+      }
+    }
+  ]
+}

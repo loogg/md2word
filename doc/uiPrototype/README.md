@@ -167,6 +167,10 @@ Mermaid 固定使用 `@mermaid-js/mermaid-cli@11.16.0` 与 `puppeteer@25.3.0`，
 
 类型检查、Lint、101 项 Vitest、Worker 常规测试（126 通过、11 跳过）、Worker 协议 smoke、生产构建和四种交付形式的打包均通过。便携目录启动检查、开发桌面与安装版的真实 Word/Mermaid 转换通过；安装版的独立模板库、首次导入和重启保持用例通过。同版本覆盖安装返回 0，模板文件哈希不变；默认卸载返回 0，安装注册/快捷方式已清理，用户模板保留。详细命令、范围及签名/依赖限制见 [Setup 验收记录](../testing/setup-installation.md)。九张 0.6.0 桌面截图已生成并逐张复核，新增模板存储提示截图；README 成功流程截图保留为此前的通用操作示例。
 
+### 2026-09-09 GitHub Release 验证
+
+Actions run `34316945129` 在托管 `windows-2022` 上完成 `v0.6.0` 构建：类型检查、Lint、24 个前端/存储测试文件、Worker 常规测试 126 通过/11 跳过、四种交付物打包和 Worker 协议 smoke 均通过。官方 Visual Studio Word PIA 定位成功，未启用真实 Word COM 门控。Portable ZIP 与 Setup EXE 两个附件已上传并发布到 Release，仓库保持 Private。文件大小和触发方式见 [GitHub 发布记录](../development/github-release.md)。
+
 ## 截图清单
 
 截图必须来自完成交互验证后的真实页面，不得使用设计稿或手工拼图。统一保存为 PNG，不包含用户名、真实路径、业务模板或业务正文。

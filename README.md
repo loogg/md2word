@@ -10,6 +10,8 @@ MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.6.0（Desktop M
 
 GitHub 的 `Windows release` 工作流会为版本标签构建 Portable ZIP 和 Setup EXE，并作为 Release 附件提供下载；手动运行时可从 Actions artifact 下载。操作与环境说明见 [GitHub 发布流程](doc/development/github-release.md)。
 
+`v0.6.0` 已在 GitHub 完成构建并发布上述两个附件。仓库目前为 Private，下载需要相应的仓库访问权限。
+
 <a id="source"></a>
 
 ## 1. 从源码部署

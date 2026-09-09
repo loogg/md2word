@@ -5,7 +5,7 @@
 ## 触发与产物
 
 - 推送与 `package.json` 一致的版本标签，例如 `v0.6.0`，在 GitHub 托管的 `windows-2022` 上执行检查和构建，并创建 Release。
-- Actions 页面手动运行 `Windows release` 时只生成 Actions artifact，不创建 Release。
+- 针对分支（通常为 `master`）手动运行 `Windows release` 时只生成 Actions artifact；针对匹配版本的标签运行时，同样创建 Release。
 - Actions artifact 和 Release 附件只包含 `MD2Word-<version>-win-x64-portable.zip` 与 `MD2Word-<version>-win-x64-setup.exe`。本机 `package:win` 仍保留四种交付形式。
 - Release 先建立草稿，两个附件上传成功后再发布。已发布的版本不覆盖，应修改版本后使用新标签。
 - 仓库保持 Private，Release 与 Actions 产物继承仓库访问边界；工作流不修改仓库可见性。无需保存个人令牌，发布使用该次任务的 GitHub token。
@@ -32,6 +32,21 @@ git push origin v0.6.0
 
 标签必须与 `package.json` 一致。查看 Actions 的 `Windows release` 运行，成功后在 GitHub Releases 下载附件。CI 失败时应修复原因并重新运行失败任务；不要把本机构建结果冒充 GitHub 构建结果。
 
+首次切换默认分支等情况下，如果标签推送后没有产生任务，可以明确对该标签触发：
+
+```powershell
+gh workflow run windows-release.yml --ref v0.6.0
+```
+
 ## 当前状态
 
-工作流已配置，首次 GitHub 执行结果在完成后记录。安装包当前未签名。
+2026-09-09，`v0.6.0` 首次 GitHub 构建成功，Actions run 为 `34316945129`，构建提交为 `0531eb4`。首次建立默认分支后针对标签手动触发，完整任务耗时约 8 分钟。
+
+类型检查、Lint、24 个前端/存储测试文件、Worker 常规测试（126 通过、11 跳过）、打包和协议 smoke 均通过。两个 Release 附件均为 `uploaded`，Release 已从草稿发布：
+
+| 附件 | 字节数 |
+|---|---:|
+| `MD2Word-0.6.0-win-x64-portable.zip` | 170,510,284 |
+| `MD2Word-0.6.0-win-x64-setup.exe` | 112,846,559 |
+
+Actions 同时保留包含这两个文件的下载包，保留期为 7 天。仓库仍为 Private，默认且唯一分支为 `master`。安装包当前未签名，真实 Word/安装生命周期的本机结果与 CI 结果分开记录。

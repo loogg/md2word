@@ -2,7 +2,7 @@
 
 ## 1. 状态与决策
 
-本文同时记录目标边界与 **Desktop MVP 0.6.0 的实际实现**。Electron 安全壳、受控 preload、Main 模板库/原生对话框/串行队列、JSONL Worker 客户端，以及 .NET 8 C# STA Word Worker 已经接通；浏览器运行仍通过同一页面状态机使用 mock adapter。
+本文同时记录目标边界与 **Desktop MVP 0.6.1 的实际实现**。Electron 安全壳、受控 preload、Main 模板库/原生对话框/串行队列、JSONL Worker 客户端，以及 .NET 8 C# STA Word Worker 已经接通；浏览器运行仍通过同一页面状态机使用 mock adapter。
 
 采用以下分层：
 

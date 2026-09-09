@@ -26,7 +26,7 @@ public sealed class ProtocolTests
         Assert.Equal("result", frame.RootElement.GetProperty("type").GetString());
         var result = frame.RootElement.GetProperty("result");
         Assert.Equal("1.1", result.GetProperty("schemaVersion").GetString());
-        Assert.Equal("0.6.0", result.GetProperty("productVersion").GetString());
+        Assert.Equal("0.6.1", result.GetProperty("productVersion").GetString());
         Assert.Equal("1.0", result.GetProperty("protocolVersion").GetString());
         Assert.Contains(
             result.GetProperty("frontMatter").EnumerateArray(),

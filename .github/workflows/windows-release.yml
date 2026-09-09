@@ -113,6 +113,8 @@ jobs:
           @'
           Windows x64 packages: Portable ZIP and Setup installer.
 
+          Includes the offline template authoring guide (MD2Word-模板制作指南.md), covering Word bookmarks, paragraph styles, CSS mapping, and validation.
+
           Microsoft Word desktop and Pandoc are required for conversion. The Setup installer keeps templates in user data; Portable uses its adjacent templates folder.
 
           Packages are unsigned. GitHub Actions runs compilation and tests without Word COM; real Word conversion and installer lifecycle checks are performed separately on a Windows Word host.

@@ -175,7 +175,7 @@ test("refreshes the Desktop MVP screenshot acceptance set", async () => {
             { id: "windows", name: "Windows", version: "Windows 11 · x64", detail: "当前系统可运行桌面版。", status: "ready", required: true },
             { id: "word", name: "Microsoft Word", version: "未检测到", detail: "未发现可用的 Microsoft Word。", status: "blocked", required: true },
             { id: "pandoc", name: "Pandoc", version: "已检测", detail: "已通过本机命令检查。", status: "ready", required: true },
-            { id: "worker", name: "C# Word Worker", version: "0.6.0", detail: "Worker JSONL 协议可用。", status: "ready", required: true },
+            { id: "worker", name: "C# Word Worker", version: "0.6.1", detail: "Worker JSONL 协议可用。", status: "ready", required: true },
             { id: "mermaid", name: "Mermaid CLI", version: "不可用", detail: "可选组件未安装。", status: "optional-missing", required: false },
           ],
         },

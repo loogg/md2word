@@ -2,7 +2,7 @@
 
 ## 目的与运行边界
 
-当前里程碑是 **Desktop MVP 0.6.0**。同一套 React 页面通过 adapter 选择运行后端：
+当前里程碑是 **Desktop MVP 0.6.1**。同一套 React 页面通过 adapter 选择运行后端：
 
 - Electron 中使用真实 preload、Main、模板库、原生对话框、C# Worker、Word COM 和受控 shell 动作。
 - 普通浏览器中使用 mock adapter，保留 UI 预览、合成模板、本地存储和模拟任务；不会生成 DOCX。
@@ -196,23 +196,23 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 | `screenshots/generate-word-1280x800.png` | 1280x800 | 最小目标尺寸桌面生成页 | 已自动生成并人工复核 |
 | `screenshots/readme-success.png` | 1429x895 | README：公开参考模板完成合成文档转换，滚动到结果和输出操作区域 | Computer Use 实际窗口截图，原始 JPEG 无裁切转存 PNG，已视觉复核 |
 
-### 当前桌面页面预览（0.6.0；README 成功示例为此前的通用流程）
+### 当前桌面页面预览（0.6.1；README 成功示例为此前的通用流程）
 
-![0.6.0 生成 Word 紧凑模板摘要](screenshots/generate-word-1440x900.png)
+![0.6.1 生成 Word 紧凑模板摘要](screenshots/generate-word-1440x900.png)
 
-![0.6.0 模板搜索选择弹层](screenshots/template-selector-1440x900.png)
+![0.6.1 模板搜索选择弹层](screenshots/template-selector-1440x900.png)
 
-![0.6.0 模板管理与校验状态对齐](screenshots/templates-1440x900.png)
+![0.6.1 模板管理与校验状态对齐](screenshots/templates-1440x900.png)
 
-![0.6.0 添加模板窗口完整显示](screenshots/template-editor-1440x900.png)
+![0.6.1 添加模板窗口完整显示](screenshots/template-editor-1440x900.png)
 
-![0.6.0 Front Matter 能力说明](screenshots/capabilities-1440x900.png)
+![0.6.1 Front Matter 能力说明](screenshots/capabilities-1440x900.png)
 
-![0.6.0 真实环境与设置](screenshots/settings-1440x900.png)
+![0.6.1 真实环境与设置](screenshots/settings-1440x900.png)
 
-![0.6.0 Word 环境缺失](screenshots/settings-word-missing-1440x900.png)
+![0.6.1 Word 环境缺失](screenshots/settings-word-missing-1440x900.png)
 
-![0.6.0 最小尺寸生成页](screenshots/generate-word-1280x800.png)
+![0.6.1 最小尺寸生成页](screenshots/generate-word-1280x800.png)
 
 ## Adapter 边界
 
@@ -225,6 +225,10 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 后续扩展 Mermaid 视觉矩阵、图片和高级表格时继续替换 Worker 阶段，不重写页面业务状态机。
 
 ## 维护规则
+
+### 0.6.1 发布准备验证（2026-09-09）
+
+类型检查、Lint、101 项 Vitest（24 个文件）、Worker 常规测试（126 通过、11 跳过）、生产构建及协议 smoke 通过。桌面安全壳与九张截图生成通过，版本显示为 0.6.1；本次未启用真实 Word 转换门控。目录版 packaged E2E 通过，确认模板制作指南存在；`release` 根、便携目录与 ZIP 中的指南与源码 SHA-256 一致。四种本地交付物均已生成。GitHub 版本标签和 Release 尚未发布，远端发布结果另行记录；0.6.0 的历史结果保持原样。
 
 ### 2026-09-09 模板制作指南补充
 

@@ -57,7 +57,7 @@ test("packaged Windows app boots with the bundled Worker and narrow preload API"
       conversion: "worker",
     });
     expect(runtime.apiKeys).toEqual(["capabilities", "conversions", "environment", "files", "runtimeCapabilities", "shell", "templates"]);
-    expect(runtime.capabilityCatalog).toMatchObject({ schemaVersion: "1.1", productVersion: "0.6.0", protocolVersion: "1.0" });
+    expect(runtime.capabilityCatalog).toMatchObject({ schemaVersion: "1.1", productVersion: "0.6.1", protocolVersion: "1.0" });
     expect(runtime.capabilityCatalog.frontMatter.map((item) => item.key)).toContain("word_heading_numbering");
     expect(runtime.nodeProcess).toBe("undefined");
     expect(runtime.environment.items.filter((item) => item.required).every((item) => item.status === "ready")).toBe(true);

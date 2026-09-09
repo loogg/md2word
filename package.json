@@ -1,7 +1,7 @@
 {
   "name": "md2word",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "将 Markdown 按 DOCX 模板与 CSS 样式转换为 Word 文档的 Windows 桌面工具。",
   "author": "MD2Word Contributors",
   "type": "module",
@@ -149,7 +149,10 @@
       "runAfterFinish": false,
       "deleteAppDataOnUninstall": false,
       "differentialPackage": false,
-      "installerLanguages": ["zh_CN", "en_US"],
+      "installerLanguages": [
+        "zh_CN",
+        "en_US"
+      ],
       "include": "resources/installer.nsh"
     }
   }

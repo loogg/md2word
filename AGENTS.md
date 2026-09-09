@@ -2,7 +2,7 @@
 
 ## 项目定位
 
-- 当前里程碑是 **Desktop MVP 0.6.0**：Windows 桌面应用，同时保留浏览器交互预览。
+- 当前里程碑是 **Desktop MVP 0.6.1**：Windows 桌面应用，同时保留浏览器交互预览。
 - 正式产品只面向 Windows，链路为 `React Renderer -> Electron Main (Node.js) -> C# Word Worker -> Word COM`。
 - 不得把浏览器模拟转换、模拟环境检测或文件选择描述成真实 Electron/C# 能力。
 
@@ -55,7 +55,7 @@
 
 ## 版本与 Git
 
-- `package.json` 是应用版本的单一真源；当前版本为 `0.6.0`。版本变化时同步 README 和里程碑说明。
+- `package.json` 是应用版本的单一真源；当前版本为 `0.6.1`。版本变化时同步 README 和里程碑说明。
 - 使用语义化版本：修复为 patch，向后兼容功能为 minor，破坏性契约变化为 major；原型阶段仍需记录破坏性变更。
 - 默认分支为 `master`，功能开发使用短期分支。提交信息采用 Conventional Commits，例如 `feat: initialize md2word UI prototype`。
 - 提交前至少运行类型检查、Lint、单元测试和生产构建；UI 变化还要完成浏览器交互与目标尺寸视觉检查。

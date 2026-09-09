@@ -2,7 +2,7 @@
 
 把 Markdown 按指定的 Word 模板生成 DOCX，适合需要统一封面、标题、正文、列表和表格样式的文档。
 
-MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.6.0（Desktop MVP）**。选择一组 DOCX 模板与 CSS、添加 Markdown，再选择输出位置即可生成 Word 文档。文档内容在本机处理。
+MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.6.1（Desktop MVP）**。选择一组 DOCX 模板与 CSS、添加 Markdown，再选择输出位置即可生成 Word 文档。文档内容在本机处理。
 
 **[从源码部署](#source) · [工具使用说明](#usage) · [常见问题](#faq)**
 
@@ -10,7 +10,7 @@ MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.6.0（Desktop M
 
 GitHub 的 `Windows release` 工作流会为版本标签构建 Portable ZIP 和 Setup EXE，并作为 Release 附件提供下载；手动运行时可从 Actions artifact 下载。操作与环境说明见 [GitHub 发布流程](doc/development/github-release.md)。
 
-`v0.6.0` 已在 GitHub 完成构建并发布上述两个附件。仓库目前为 Private，下载需要相应的仓库访问权限。
+`v0.6.0` 已在 GitHub 完成构建并发布上述两个附件；`v0.6.1` 正在准备发布，新增随包模板制作指南。
 
 <a id="source"></a>
 
@@ -81,10 +81,10 @@ npm run package:win
 
 | 产物 | 使用方式 |
 |---|---|
-| `MD2Word-0.6.0-win-x64-portable/` | 保留完整目录，运行其中的 `MD2Word.exe` |
-| `MD2Word-0.6.0-win-x64-portable.zip` | 解压后运行其中的 `MD2Word.exe` |
-| `MD2Word-0.6.0-win-x64-portable.exe` | 单文件启动器，与同级 `templates/` 一起分发 |
-| `MD2Word-0.6.0-win-x64-setup.exe` | 安装向导：当前用户安装，可选择目录并创建桌面/开始菜单快捷方式 |
+| `MD2Word-0.6.1-win-x64-portable/` | 保留完整目录，运行其中的 `MD2Word.exe` |
+| `MD2Word-0.6.1-win-x64-portable.zip` | 解压后运行其中的 `MD2Word.exe` |
+| `MD2Word-0.6.1-win-x64-portable.exe` | 单文件启动器，与同级 `templates/` 一起分发 |
+| `MD2Word-0.6.1-win-x64-setup.exe` | 安装向导：当前用户安装，可选择目录并创建桌面/开始菜单快捷方式 |
 | `templates/` | 单文件版配套模板库；基线包含公开参考模板 |
 | `MD2Word-支持能力说明.md` | 随包离线使用参考 |
 | `MD2Word-模板制作指南.md` | 从参考模板修改或空白 DOCX 开始制作的离线教程 |
@@ -110,6 +110,8 @@ Worker、真实 Word/Mermaid、桌面交互和打包测试的完整命令及已�
 
 0.6.0 已通过类型检查、Lint、101 项前端/存储测试、Worker 常规测试、真实桌面转换和四种交付物构建；Setup 的安装、同版本覆盖安装、用户模板保留及默认卸载也已实际验证。范围与限制见 [Setup 验收记录](doc/testing/setup-installation.md)。
 
+0.6.1 已通过本地类型检查、Lint、101 项前端/存储测试、Worker 常规测试、构建及带指南的打包检查；本次未重复真实 Word 和安装生命周期专项。GitHub 发布结果将在完成后更新。
+
 <a id="usage"></a>
 
 ## 2. 工具使用说明
@@ -130,7 +132,7 @@ Mermaid 是可选项：不使用图表时，可在模板中将模式设为 `off`
 
 **还没有可用模板？先看 [模板制作指南](resources/docs/MD2Word-模板制作指南.md)**：从复制参考模板或空白 DOCX 开始，逐步设置正文书签、Word 样式、配套 CSS、可选封面和版本表，再导入试转。
 
-这是发布后补充的教程，本地新打包已包含离线文件；已发布的 GitHub `v0.6.0` 附件尚未更新。指南中的 CSS 已通过 16 个角色映射校验，最小 Markdown 已完成真实 Word 试转。
+从 0.6.1 起，Portable ZIP 和 Setup 都包含这份离线指南；已发布的 `v0.6.0` 附件保持原样。指南中的 CSS 已通过 16 个角色映射校验，最小 Markdown 已完成真实 Word 试转。
 
 便携版自带“公开参考模板”，可先用它完成一次转换。需要自定义版式时：
 

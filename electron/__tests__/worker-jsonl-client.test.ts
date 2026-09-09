@@ -86,7 +86,7 @@ describe("WorkerJsonlClient", () => {
 
     await expect(operation.result).resolves.toMatchObject({
       schemaVersion: "1.1",
-      productVersion: "0.6.0",
+      productVersion: "0.6.1",
     });
   });
 

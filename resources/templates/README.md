@@ -1,5 +1,9 @@
 # Public template source catalog
 
+For a step-by-step Word bookmark, style, and CSS walkthrough, see the
+[template authoring guide](../docs/MD2Word-模板制作指南.md). Copy both DOCX and CSS
+before editing; the reference profile uses its own custom CSS mapping.
+
 This directory mirrors the runtime `templates` catalog. Every direct child is
 a self-contained public template package with this structure:
 

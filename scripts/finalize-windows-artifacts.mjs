@@ -18,7 +18,8 @@ const artifactNames = [
 const portableDirectoryName = `${baseName}-portable`;
 const templatesDirectoryName = "templates";
 const capabilityDocumentName = "MD2Word-支持能力说明.md";
-const deliveredNames = [portableDirectoryName, ...artifactNames, templatesDirectoryName, capabilityDocumentName];
+const templateGuideName = "MD2Word-模板制作指南.md";
+const deliveredNames = [portableDirectoryName, ...artifactNames, templatesDirectoryName, capabilityDocumentName, templateGuideName];
 const allowedReleaseNames = new Set(deliveredNames);
 const templatesStage = path.join(projectRoot, "templates", "local");
 
@@ -70,6 +71,7 @@ async function validatePortableDirectory(directoryPath) {
   for (const relativePath of [
     "MD2Word.exe",
     "MD2Word-支持能力说明.md",
+    "MD2Word-模板制作指南.md",
     "resources/app.asar",
     "resources/worker/Md2Word.Worker.exe",
     "resources/conversion/capabilities.json",
@@ -116,6 +118,7 @@ await fs.cp(templatesStage, deliveredTemplates, { recursive: true, force: false,
 await validateTemplateCatalog(deliveredTemplates);
 
 const capabilityDocumentSource = path.join(projectRoot, "resources", "docs", capabilityDocumentName);
+await fs.copyFile(path.join(projectRoot, "resources", "docs", templateGuideName), path.join(releaseRoot, templateGuideName));
 const deliveredCapabilityDocument = path.join(releaseRoot, capabilityDocumentName);
 await fs.copyFile(capabilityDocumentSource, deliveredCapabilityDocument);
 const capabilityDocumentStat = await fs.stat(deliveredCapabilityDocument);

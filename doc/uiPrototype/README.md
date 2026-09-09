@@ -33,6 +33,8 @@
 
 ## 推荐桌面验收路径
 
+模板作者应先参照 [模板制作指南](../../resources/docs/MD2Word-模板制作指南.md)，完成 DOCX 书签、段落样式和 CSS 配对，再执行以下导入/转换验收。指南随打包复制到 EXE 同级，并在 `release` 根提供单文件版配套副本；已有 GitHub `v0.6.0` 附件不会被此文档修改自动覆盖。
+
 1. 启动桌面版，确认侧栏显示“桌面版”、页头显示“桌面运行”，页面中不存在 `window.require` 或 Node 入口。
 2. 在空模板库中添加一个只含合成内容的 DOCX，并选择内置或合成 CSS；检查 DOCX/CSS 由原生对话框选择且页面不显示真实路径。
 3. 运行“校验配置”，检查正文、有序列表、无序列表、H1-H6、图题、表题、代码块、行内代码、表格、admonition 和图片段的目标样式及“CSS 已解析/Word 原生”来源；`invalid` 不能保存，`warning` 需再次确认。若模板只缺少 CSS 未映射的高阶标题样式，应显示条件性 warning；用两份合成 Markdown 分别确认标题重映射后未使用该级别时成功、实际使用时返回 `WORD_NATIVE_STYLE_FALLBACK_MISSING`。
@@ -223,6 +225,16 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 后续扩展 Mermaid 视觉矩阵、图片和高级表格时继续替换 Worker 阶段，不重写页面业务状态机。
 
 ## 维护规则
+
+### 2026-09-09 模板制作指南补充
+
+新增随包 `MD2Word-模板制作指南.md`，README 和模板源码目录说明均提供入口。教程说明正文插入点书签与封面范围书签的区别，提供完整参考 CSS、从空白文档制作步骤、可选目录/版本表以及最小合成 Markdown。
+
+实际从指南提取 CSS 和 Markdown 到 `output/template-guide-check`，使用公开参考 DOCX 经独立 Worker 校验得到 `valid`、16 个映射角色，真实 Word 转换得到 `succeeded`，保留 1 条既有兼容提示。该检查只覆盖教程的最小样例，不扩展为所有可选封面、版本表或手工 Word 操作的视觉验收。
+
+Lint、能力文档同步、生产构建、四种交付物打包及目录版 packaged E2E 通过；新 E2E 检查离线指南及正文书签步骤存在。`release` 根、便携目录和 ZIP 中的指南与源码 SHA-256 一致。转换逻辑与 UI 未修改；提交前补跑类型检查、Lint 和 101 项单元测试均通过，未重复安装生命周期或全部 Word/Mermaid 专项，也未覆盖已发布的 GitHub 附件。
+
+### 通用维护要求
 
 - UI 行为或文案变化时同步 [UI 规格](../requirement/ui-spec.md)。
 - 公共类型、IPC 或 Worker 事件变化时同步 [架构文档](../architecture/electron-csharp.md)。

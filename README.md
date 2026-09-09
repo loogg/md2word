@@ -87,6 +87,7 @@ npm run package:win
 | `MD2Word-0.6.0-win-x64-setup.exe` | 安装向导：当前用户安装，可选择目录并创建桌面/开始菜单快捷方式 |
 | `templates/` | 单文件版配套模板库；基线包含公开参考模板 |
 | `MD2Word-支持能力说明.md` | 随包离线使用参考 |
+| `MD2Word-模板制作指南.md` | 从参考模板修改或空白 DOCX 开始制作的离线教程 |
 
 目标电脑仍需 Microsoft Word 和 Pandoc。Setup 包含应用、Worker、离线说明及公开参考模板，无需另带 `templates/` 文件夹；安装后从快捷方式启动。当前便携版和 Setup 均尚未完成代码签名。
 
@@ -126,6 +127,10 @@ Mermaid 是可选项：不使用图表时，可在模板中将模式设为 `off`
 ![环境与设置：查看 Word、Pandoc、Worker 和 Mermaid 状态](doc/uiPrototype/screenshots/settings-1440x900.png)
 
 ### 2.2 添加或维护模板
+
+**还没有可用模板？先看 [模板制作指南](resources/docs/MD2Word-模板制作指南.md)**：从复制参考模板或空白 DOCX 开始，逐步设置正文书签、Word 样式、配套 CSS、可选封面和版本表，再导入试转。
+
+这是发布后补充的教程，本地新打包已包含离线文件；已发布的 GitHub `v0.6.0` 附件尚未更新。指南中的 CSS 已通过 16 个角色映射校验，最小 Markdown 已完成真实 Word 试转。
 
 便携版自带“公开参考模板”，可先用它完成一次转换。需要自定义版式时：
 
@@ -224,6 +229,7 @@ templates/
 | 文档 | 内容 |
 |---|---|
 | [支持能力说明](resources/docs/MD2Word-支持能力说明.md) | Markdown、Front Matter、模板契约与限制 |
+| [模板制作指南](resources/docs/MD2Word-模板制作指南.md) | Word 书签、段落样式、配套 CSS、封面与版本表的操作步骤 |
 | [开发与验收说明](doc/uiPrototype/README.md) | 检查命令、实际验证结果和截图清单 |
 | [产品需求](doc/requirement/requirements.md) / [UI 规格](doc/requirement/ui-spec.md) | 产品范围、页面交互与验收口径 |
 | [Electron + C# 架构](doc/architecture/electron-csharp.md) | 分层、IPC、存储与安全边界 |

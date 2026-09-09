@@ -25,6 +25,9 @@ test("packaged Windows app boots with the bundled Worker and narrow preload API"
     await expect(fs.stat(path.join(packagedResourcesRoot, relativePath))).resolves.toMatchObject({ size: expect.any(Number) });
   }
   await expect(fs.stat(packagedCapabilityDocument)).resolves.toMatchObject({ size: expect.any(Number) });
+  const templateGuide = await fs.readFile(path.join(path.dirname(executablePath), "MD2Word-模板制作指南.md"), "utf8");
+  expect(templateGuide).toContain("## 二、从空白 DOCX 开始制作");
+  expect(templateGuide).toContain("MANUAL_BODY_START");
   await expect(fs.stat(path.join(packagedTemplatesRoot, "reference", "index.json"))).resolves.toMatchObject({ size: expect.any(Number) });
 
   const application = await electron.launch({

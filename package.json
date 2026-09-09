@@ -99,6 +99,10 @@
         "to": "MD2Word-支持能力说明.md"
       },
       {
+        "from": "resources/docs/MD2Word-模板制作指南.md",
+        "to": "MD2Word-模板制作指南.md"
+      },
+      {
         "from": "templates/local",
         "to": "templates",
         "filter": [

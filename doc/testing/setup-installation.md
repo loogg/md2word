@@ -44,7 +44,7 @@ npx playwright test --config playwright.electron.config.ts e2e/electron-installe
 - 对同一专用目录覆盖安装返回 0，隔离用户模板库 4 个文件的 SHA-256 全部不变；`e2e/electron-installed-retention.spec.ts` 再次启动并确认唯一导入模板仍为默认。
 - 使用保留的公开 0.6.1 Setup 在另一专用目录安装，`e2e/electron-upgrade.spec.ts` 的 seed 阶段导入合成模板、设为默认并删除参考模板；随后用 0.7.0 Setup 覆盖安装返回 0，4 个模板库文件 SHA-256 不变。verify 阶段确认应用版本为 0.7.0、模板校验通过且唯一导入模板仍为默认，已删除的参考模板未恢复。
 - 专用卸载器 `/currentuser /S` 返回 0，安装 EXE、注册项、桌面/开始菜单快捷方式均不存在；4 个用户模板文件仍存在且 SHA-256 未变。
-- 两组专用安装均已卸载且用户模板数据保留。这是本机 0.6.1→0.7.0 跨版本验收；代码签名和 GitHub 发布未在本记录中宣称通过。构建仍报告既有 `AngleSharp 1.3.0` 的 `NU1902` 告警。
+- 两组专用安装均已卸载且用户模板数据保留。本节签收本机 0.6.1→0.7.0 跨版本验收；0.7.0 GitHub 公开发布另见 [发布记录](../development/github-release.md)，不能用远端 CI 代替本机安装/Word 验收。安装包仍未完成代码签名，构建仍报告既有 `AngleSharp 1.3.0` 的 `NU1902` 告警。
 
 ### 0.6.0 历史验收（2026-09-09）
 

@@ -2,7 +2,7 @@
 
 ## 目的与运行边界
 
-当前开发里程碑是 **Desktop MVP 0.7.0**，最近公开版为 0.6.1。同一套 React 页面通过 adapter 选择运行后端：
+当前里程碑是 **Desktop MVP 0.7.0**，已公开发布。同一套 React 页面通过 adapter 选择运行后端：
 
 - Electron 中使用真实 preload、Main、模板库、原生对话框、C# Worker、Word COM 和受控 shell 动作。
 - 普通浏览器中使用 mock adapter，保留 UI 预览、合成模板、本地存储和模拟任务；不会生成 DOCX。
@@ -199,7 +199,7 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 | `screenshots/generate-word-1280x800.png` | 1280x800 | 最小目标尺寸桌面生成页 | 已自动生成并人工复核 |
 | `screenshots/readme-success.png` | 1440x900 | README：桌面合成文档完成转换，滚动到结果和输出操作区域 | 真实 Electron UI 转换后生成并视觉复核 |
 
-### 当前桌面页面预览（0.7.0 开发版）
+### 当前桌面页面预览（0.7.0）
 
 ![0.7.0 生成 Word 紧凑模板摘要](screenshots/generate-word-1440x900.png)
 
@@ -236,10 +236,10 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 - `npm run typecheck`、`npm run lint`、`npm run test`（26 文件、111 项）、`npm run test:worker`（126 通过、11 项需要显式 Word/Mermaid 环境而跳过）、`npm run build`、`npm run test:protocol` 和常规 `npm run test:e2e` 已通过。桌面壳 E2E 验证五页导航、窄 preload API、模板库打开与固定 GitHub 外链；新版状态由受控合成 IPC 响应驱动，不冒充线上 Release。
 - `npm run screenshots:desktop` 通过，以真实 Electron 和公开合成模板重拍十张页面截图；模板编辑窗口在 1100x720 内完整可见，模板操作按钮在最小窗口内未裁切。README 的成功截图由真实桌面 UI 再次转换后生成，警告摘要与打开/定位按钮同时可见。
 - 内置浏览器 Browser Review 已逐页实操：生成页的模板弹层、搜索/清空、Markdown 选择与移除、模拟另存为取消、成功/失败/重试/安全取消、日志和结果操作；模板页的搜索、DOCX/CSS 选择、校验、增删改、设默认与确认/取消；能力页四个分类与搜索空态；环境页检查、Word 缺失/恢复和重置；关于页三个 GitHub 链接、检查、版本说明。测试发现并移除模拟另存为中无动作的“浏览目录”按钮。
-- 真实网络检查使用 `ReleaseUpdateService` 对固定 GitHub 仓库查询，得到已公开的 `v0.6.1`，对当前 0.7.0 源码正确返回 `up-to-date`；匿名 API 限流的固定页面 HEAD 回退与越域重定向拒绝由单元测试覆盖。此检查不代表 0.7.0 已发布。
+- 发布前真实网络检查使用 `ReleaseUpdateService` 对固定 GitHub 仓库查询，得到当时最新的 `v0.6.1`，对 0.7.0 源码正确返回 `up-to-date`；匿名 API 限流的固定页面 HEAD 回退与越域重定向拒绝由单元测试覆盖。公开发布后再次查询得到 `v0.7.0` 和 `up-to-date`。
 - 响应式实际检查 1100x720、1279x800、1280x800 和 1440x900；模板行在 1280 断点两侧无水平溢出，1279/1280 时最右操作分别落在 1230/1231px 内。关于和环境页在最小窗口没有横向滚动。
 - 真实 `Electron → Main → Worker → Word` 合成转换 E2E 通过。将生成 DOCX 用 Word 导出单页 PDF 后目视发现图题左对齐；修复后结构测试验证 `w:jc=center`，重新导出的 PDF 确认图题居中位于 Mermaid 图片下方，列表、图片、正文没有可见裁切或重叠。该最小样本不能替代复杂业务模板或多 Office 版本验收；PDF、DOCX 和 PNG 只保存在被忽略的 `output/`。
-- `npm run package:win` 已成功生成 0.7.0 便携目录、ZIP、单文件 Portable EXE、Setup EXE 及公开模板/离线说明。打包先运行 Electron 包的官方安装脚本，再从版本匹配的分发目录复制；没有 `dist` 的隔离副本已实测可准备 43.1.1 二进制，覆盖干净 `npm ci` 情况。该路径避开下载解压目录的 Windows `EPERM`；收尾遇到 `win-unpacked` 目录重命名被拒时，先复验复制后的便携目录再清理暂存。便携目录 packaged E2E、Setup 首次安装/模板导入/重启、同版本覆盖、0.6.1→0.7.0 跨版本升级与卸载均已在隔离目录通过；四个用户模板文件在覆盖安装及卸载后 SHA-256 不变。0.7.0 仍未创建标签或 GitHub Release，原有本地 0.6.1 产物保存在忽略目录。细节见 [Setup 验收](../testing/setup-installation.md)。
+- `npm run package:win` 已成功生成 0.7.0 便携目录、ZIP、单文件 Portable EXE、Setup EXE 及公开模板/离线说明。打包先运行 Electron 包的官方安装脚本，再从版本匹配的分发目录复制；没有 `dist` 的隔离副本已实测可准备 43.1.1 二进制，覆盖干净 `npm ci` 情况。该路径避开下载解压目录的 Windows `EPERM`；收尾遇到 `win-unpacked` 目录重命名被拒时，先复验复制后的便携目录再清理暂存。便携目录 packaged E2E、Setup 首次安装/模板导入/重启、同版本覆盖、0.6.1→0.7.0 跨版本升级与卸载均已在隔离目录通过；四个用户模板文件在覆盖安装及卸载后 SHA-256 不变。`v0.7.0` GitHub 标签工作流已通过并公开发布，原有本地 0.6.1 产物保存在忽略目录。细节见 [Setup 验收](../testing/setup-installation.md)。
 
 | 页面 | 状态与控件 | 内置浏览器 / Electron 证据 |
 |---|---|
@@ -248,6 +248,10 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 | 能力说明 | 四类切换、搜索匹配/无结果、问题深链、加载失败重试 | 浏览器实际点击；单元测试覆盖深链与重试 |
 | 环境与设置 | 真实/模拟检查、阻塞/可选、模板库打开、演示重置 | 浏览器实际点击；Electron 打开目录 IPC E2E |
 | 关于 | 待机、加载、失败、最新、新版、版本摘要与外链 | 浏览器实际点击；单元测试与 Electron IPC/固定外链 E2E |
+
+### 0.7.0 GitHub 公开发布验证（2026-09-27）
+
+功能分支的 Windows workflow_dispatch 预演 `36313666599` 通过，随后 PR #1 合并到 `master`，两提交 Git 树相同。`v0.7.0` 标签 Actions run `36314275643` 完成类型检查、Lint、前端/存储与 Worker 常规测试、四种本地包构建、协议 smoke、ZIP/Setup 附件上传与 Release 发布。Release 非草稿/预发布，仓库保持 Public。已下载 ZIP 与 Setup，SHA-256 分别与 GitHub digest `37dbe266e6e871db9cf1cdc9c188f84077713a156fcb516f0ff0bbf4587a8662` 和 `261ef7c344e7ca38941a5c2fb27e42664401cc2b90271ee5654a44275f5362da` 一致；ZIP 内能力版本 0.7.0、公开模板容器及离线指南内容也已核对。托管 CI 不声称真实 Word 或安装生命周期通过，二者使用本机合成夹具与隔离安装另验。详细附件大小见 [GitHub 发布流程](../development/github-release.md)。
 
 ### 0.6.1 发布准备验证（2026-09-09）
 

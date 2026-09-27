@@ -4,7 +4,7 @@
 
 ## 触发与产物
 
-- 推送与 `package.json` 一致的版本标签，例如当前待发布的 `v0.7.0`，在 GitHub 托管的 `windows-2022` 上执行检查和构建，并创建 Release。
+- 推送与 `package.json` 一致、尚未发布的新版本标签，在 GitHub 托管的 `windows-2022` 上执行检查和构建，并创建 Release。
 - 针对分支（通常为 `master`）手动运行 `Windows release` 时只生成 Actions artifact；针对匹配版本的标签运行时，同样创建 Release。
 - Actions artifact 和 Release 附件只包含 `MD2Word-<version>-win-x64-portable.zip` 与 `MD2Word-<version>-win-x64-setup.exe`。本机 `package:win` 仍保留四种交付形式。
 - Release 先建立草稿，两个附件上传成功后再发布。0.7.0 使用已审核的 `doc/development/release-notes-0.7.0.md`；其他版本使用工作流内的通用说明。已发布的版本不覆盖，应修改版本后使用新标签。
@@ -22,12 +22,13 @@ Lua 资源包含字节指纹，checkout 前关闭自动换行转换，避免构�
 
 ## 发布操作
 
-先完成并提交代码、文档与本机验收，再执行：
+下一次发布须先将 `package.json` 更新为尚未使用的新版本，并完成代码、文档与本机验收，再执行：
 
 ```powershell
+$version = (Get-Content package.json -Raw | ConvertFrom-Json).version
 git push origin master
-git tag v0.7.0
-git push origin v0.7.0
+git tag "v$version"
+git push origin "v$version"
 ```
 
 标签必须与 `package.json` 一致。查看 Actions 的 `Windows release` 运行，成功后在 GitHub Releases 下载附件。CI 失败时应修复原因并重新运行失败任务；不要把本机构建结果冒充 GitHub 构建结果。
@@ -35,12 +36,20 @@ git push origin v0.7.0
 首次切换默认分支等情况下，如果标签推送后没有产生任务，可以明确对该标签触发：
 
 ```powershell
-gh workflow run windows-release.yml --ref v0.7.0
+$version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+gh workflow run windows-release.yml --ref "v$version"
 ```
 
 ## 当前状态
 
-0.7.0 本地四种产物与隔离安装生命周期已通过，仍未创建标签或 GitHub Release。下述 0.6.1 是最近公开发布的历史记录；本地打包成功不等于托管 CI 或公开发布通过。
+2026-09-27，`v0.7.0` 已公开发布：[Release 页面](https://github.com/loogg/md2word/releases/tag/v0.7.0)。PR #1 合并提交与通过分支预演的提交具有相同 Git 树；标签指向 `5e37676`。标签 Actions run `36314275643` 的类型检查、Lint、111 项前端/存储测试、Worker 常规测试、打包、协议 smoke、上传和发布均通过。仓库维持 Public；`v0.6.1` 与 `v0.6.0` 未覆盖。
+
+| 0.7.0 附件 | 字节数 | GitHub SHA-256 digest |
+|---|---:|---|
+| `MD2Word-0.7.0-win-x64-portable.zip` | 170,605,941 | `37dbe266e6e871db9cf1cdc9c188f84077713a156fcb516f0ff0bbf4587a8662` |
+| `MD2Word-0.7.0-win-x64-setup.exe` | 112,941,447 | `261ef7c344e7ca38941a5c2fb27e42664401cc2b90271ee5654a44275f5362da` |
+
+Release 非草稿、非预发布；两个附件均为 `uploaded`。已下载两份公开附件，比对文件 SHA-256 与 GitHub digest 一致；ZIP 内能力版本为 0.7.0，只含公开参考模板，离线模板指南与源码 SHA-256 一致。托管 CI 不运行 Word COM 或安装生命周期；这些已在本机单独验收。[0.6.1](https://github.com/loogg/md2word/releases/tag/v0.6.1) 以下为历史发布记录。
 
 2026-09-09，`v0.6.1` 已公开发布。标签推送自动触发 Actions run `34324497576`，构建提交为 `ee7bf61`。类型检查、Lint、101 项前端/存储测试、Worker 常规测试（126 通过、11 跳过）、打包、协议 smoke、上传和发布全部通过。
 

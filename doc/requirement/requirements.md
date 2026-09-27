@@ -5,7 +5,7 @@
 | 项目 | 内容 |
 |---|---|
 | 产品名 | MD2Word 文档生成器 |
-| 当前里程碑 | Desktop MVP 0.7.0（开发中；最近公开版 0.6.1） |
+| 当前里程碑 | Desktop MVP 0.7.0（已公开发布） |
 | 目标平台 | Windows |
 | 当前实现 | React Renderer + Electron Main (Node.js) + 独立 .NET 8 C# Word Worker |
 | 转换依赖 | 外部 Pandoc + Microsoft Word COM + Open XML |
@@ -42,9 +42,9 @@
 
 ### 0.7.0 桌面体验与人工升级入口
 
-五页导航采用浅色 Windows 11 Fluent 风格，增加“关于”页。桌面 Main 从 `loogg/md2word` 的 GitHub Releases `latest` API 按需检查最新正式版，校验版本和 Release 地址后返回版本、摘要和状态；更新日志、仓库与下载入口只打开预设 GitHub 页面。用户自行下载并安装，应用不自动替换二进制或读取/上传文档。浏览器预览只提供明确标记的模拟检查结果。图题在 Word 收口后保持独立段落并居中，仍使用模板解析出的图题样式。0.7.0 源码尚未发布，公开 `v0.6.1` 保持不变。
+五页导航采用浅色 Windows 11 Fluent 风格，增加“关于”页。桌面 Main 从 `loogg/md2word` 的 GitHub Releases `latest` API 按需检查最新正式版，校验版本和 Release 地址后返回版本、摘要和状态；更新日志、仓库与下载入口只打开预设 GitHub 页面。用户自行下载并安装，应用不自动替换二进制或读取/上传文档。浏览器预览只提供明确标记的模拟检查结果。图题在 Word 收口后保持独立段落并居中，仍使用模板解析出的图题样式。`v0.7.0` 已公开发布，旧版 Release 保持不变。
 
-Windows x64 本地打包继续交付便携目录、ZIP、单文件 Portable EXE 和 Setup；打包优先复用版本核对后的已安装 Electron 分发目录。便携目录、Setup 隔离安装生命周期及 0.6.1→0.7.0 跨版本升级已在 0.7.0 验证，GitHub 发布仍待单独执行。
+Windows x64 本地打包继续交付便携目录、ZIP、单文件 Portable EXE 和 Setup；打包优先复用版本核对后的已安装 Electron 分发目录。便携目录、Setup 隔离安装生命周期及 0.6.1→0.7.0 跨版本升级已在 0.7.0 验证；GitHub 标签工作流已发布 Portable ZIP 与 Setup EXE，下载附件与公开 digest 一致。
 
 ### 0.6.1 文档分发修复
 

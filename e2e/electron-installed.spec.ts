@@ -7,7 +7,11 @@ test("Setup stores imported templates in userData and preserves them on restart"
   const { version } = JSON.parse(await fs.readFile(path.resolve("package.json"), "utf8")) as { version: string };
   const executablePath = path.resolve(process.env.MD2WORD_SETUP_EXE ?? "output/setup-install-test/MD2Word.exe");
   const installRoot = path.dirname(executablePath);
-  const userDataPath = path.resolve("output/e2e-setup-user-data");
+  const userDataPath = path.resolve(process.env.MD2WORD_SETUP_USER_DATA ?? "output/e2e-setup-user-data");
+  const outputRoot = path.resolve("output");
+  if (!userDataPath.startsWith(`${outputRoot}${path.sep}`)) {
+    throw new Error("Setup E2E user data must stay under the workspace output directory.");
+  }
   await fs.rm(userDataPath, { recursive: true, force: true });
   expect(await fs.readFile(path.join(installRoot, "resources", "md2word-installed"), "utf8")).toBe("setup");
   const installedIndexPath = path.join(installRoot, "templates", "reference", "index.json");

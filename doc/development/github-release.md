@@ -7,7 +7,7 @@
 - 推送与 `package.json` 一致的版本标签，例如当前待发布的 `v0.7.0`，在 GitHub 托管的 `windows-2022` 上执行检查和构建，并创建 Release。
 - 针对分支（通常为 `master`）手动运行 `Windows release` 时只生成 Actions artifact；针对匹配版本的标签运行时，同样创建 Release。
 - Actions artifact 和 Release 附件只包含 `MD2Word-<version>-win-x64-portable.zip` 与 `MD2Word-<version>-win-x64-setup.exe`。本机 `package:win` 仍保留四种交付形式。
-- Release 先建立草稿，两个附件上传成功后再发布。已发布的版本不覆盖，应修改版本后使用新标签。
+- Release 先建立草稿，两个附件上传成功后再发布。0.7.0 使用已审核的 `doc/development/release-notes-0.7.0.md`；其他版本使用工作流内的通用说明。已发布的版本不覆盖，应修改版本后使用新标签。
 - 仓库按用户授权保持 Public，源码、Release 与 Actions 产物公开；发布内容仅限脱敏源码和公开合成模板，不包含用户私有文档。工作流不修改仓库可见性。无需保存个人令牌，发布使用该次任务的 GitHub token。
 
 ## 构建环境与检查边界
@@ -40,7 +40,7 @@ gh workflow run windows-release.yml --ref v0.7.0
 
 ## 当前状态
 
-0.7.0 仍在本地开发，尚未创建标签或 GitHub Release。下述 0.6.1 是最近公开发布的历史记录。
+0.7.0 本地四种产物与隔离安装生命周期已通过，仍未创建标签或 GitHub Release。下述 0.6.1 是最近公开发布的历史记录；本地打包成功不等于托管 CI 或公开发布通过。
 
 2026-09-09，`v0.6.1` 已公开发布。标签推送自动触发 Actions run `34324497576`，构建提交为 `ee7bf61`。类型检查、Lint、101 项前端/存储测试、Worker 常规测试（126 通过、11 跳过）、打包、协议 smoke、上传和发布全部通过。
 

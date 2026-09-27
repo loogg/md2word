@@ -114,7 +114,7 @@ Worker、真实 Word/Mermaid、桌面交互和打包测试的完整命令及已�
 
 0.6.1 已通过本地类型检查、Lint、101 项前端/存储测试、Worker 常规测试、构建及带指南的打包检查；本次未重复真实 Word 和安装生命周期专项。GitHub 同版本构建与发布也已通过，发布的 ZIP 已下载核对版本、完整性及指南内容。
 
-0.7.0 正在开发：新增 Windows 11 Fluent 浅色界面、“关于”与 GitHub 正式 Release 检查，以及图题居中视觉修复。类型检查、Lint、111 项前端/存储测试、Worker 常规测试、生产构建、协议 smoke、桌面壳与真实合成 Word 转换均已通过；Word 导出的单页 PDF 已目视复核。`package:win` 两次在 electron-builder 暂存目录重命名处遇到 Windows `EPERM`，因此 0.7.0 打包和安装生命周期尚未验收。完整命令、截图和边界见 [开发与验收说明](doc/uiPrototype/README.md)。本源码版本尚无对应 GitHub Release，页面不会把 0.6.1 当成升级目标。
+0.7.0 正在开发：新增 Windows 11 Fluent 浅色界面、“关于”与 GitHub 正式 Release 检查，以及图题居中视觉修复。类型检查、Lint、111 项前端/存储测试、Worker 常规测试、生产构建、协议 smoke、桌面壳与真实合成 Word 转换均已通过；Word 导出的单页 PDF 已目视复核。`package:win` 现已成功生成四种产物；便携目录启动、Setup 首次安装、同版本覆盖、0.6.1→0.7.0 跨版本升级、模板保留及卸载均在隔离目录通过。完整命令、截图和边界见 [开发与验收说明](doc/uiPrototype/README.md)与 [Setup 验收](doc/testing/setup-installation.md)。本源码版本尚无对应 GitHub Release，页面不会把 0.6.1 当成升级目标。
 
 <a id="usage"></a>
 

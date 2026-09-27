@@ -2,7 +2,7 @@
 
 ## 1. 状态与决策
 
-本文同时记录目标边界、**已发布 Desktop MVP 0.7.0** 与发布后开发态 Browser Review 的实际实现。Electron 安全壳、受控 preload、Main 模板库/原生对话框/串行队列、JSONL Worker 客户端，以及 .NET 8 C# STA Word Worker 已经接通；同一页面状态机还可通过开发专用 Bridge 使用这些真实服务。独立 mock 留作特殊界面状态夹具；该 Bridge 不在已发布的 0.7.0 附件中。
+本文同时记录目标边界与 **Desktop MVP 0.8.0** 的实际实现。Electron 安全壳、受控 preload、Main 模板库/原生对话框/串行队列、JSONL Worker 客户端，以及 .NET 8 C# STA Word Worker 已经接通；同一页面状态机还可通过开发专用 Bridge 使用这些真实服务。独立 mock 留作特殊界面状态夹具；该 Bridge 不在正式包中，也不在已发布的 0.7.0 附件中。
 
 采用以下分层：
 
@@ -42,7 +42,7 @@ Electron Main / Node.js
 - 只允许序列化数据，不把 Electron 对象或 Node Buffer 直接交给 Renderer。
 - 当前实现还使用响应 envelope 保留跨 `contextBridge` 的稳定 `code/message/stage/retryable`，并在 Renderer 侧拒绝无效响应结构。
 
-0.7.0 公共 API（新增 `updates`，旧方法保持兼容）：
+0.8.0 继续使用的公共 API（`updates` 在 0.7.0 新增，旧方法保持兼容）：
 
 ```ts
 interface Md2WordApi {

@@ -435,7 +435,7 @@ export function createBrowserMockAdapter(): AppAdapter {
         return {
           status: "available",
           currentVersion: packageInfo.version,
-          latestVersion: "0.8.0",
+          latestVersion: "0.9.0",
           releaseNotes: "演示：新增版本说明。浏览器预览不会查询 GitHub，也不会下载更新。",
           checkedAt: new Date().toISOString(),
         };

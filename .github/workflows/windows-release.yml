@@ -83,6 +83,8 @@ jobs:
         run: npm run lint
       - name: Frontend and storage tests
         run: npm run test
+      - name: Development Bridge security tests
+        run: npm run test:bridge
       - name: Worker tests without Word COM
         run: npm run test:worker
       - name: Build Windows packages
@@ -112,6 +114,8 @@ jobs:
           $setup = "release/MD2Word-${env:RELEASE_VERSION}-win-x64-setup.exe"
           if ($env:RELEASE_VERSION -eq '0.7.0') {
             Copy-Item -LiteralPath doc/development/release-notes-0.7.0.md -Destination release-notes.md
+          } elseif ($env:RELEASE_VERSION -eq '0.8.0') {
+            Copy-Item -LiteralPath doc/development/release-notes-0.8.0.md -Destination release-notes.md
           } else {
             @'
           Windows x64 packages: Portable ZIP and Setup installer.

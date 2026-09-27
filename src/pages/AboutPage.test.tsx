@@ -21,7 +21,7 @@ describe("About and updates", () => {
     const adapter = createBrowserMockAdapter();
     adapter.updates.check = vi.fn()
       .mockRejectedValueOnce(new Error("网络失败"))
-      .mockResolvedValueOnce({ status: "up-to-date", currentVersion: "0.7.0", latestVersion: "0.7.0", releaseNotes: "", checkedAt: new Date().toISOString() });
+      .mockResolvedValueOnce({ status: "up-to-date", currentVersion: "0.8.0", latestVersion: "0.8.0", releaseNotes: "", checkedAt: new Date().toISOString() });
     render(<AboutPage adapter={adapter} />);
     fireEvent.click(screen.getByRole("button", { name: "检查更新" }));
     await waitFor(() => expect(screen.getByText("网络失败")).toBeInTheDocument());
@@ -37,7 +37,7 @@ describe("About and updates", () => {
     fireEvent.click(screen.getByRole("button", { name: "检查更新" }));
     expect(screen.getByRole("button", { name: "正在检查" })).toBeDisabled();
     expect(screen.getByText("演示：正在检查版本…")).toBeInTheDocument();
-    finishCheck({ status: "up-to-date", currentVersion: "0.7.0", latestVersion: "0.7.0", releaseNotes: "", checkedAt: new Date().toISOString() });
+    finishCheck({ status: "up-to-date", currentVersion: "0.8.0", latestVersion: "0.8.0", releaseNotes: "", checkedAt: new Date().toISOString() });
     await waitFor(() => expect(screen.getByText(/已是最新正式版本/)).toBeInTheDocument());
   });
 });

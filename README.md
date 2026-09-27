@@ -2,7 +2,7 @@
 
 把 Markdown 按指定的 Word 模板生成 DOCX，适合需要统一封面、标题、正文、列表和表格样式的文档。
 
-MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.7.0（Desktop MVP）**。选择一组 DOCX 模板与 CSS、添加 Markdown，再选择输出位置即可生成 Word 文档。文档内容在本机处理。
+MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.8.0（Desktop MVP）**。选择一组 DOCX 模板与 CSS、添加 Markdown，再选择输出位置即可生成 Word 文档。文档内容在本机处理。
 
 **[从源码部署](#source) · [工具使用说明](#usage) · [常见问题](#faq)**
 
@@ -10,7 +10,7 @@ MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.7.0（Desktop M
 
 GitHub 的 `Windows release` 工作流会为版本标签构建 Portable ZIP 和 Setup EXE，并作为 Release 附件提供下载；手动运行时可从 Actions artifact 下载。操作与环境说明见 [GitHub 发布流程](doc/development/github-release.md)。
 
-**[`v0.7.0` 已公开发布](https://github.com/loogg/md2word/releases/tag/v0.7.0)**，Portable ZIP 和 Setup EXE 均包含离线模板制作指南；`v0.6.1` 与 `v0.6.0` 保持不变。
+下载当前与历史版本请查看 [GitHub Releases](https://github.com/loogg/md2word/releases)。`v0.7.0`、`v0.6.1` 与 `v0.6.0` 保持不变；Portable ZIP 和 Setup EXE 均包含离线模板制作指南。
 
 仓库与 Release 现已公开。发布内容仅含脱敏源码和公开合成模板，用户自己的文档与模板仍由本机管理。
 
@@ -83,10 +83,10 @@ npm run package:win
 
 | 产物 | 使用方式 |
 |---|---|
-| `MD2Word-0.7.0-win-x64-portable/` | 保留完整目录，运行其中的 `MD2Word.exe` |
-| `MD2Word-0.7.0-win-x64-portable.zip` | 解压后运行其中的 `MD2Word.exe` |
-| `MD2Word-0.7.0-win-x64-portable.exe` | 单文件启动器，与同级 `templates/` 一起分发 |
-| `MD2Word-0.7.0-win-x64-setup.exe` | 安装向导：当前用户安装，可选择目录并创建桌面/开始菜单快捷方式 |
+| `MD2Word-0.8.0-win-x64-portable/` | 保留完整目录，运行其中的 `MD2Word.exe` |
+| `MD2Word-0.8.0-win-x64-portable.zip` | 解压后运行其中的 `MD2Word.exe` |
+| `MD2Word-0.8.0-win-x64-portable.exe` | 单文件启动器，与同级 `templates/` 一起分发 |
+| `MD2Word-0.8.0-win-x64-setup.exe` | 安装向导：当前用户安装，可选择目录并创建桌面/开始菜单快捷方式 |
 | `templates/` | 单文件版配套模板库；基线包含公开参考模板 |
 | `MD2Word-支持能力说明.md` | 随包离线使用参考 |
 | `MD2Word-模板制作指南.md` | 从参考模板修改或空白 DOCX 开始制作的离线教程 |
@@ -120,7 +120,7 @@ Worker、真实 Word/Mermaid、桌面交互和打包测试的完整命令及已�
 
 0.7.0 新增 Windows 11 Fluent 浅色界面、“关于”与 GitHub 正式 Release 检查，以及图题居中视觉修复。类型检查、Lint、111 项前端/存储测试、Worker 常规测试、生产构建、协议 smoke、桌面壳与真实合成 Word 转换均已通过；Word 导出的单页 PDF 已目视复核。`package:win` 成功生成四种产物；便携目录启动、Setup 首次安装、同版本覆盖、0.6.1→0.7.0 跨版本升级、模板保留及卸载均在隔离目录通过。GitHub 标签工作流、Portable ZIP 与 Setup EXE 的上传和公开发布已通过，下载附件的 SHA-256 与 GitHub digest 一致。完整命令、截图和边界见 [开发与验收说明](doc/uiPrototype/README.md)与 [Setup 验收](doc/testing/setup-installation.md)。
 
-发布后开发态 Browser Review Bridge 已用公开参考模板与运行时合成 Markdown 完成浏览器到 Word Worker 的真实转换，模板管理与五页导航也已检查；生产构建会检查并剔除 Bridge。该开发能力尚未进入 `v0.7.0` 发布附件，完整验收记录见 [开发与验收说明](doc/uiPrototype/README.md#发布后开发态-browser-review-bridge-验收2026-09-27)。
+0.8.0 将 Browser Review Bridge 设为源码开发的默认审查后端：浏览器可通过隔离、仅限本机的开发服务访问真实 Electron Main 与 Word Worker；生产构建会检查并剔除 Bridge。公开参考模板与运行时合成 Markdown 已完成浏览器到 Worker 的真实转换，五页导航和模板管理也已检查。四种 Windows 本地产物已生成，便携包的真实 Word 转换、Setup 首装/覆盖/卸载及公开 0.7.0→0.8.0 升级在隔离目录通过；转换协议与用户模板存储规则保持原样。完整结果见 [开发与验收说明](doc/uiPrototype/README.md#080-开发态-browser-review-bridge-验收2026-09-27)和 [Setup 验收](doc/testing/setup-installation.md)。远端 GitHub Release 须以标签工作流实际结果为准。
 
 <a id="usage"></a>
 

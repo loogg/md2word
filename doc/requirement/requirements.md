@@ -5,11 +5,11 @@
 | 项目 | 内容 |
 |---|---|
 | 产品名 | MD2Word 文档生成器 |
-| 当前里程碑 | Desktop MVP 0.7.0（已公开发布） |
+| 当前里程碑 | Desktop MVP 0.8.0 |
 | 目标平台 | Windows |
 | 当前实现 | React Renderer + Electron Main (Node.js) + 独立 .NET 8 C# Word Worker |
 | 转换依赖 | 外部 Pandoc + Microsoft Word COM + Open XML |
-| 文档状态 | 0.7.0 发布基线与发布后开发态 Browser Review Bridge，2026-09-27；保留历史验收记录 |
+| 文档状态 | 0.8.0 开发态真实 Browser Review 基线，2026-09-27；保留 0.7.0 及更早历史验收记录 |
 
 ## 2. 背景与目标
 
@@ -40,11 +40,11 @@
 
 ## 4. 当前里程碑范围
 
-### 发布后开发态 Browser Review 基线
+### 0.8.0 开发态 Browser Review 基线
 
 `npm run dev` 默认同时启动未打包 Electron Main、真实 C# Worker、Vite 与开发专用本地 Bridge。同一套 Renderer 状态机通过 `AppAdapter` 在桌面模式使用安全 preload/IPC，在浏览器审查模式访问与 IPC 相同的 Main 服务处理器；模板、环境、能力清单、更新检查、原生文件选择及转换均为真实本机结果。审查模式使用隔离的模板库并导入公开参考模板，不读写正式用户模板库。浏览器文件拖放无法可靠保留本机目录，审查模式必须通过 Main 打开的原生对话框选择源文件。
 
-Bridge 仅限开发环境：仅绑定 `127.0.0.1`，由同源 Vite 代理注入进程内随机令牌，校验 Host、Origin 和命令白名单；禁止浏览器提交任意本机路径。生产 Renderer 必须剔除 Bridge adapter，Windows 安装/便携包不得包含 Bridge 服务脚本或启动入口。`npm run dev:mock` 仅用于难稳定复现的异常、空态和大数据量界面状态，所有模拟内容必须明确标示。Browser Review 的 Renderer 审核不能替代真实 Electron 对话框、文件系统、Worker 生命周期与外链验收。这是发布后的开发能力，`v0.7.0` 附件保持不变。
+Bridge 仅限开发环境：仅绑定 `127.0.0.1`，由同源 Vite 代理注入进程内随机令牌，校验 Host、Origin 和命令白名单；禁止浏览器提交任意本机路径。生产 Renderer 必须剔除 Bridge adapter，Windows 安装/便携包不得包含 Bridge 服务脚本或启动入口。`npm run dev:mock` 仅用于难稳定复现的异常、空态和大数据量界面状态，所有模拟内容必须明确标示。Browser Review 的 Renderer 审核不能替代真实 Electron 对话框、文件系统、Worker 生命周期与外链验收。0.8.0 不改变正式转换协议或用户模板存储；`v0.7.0` 附件保持不变。
 
 ### 0.7.0 桌面体验与人工升级入口
 

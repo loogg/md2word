@@ -1,6 +1,6 @@
 # MD2Word UI 规格
 
-本文以已发布的 **Desktop MVP 0.7.0** 为产品基线，并记录发布后开发态 Browser Review。React 页面共用 `AppAdapter`：Electron 使用真实 Main/Worker，默认浏览器审查使用真实本地 Bridge，独立 mock 只用于特殊状态。界面必须按运行时能力切换文案与控件；浏览器 Renderer 审查不能代替桌面原生能力验收。
+本文对应 **Desktop MVP 0.8.0**。React 页面共用 `AppAdapter`：Electron 使用真实 Main/Worker，默认浏览器审查使用真实本地 Bridge，独立 mock 只用于特殊状态。界面必须按运行时能力切换文案与控件；浏览器 Renderer 审查不能代替桌面原生能力验收。
 
 ## 1. 设计目标
 
@@ -218,4 +218,4 @@ Mermaid 选项说明必须明确：`off` 保留代码；`auto` 单图失败会�
 | 1100x720 / 1279x800 / 1280x800 / 1440x900 | 模板、环境、关于 | 窄窗口模板行操作不裁切；环境列表、升级按钮和弹窗可用；断点两侧无横向溢出 |
 | 1440x900 | 关于待机/加载/新版/最新/错误 | 各按钮与版本说明有明确反馈，浏览器演示和桌面结果不混淆 |
 
-截图文件统一放在 `doc/uiPrototype/screenshots/`，命名和完成状态由 [UI 与桌面验收说明](../uiPrototype/README.md) 管理。0.7.0 的十张桌面截图使用中性合成资料重新生成；开发态 Browser Review 截图单独记录，不能被描述为已发布附件。添加模板窗口在 1100x720 下断言位于视口内。涉及 UI 改动时用内置浏览器逐页、逐控件实操，再运行 Electron 专项和截图回归；自动 E2E 不替代目视判断。
+截图文件统一放在 `doc/uiPrototype/screenshots/`，命名和完成状态由 [UI 与桌面验收说明](../uiPrototype/README.md) 管理。0.7.0 的十张历史桌面截图使用中性合成资料；0.8.0 的 Browser Review 截图单独记录。添加模板窗口在 1100x720 下断言位于视口内。涉及 UI 改动时用内置浏览器逐页、逐控件实操，再运行 Electron 专项和截图回归；自动 E2E 不替代目视判断。

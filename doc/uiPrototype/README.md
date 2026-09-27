@@ -2,7 +2,7 @@
 
 ## 目的与运行边界
 
-正式里程碑是 **Desktop MVP 0.7.0**，已公开发布；当前开发分支新增开发态 Browser Review Bridge，不在已发布附件中。同一套 React 页面通过 adapter 选择运行后端：
+当前里程碑是 **Desktop MVP 0.8.0**；0.7.0 已公开发布，历史结果保留。0.8.0 增加开发专用 Browser Review Bridge，正式桌面包不含 Bridge。同一套 React 页面通过 adapter 选择运行后端：
 
 - Electron 中使用真实 preload、Main、模板库、原生对话框、C# Worker、Word COM 和受控 shell 动作。
 - 默认 Browser Review 中通过仅限开发态的本地 Bridge 使用上述同一 Main 服务、Worker、模板库与原生对话框；转换可生成真实 DOCX，模板库存于隔离的开发目录。
@@ -195,7 +195,7 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 
 2026-09-09 的 README 文档整理将首页改为“从源码部署”和“工具使用说明”两部分；架构、完整能力契约和历史验收结果由本文及相应专项文档承接。通过 Computer Use 在现有 0.5.0 便携目录版完成了选择合成 Markdown、原生另存为和真实 Word 转换，页面显示“生成完成”及兼容提示，并补拍结果区域。README 的 17 个本地链接/入口及全部 npm 脚本名称检查通过，4 张配图均存在，Pandoc GFM HTML 预览生成通过，`git diff --check` 通过。此轮仅修改文档和截图，没有修改应用代码，也未重跑整套构建或测试；前述测试结果属于此前的代码验证。
 
-以下 0.7.0 截图于 2026-09-27 使用中性合成 DOCX/CSS/Markdown 和真实 Electron 页面重拍并逐张复核，不含组织标识、用户名、真实路径或业务正文：
+以下截图最初在 0.7.0 使用中性合成 DOCX/CSS/Markdown 与真实 Electron 页面建立；0.8.0 已重新运行桌面截图用例，重拍版本相关页面、生成页及环境页，并更新真实 Bridge 页面。未改动的模板和能力细节图沿用此前复核结果；所有截图均不含组织标识、用户名、真实路径或业务正文：
 
 | 文件 | 尺寸 | 当前内容 | 状态 |
 |---|---:|---|---|
@@ -209,12 +209,12 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 | `screenshots/settings-template-storage-1440x900.png` | 1440x900 | 0.6.0：便携版/安装版模板位置提示与打开模板库入口 | 已自动断言文案可见并视觉复核 |
 | `screenshots/settings-word-missing-1440x900.png` | 1440x900 | 受控注入的 Word 缺失阻塞态 | 已自动生成并人工复核 |
 | `screenshots/generate-word-1280x800.png` | 1280x800 | 最小目标尺寸桌面生成页 | 已自动生成并人工复核 |
-| `screenshots/browser-review-1440x900.png` | 1440x900 | 发布后开发态 Browser Review、真实 Main/Worker 标识与公开参考模板 | 真实 Bridge 页面生成，已在内置浏览器同尺寸目视复核；不属于 0.7.0 发布附件 |
+| `screenshots/browser-review-1440x900.png` | 1440x900 | 0.8.0 Browser Review、真实 Main/Worker 标识与公开参考模板 | 真实 Bridge 页面生成，已在内置浏览器同尺寸目视复核 |
 | `screenshots/readme-success.png` | 1440x900 | README：桌面合成文档完成转换，滚动到结果和输出操作区域 | 真实 Electron UI 转换后生成并视觉复核 |
 
-### 当前桌面页面预览（0.7.0）
+### 桌面页面预览（0.8.0；未改动页面沿用 0.7.0 图）
 
-![0.7.0 生成 Word 紧凑模板摘要](screenshots/generate-word-1440x900.png)
+![0.8.0 生成 Word 紧凑模板摘要](screenshots/generate-word-1440x900.png)
 
 ![0.7.0 模板搜索选择弹层](screenshots/template-selector-1440x900.png)
 
@@ -224,15 +224,15 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 
 ![0.7.0 Front Matter 能力说明](screenshots/capabilities-1440x900.png)
 
-![0.7.0 真实环境与设置](screenshots/settings-1440x900.png)
+![0.8.0 真实环境与设置](screenshots/settings-1440x900.png)
 
-![0.7.0 关于与升级](screenshots/about-1440x900.png)
+![0.8.0 关于与升级](screenshots/about-1440x900.png)
 
-![0.7.0 Word 环境缺失](screenshots/settings-word-missing-1440x900.png)
+![0.8.0 Word 环境缺失](screenshots/settings-word-missing-1440x900.png)
 
-![0.7.0 最小目标尺寸生成页](screenshots/generate-word-1280x800.png)
+![0.8.0 最小目标尺寸生成页](screenshots/generate-word-1280x800.png)
 
-### 发布后开发态 Browser Review
+### 0.8.0 开发态 Browser Review
 
 ![真实 Bridge 浏览器审查页面](screenshots/browser-review-1440x900.png)
 
@@ -248,11 +248,12 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 
 ## 维护规则
 
-### 发布后开发态 Browser Review Bridge 验收（2026-09-27）
+### 0.8.0 开发态 Browser Review Bridge 验收（2026-09-27）
 
-- `npm run dev` 已在 Windows x64 启动未打包 Electron、真实 Worker 与回环 Bridge，内置浏览器逐页查看生成、模板、能力、环境和关于页。实操确认公开参考模板由隔离真实模板库加载、真实依赖与能力清单可见、About 检查 GitHub 正式 Release 返回当时的 `v0.7.0/up-to-date`，版本摘要可展开；模板搜索空态、添加弹窗输入/CSS 切换、缺少 DOCX 的错误与取消操作可见。生成页在 1100x720、1279x800、1280x800 和 1440x900 目视复核，视口宽度无横向溢出；截图清单中的 Browser Review PNG 使用同一真实后端与公开参考模板。
+- `npm run dev` 已在 Windows x64 启动未打包 Electron、真实 Worker 与回环 Bridge，内置浏览器逐页查看生成、模板、能力、环境和关于页。实操确认公开参考模板由隔离真实模板库加载、真实依赖与能力清单可见；升级版本号前的 0.7.0 本机 About 检查 GitHub 正式 Release 返回当时的 `v0.7.0/up-to-date`，版本摘要可展开。模板搜索空态、添加弹窗输入/CSS 切换、缺少 DOCX 的错误与取消操作可见。生成页在 1100x720、1279x800、1280x800 和 1440x900 目视复核，视口宽度无横向溢出；0.8.0 Browser Review PNG 使用同一真实后端与公开参考模板重拍。
 - `npm run test:browser-review` 在独立 `output/e2e-browser-review-user-data` 与系统临时目录中生成一段明确标为合成、无业务内容的最小 Markdown，使用仓库公开参考 DOCX/CSS，经过浏览器 UI → Vite 同源代理 → Main 原生文件对话框和句柄 → C# Worker/Word，实际生成非空 DOCX。测试还覆盖另存为取消、真实环境、输出打开/定位的受控路径、模板搜索/导入/校验/保存/设默认/重新校验/编辑/删除、能力分类与搜索空态、环境重新检查与模板库打开、关于页固定 GitHub 外链；测试结束删除临时 Markdown、DOCX 和隔离库，未提交文档夹具或转换产物。`e2e/browser-review-bridge.spec.ts` 只在显式 Word 开关下运行，常规 E2E 跳过。
 - `npm run typecheck`、`npm run lint`、`npm run test`（26 文件、111 项）、`npm run test:bridge`（令牌、Origin、命令与 SSE）、`npm run test:worker`（126 通过、11 项环境专项跳过）、`npm run test:protocol`、`npm run test:e2e`（1 通过、8 项按开关跳过）和 `npm run build` 均已通过。生产构建内的 `check:bridge-production` 核对 Renderer、Electron Main 及打包文件白名单均无开发 Bridge 入口；开发 E2E 后再次运行生产构建恢复该状态。构建仍报告既有 AngleSharp 1.3.0 的 `NU1902` 中等级依赖告警，本次未改动该 Worker 依赖。
+- 0.8.0 版本同步后重新运行上述类型/Lint/111 项前端测试、126 项 Worker 常规测试、协议 smoke、真实 Browser Review 转换与桌面截图。`npm run package:win` 完成四种新交付物；便携目录 packaged E2E 及真实 Electron → Main → Worker → Word 合成转换通过。Setup 首次安装、同版本覆盖、公开 0.7.0 Setup → 0.8.0 升级及两次专用卸载均在隔离目录通过，用户模板四文件 SHA-256 保持不变；详见 [Setup 验收](../testing/setup-installation.md)。GitHub 标签构建和远端 Release 结果须在推送标签后单独核对，不能把本机通过写成远端通过。
 
 ### 0.7.0 Fluent、升级入口与 Word 成品验收（2026-09-27）
 

@@ -12,15 +12,19 @@ function testPaths() {
   return { executablePath, userDataPath };
 }
 
-test("0.6.1 Setup creates an isolated, user-managed template state", async () => {
-  test.skip(process.env.MD2WORD_UPGRADE_PHASE !== "seed", "Run after installing 0.6.1 in a dedicated directory.");
+test("previous Setup creates an isolated, user-managed template state", async () => {
+  test.skip(process.env.MD2WORD_UPGRADE_PHASE !== "seed", "Run after installing the previous Setup in a dedicated directory.");
   const { executablePath, userDataPath } = testPaths();
+  const fromVersion = process.env.MD2WORD_UPGRADE_FROM_VERSION ?? "0.6.1";
   await expect(fs.access(userDataPath)).rejects.toMatchObject({ code: "ENOENT" });
   const application = await electron.launch({ executablePath, args: [`--user-data-dir=${userDataPath}`] });
   try {
-    expect(await application.evaluate(({ app }) => app.getVersion())).toBe("0.6.1");
+    expect(await application.evaluate(({ app }) => app.getVersion())).toBe(fromVersion);
     const window = await application.firstWindow();
-    await expect(window.getByRole("heading", { name: "把 Markdown 交给正确的 Word 模板" })).toBeVisible();
+    await expect(window.getByRole("heading", {
+      name: fromVersion === "0.6.1" ? "把 Markdown 交给正确的 Word 模板" : "生成 Word",
+      exact: fromVersion !== "0.6.1",
+    })).toBeVisible();
     expect(await window.evaluate(() => window.md2word!.templates.list())).toHaveLength(1);
 
     const sourceRoot = path.join(path.dirname(executablePath), "templates", "reference", "public-reference-template");
@@ -58,12 +62,13 @@ test("0.6.1 Setup creates an isolated, user-managed template state", async () =>
   }
 });
 
-test("0.7.0 Setup upgrade preserves the isolated template and default selection", async () => {
-  test.skip(process.env.MD2WORD_UPGRADE_PHASE !== "verify", "Run after upgrading the dedicated installation to 0.7.0.");
+test("new Setup upgrade preserves the isolated template and default selection", async () => {
+  test.skip(process.env.MD2WORD_UPGRADE_PHASE !== "verify", "Run after upgrading the dedicated installation.");
   const { executablePath, userDataPath } = testPaths();
+  const toVersion = process.env.MD2WORD_UPGRADE_TO_VERSION ?? "0.7.0";
   const application = await electron.launch({ executablePath, args: [`--user-data-dir=${userDataPath}`] });
   try {
-    expect(await application.evaluate(({ app }) => app.getVersion())).toBe("0.7.0");
+    expect(await application.evaluate(({ app }) => app.getVersion())).toBe(toVersion);
     expect(await application.evaluate(({ app }) => app.getPath("userData"))).toBe(userDataPath);
     const window = await application.firstWindow();
     await expect(window.getByRole("heading", { name: "生成 Word", exact: true })).toBeVisible();
@@ -71,7 +76,7 @@ test("0.7.0 Setup upgrade preserves the isolated template and default selection"
       expect.objectContaining({ name: "合成跨版本模板", isDefault: true, validation: expect.objectContaining({ status: "valid" }) }),
     ]);
     await window.getByRole("button", { name: "关于 版本与软件更新", exact: true }).click();
-    await expect(window.getByText("v0.7.0", { exact: true })).toBeVisible();
+    await expect(window.getByText(`v${toVersion}`, { exact: true })).toBeVisible();
   } finally {
     await application.close();
   }

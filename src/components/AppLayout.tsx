@@ -39,13 +39,15 @@ function NavButton({ item, active, onClick }: { item: typeof navItems[number]; a
 export function AppLayout({ page, onPageChange, wordEnvironmentReady, capabilities, children }: AppLayoutProps) {
   const meta = pageMeta[page];
   const desktop = capabilities.backend === "electron";
+  const browserReview = capabilities.backend === "browser-bridge";
+  const realBackend = desktop || browserReview;
   return (
     <div className="flex h-screen min-h-[720px] bg-[#f5f5f7] text-slate-800">
       <aside className="flex w-[238px] shrink-0 flex-col border-r border-[#e0e3e8] bg-[#f9fafb]">
         <div className="px-5 pb-5 pt-6">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-[9px] bg-[#0067c0] text-white"><BookOpenText className="h-5 w-5" /></div>
-            <div><p className="text-[14px] font-semibold tracking-tight text-slate-950">MD2Word</p><p className="text-[11px] text-slate-500">文档生成器 · {desktop ? "桌面版" : "原型"}</p></div>
+            <div><p className="text-[14px] font-semibold tracking-tight text-slate-950">MD2Word</p><p className="text-[11px] text-slate-500">文档生成器 · {desktop ? "桌面版" : browserReview ? "浏览器审查" : "原型"}</p></div>
           </div>
         </div>
         <nav className="flex-1 px-3" aria-label="主导航">
@@ -55,7 +57,7 @@ export function AppLayout({ page, onPageChange, wordEnvironmentReady, capabiliti
         <div className="px-3 pb-3">
           <div className="my-2 border-t border-[#e2e5ea]" />
           <NavButton item={{ id: "about", label: "关于", description: "版本与软件更新", icon: Info }} active={page === "about"} onClick={() => onPageChange("about")} />
-          <p className="mt-3 px-3 text-[10px] leading-4 text-slate-500">{desktop ? "文件路径仅由桌面 Main 与 Worker 处理。" : "交互原型：文件、环境与转换均为模拟。"}</p>
+          <p className="mt-3 px-3 text-[10px] leading-4 text-slate-500">{realBackend ? "文件路径仅由桌面 Main 与 Worker 处理。" : "交互原型：文件、环境与转换均为模拟。"}</p>
         </div>
       </aside>
 
@@ -67,7 +69,7 @@ export function AppLayout({ page, onPageChange, wordEnvironmentReady, capabiliti
               <span className={`h-1.5 w-1.5 rounded-full ${wordEnvironmentReady ? "bg-emerald-600" : "bg-rose-600"}`} />
               {wordEnvironmentReady ? "Windows / Word 已检测" : "Word 环境缺失"}
             </span>
-            <span className="rounded-full bg-[#e8f1fb] px-2.5 py-1 font-medium text-[#005a9e]">{desktop ? "桌面运行" : "交互原型"}</span>
+            <span className="rounded-full bg-[#e8f1fb] px-2.5 py-1 font-medium text-[#005a9e]">{desktop ? "桌面运行" : browserReview ? "Browser Review · 真实后端" : "交互原型"}</span>
           </div>
         </header>
         <main className="min-h-0 flex-1 overflow-y-auto px-7 py-6 app-scrollbar"><div className="mx-auto max-w-[1500px]">{children}</div></main>

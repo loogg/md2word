@@ -2,7 +2,7 @@
 
 ## 1. 状态与决策
 
-本文同时记录目标边界与 **Desktop MVP 0.7.0 的实际实现**。Electron 安全壳、受控 preload、Main 模板库/原生对话框/串行队列、JSONL Worker 客户端，以及 .NET 8 C# STA Word Worker 已经接通；浏览器运行仍通过同一页面状态机使用 mock adapter。
+本文同时记录目标边界与 **Desktop MVP 0.8.0** 的实际实现。Electron 安全壳、受控 preload、Main 模板库/原生对话框/串行队列、JSONL Worker 客户端，以及 .NET 8 C# STA Word Worker 已经接通；同一页面状态机还可通过开发专用 Bridge 使用这些真实服务。独立 mock 留作特殊界面状态夹具；该 Bridge 不在正式包中，也不在已发布的 0.7.0 附件中。
 
 采用以下分层：
 
@@ -31,9 +31,9 @@ Electron Main / Node.js
 ### 2.1 React Renderer
 
 - 展示页面和业务状态，不持有任意文件系统或进程权限。
-- 只调用 `window.md2word` 的窄接口。
+- 只调用统一 `AppAdapter`；桌面适配器是 `window.md2word` 窄 preload API，开发态浏览器适配器是同源 Bridge 请求。
 - 显示文件名、模板能力、进度和脱敏日志；不读取 DOCX，不把完整文档内容写入状态持久化。
-- 通过 `createAppAdapter()` 选择 Electron API 或浏览器 mock；页面不直接引用 Node、文件系统或 Worker 实现。
+- 通过 `createAppAdapter()` 选择 Electron API、开发态真实 Browser Review Bridge 或特殊状态 mock；页面不直接引用 Node、文件系统或 Worker 实现。
 
 ### 2.2 Preload
 
@@ -42,7 +42,7 @@ Electron Main / Node.js
 - 只允许序列化数据，不把 Electron 对象或 Node Buffer 直接交给 Renderer。
 - 当前实现还使用响应 envelope 保留跨 `contextBridge` 的稳定 `code/message/stage/retryable`，并在 Renderer 侧拒绝无效响应结构。
 
-0.7.0 公共 API（新增 `updates`，旧方法保持兼容）：
+0.8.0 继续使用的公共 API（`updates` 在 0.7.0 新增，旧方法保持兼容）：
 
 ```ts
 interface Md2WordApi {
@@ -94,7 +94,7 @@ interface Md2WordApi {
 
 `capabilities.describe()` 不接受参数；Main 从当前安装 Worker 查询并缓存已经深校验的能力清单。`shell` 只接受已登记的 `jobId` 或固定应用目录，不接受 Renderer 提供的任意路径。
 
-`updates` 全部无参数。Main 的 `ReleaseUpdateService` 在用户点击检查时请求固定的 `https://api.github.com/repos/loogg/md2word/releases/latest`，8 秒超时，要求正式版语义版本与本仓库精确 Release URL，按数值比较当前版本；返回状态、版本、检查时间与最多 2000 字的纯文本摘要。匿名 API 返回 403/429 时，对固定 `/releases/latest` 发起最多 15 秒的 HEAD 并只接受本仓库的语义版本标签重定向；该回退不提供版本说明。`openRepository/openReleases/openLatestRelease` 只让系统浏览器打开 Main 内建的三个 GitHub URL。浏览器 adapter 的检查结果是明确标记的模拟数据。不会自动下载、安装或传输文档。
+`updates` 全部无参数。Main 的 `ReleaseUpdateService` 在用户点击检查时请求固定的 `https://api.github.com/repos/loogg/md2word/releases/latest`，8 秒超时，要求正式版语义版本与本仓库精确 Release URL，按数值比较当前版本；返回状态、版本、检查时间与最多 2000 字的纯文本摘要。匿名 API 返回 403/429 时，对固定 `/releases/latest` 发起最多 15 秒的 HEAD 并只接受本仓库的语义版本标签重定向；该回退不提供版本说明。`openRepository/openReleases/openLatestRelease` 只让系统浏览器打开 Main 内建的三个 GitHub URL。开发态 Bridge 使用同一 Main 检查；独立浏览器 mock 的检查结果明确标记为模拟。不会自动下载、安装或传输文档。
 
 `PickedFile` 与 `PickedOutput` 只包含 Main 签发的 opaque handle、文件名、大小和已脱敏展示信息；Renderer 启动转换时只提交 `templateId + sourceHandle + outputHandle`。拖入文件由 preload 使用 Electron `webUtils.getPathForFile()` 解析后交 Main 登记，IPC 不接受 Renderer 直接提供的任意路径。带真实路径的 `ConversionRequest` 仅由 Main 在句柄、模板 fingerprint、扩展名和同文件约束全部通过后构造。
 
@@ -116,7 +116,13 @@ interface Md2WordApi {
 
 0.5.0 在该边界内增加 `capabilities.describe()`：Main 只缓存成功响应，Worker/资源错误后下一次页面重试会重新启动查询 Worker；该命令不进入转换 FIFO，也不接收 Renderer 路径或任意参数。
 
-### 2.4 C# Worker
+### 2.4 Browser Review Bridge（仅开发态）
+
+`npm run dev` 运行 `scripts/start-browser-review.mjs`：生成 32 字节临时令牌、启动 `127.0.0.1:4173` 的 Vite 和未打包 Electron，再等待 Bridge 就绪。Vite 仅在 `MD2WORD_BROWSER_REVIEW=1` 时代理 `/__md2word_bridge/*` 到 Main 的 `127.0.0.1:4174`，由代理添加令牌；令牌不使用 `VITE_` 前缀，也不传给 Renderer。Bridge 校验 Host、恒时比较令牌、校验 POST Origin 和 JSON 类型，限制请求大小；转换事件通过同源 SSE 发送。Bridge 只接受与 IPC 共用的已登记命令处理器，仍执行 Main 的 schema、句柄所有者、模板与输出路径检查，拒绝 `filesRegisterMarkdownPath`、事件 channel 与未知命令。浏览器会话使用独立虚拟 owner ID；文件选择仍由 Main 的受控 Windows 对话框完成，Browser `File` 不会被转换为任意本机路径。
+
+审查运行使用 `output/browser-review-user-data` 隔离模板、任务和缓存，首次启动由现有模板种子逻辑导入公开参考模板。只有 `build:electron -- --dev-bridge` 才编译开发 Bridge 入口，运行时还需 `!app.isPackaged && MD2WORD_BROWSER_REVIEW=1`；普通 `build:electron` 会静态删除该入口。`package.json` 的打包 `files` 白名单仅包含生产 `dist`、主进程/preload 构建结果和元数据，不包含 `scripts/dev-browser-bridge.mjs`。Vite 生产构建的 `import.meta.env.DEV` 分支会剔除 Browser Review adapter；`build:desktop` 的 `check:bridge-production` 检查主进程、Renderer 和打包白名单均不包含 Bridge。生产应用不启动本地监听器。`npm run dev:mock` 是独立合成状态预览，不访问 Bridge。
+
+### 2.5 C# Worker
 
 - .NET 8 Windows 可执行程序，发布为 `win-x64` self-contained，随 Electron 发布包放入只读 resources 目录。
 - 在 Windows 构建机上引用已安装 Word 的 COM 类型库并启用嵌入互操作类型；不采用来源不明或明确标注为 unsupported repackaging 的 Interop 程序集。Open XML 包级处理使用 Microsoft Open XML SDK。
@@ -504,7 +510,7 @@ sequenceDiagram
 
 | 能力 | 0.5.0 状态 |
 |---|---|
-| 共用类型、browser mock、页面状态机 | 已实现 |
+| 共用类型、Browser Review Bridge、browser mock、页面状态机 | 已实现；Bridge 仅开发态 |
 | Electron 安全壳、preload、原生对话框、Main 模板存储与 adapter | 已实现 |
 | JSONL Worker 客户端、环境诊断、模板校验、串行队列、取消/超时 | 已实现 |
 | 版本化能力清单、Worker 查询、Main/preload 窄 API、能力说明页面、模板问题深链和生成式离线说明 | 已实现；Worker/Main 深校验、UI 搜索/聚焦、协议 smoke、文档漂移检查和 packaged E2E 通过 |

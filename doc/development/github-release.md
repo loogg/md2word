@@ -7,7 +7,7 @@
 - 推送与 `package.json` 一致、尚未发布的新版本标签，在 GitHub 托管的 `windows-2022` 上执行检查和构建，并创建 Release。
 - 针对分支（通常为 `master`）手动运行 `Windows release` 时只生成 Actions artifact；针对匹配版本的标签运行时，同样创建 Release。
 - Actions artifact 和 Release 附件只包含 `MD2Word-<version>-win-x64-portable.zip` 与 `MD2Word-<version>-win-x64-setup.exe`。本机 `package:win` 仍保留四种交付形式。
-- Release 先建立草稿，两个附件上传成功后再发布。0.7.0 使用已审核的 `doc/development/release-notes-0.7.0.md`；其他版本使用工作流内的通用说明。已发布的版本不覆盖，应修改版本后使用新标签。
+- Release 先建立草稿，两个附件上传成功后再发布。0.7.0 与 0.8.0 分别使用已审核的 `doc/development/release-notes-0.7.0.md`、`doc/development/release-notes-0.8.0.md`；其他版本使用工作流内的通用说明。已发布的版本不覆盖，应修改版本后使用新标签。
 - 仓库按用户授权保持 Public，源码、Release 与 Actions 产物公开；发布内容仅限脱敏源码和公开合成模板，不包含用户私有文档。工作流不修改仓库可见性。无需保存个人令牌，发布使用该次任务的 GitHub token。
 
 ## 构建环境与检查边界
@@ -16,7 +16,7 @@ GitHub 的 Windows 镜像带 Visual Studio Office 开发工作负载。工作流
 
 参考：[微软 PIA 构建目录说明](https://learn.microsoft.com/en-us/visualstudio/vsto/office-primary-interop-assemblies?view=visualstudio)、[Windows 2022 runner 镜像清单](https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md)。
 
-该程序集可用于编译，不代表构建机安装了 Word。CI 执行类型检查、Lint、前端/存储测试、Worker 常规测试、公开模板校验、打包和协议 smoke；Word/Mermaid 真实环境门控不启用，不能把 CI 通过记作真实 Word 转换或安装生命周期通过。真实转换、安装、覆盖安装和卸载继续按照 [Setup 验收](../testing/setup-installation.md) 在本机完成。
+该程序集可用于编译，不代表构建机安装了 Word。CI 执行类型检查、Lint、前端/存储测试、开发 Bridge 安全测试、Worker 常规测试、公开模板校验、生产 Bridge 排除检查、打包和协议 smoke；Word/Mermaid 真实环境门控不启用，不能把 CI 通过记作真实 Word 转换或安装生命周期通过。真实转换、安装、覆盖安装和卸载继续按照 [Setup 验收](../testing/setup-installation.md) 在本机完成。
 
 Lua 资源包含字节指纹，checkout 前关闭自动换行转换，避免构建机改写受版本控制的 filter 文件。Actions 固定到已核对的提交 SHA；构建只使用源码中的公开合成模板包，上传路径明确限定为上述两个文件。
 
@@ -40,7 +40,11 @@ $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
 gh workflow run windows-release.yml --ref "v$version"
 ```
 
-## 当前状态
+## 0.8.0 本机发布候选（2026-09-27）
+
+0.8.0 已同步 `package.json`、能力清单和离线说明；类型检查、Lint、111 项前端测试、Bridge 安全测试、126 项 Worker 常规测试、协议 smoke、真实 Browser Review 与便携版 Word 转换均通过。`package:win` 完成四种本地产物，Setup 首次安装、同版本覆盖、公开 0.7.0→0.8.0 升级及卸载在隔离目录完成，四个合成模板文件哈希不变。0.8.0 Release 使用 [专用说明](release-notes-0.8.0.md)。GitHub 标签工作流、远端附件和公开可见性将在推送后核对；本节不把本机构建当作远端发布。
+
+## 历史发布状态
 
 2026-09-27，`v0.7.0` 已公开发布：[Release 页面](https://github.com/loogg/md2word/releases/tag/v0.7.0)。PR #1 合并提交与通过分支预演的提交具有相同 Git 树；标签指向 `5e37676`。标签 Actions run `36314275643` 的类型检查、Lint、111 项前端/存储测试、Worker 常规测试、打包、协议 smoke、上传和发布均通过。仓库维持 Public；`v0.6.1` 与 `v0.6.0` 未覆盖。
 

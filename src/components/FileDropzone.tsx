@@ -32,6 +32,7 @@ export function FileDropzone({
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const browserReview = capabilities.backend === "browser-bridge";
 
   const acceptFile = async (file: File | undefined) => {
     if (!file || disabled) return;
@@ -89,7 +90,7 @@ export function FileDropzone({
             <p className="truncate text-sm font-bold text-slate-900">{value.fileName}</p>
             <p className="mt-1 text-xs text-slate-500">{formatBytes(value.size)} · 应用将按源目录解析相对图片</p>
             <p className="mt-2 truncate rounded-md bg-white/80 px-2 py-1.5 text-[11px] text-slate-500">
-              {capabilities.backend === "electron" ? "已由桌面应用安全登记；Renderer 不持有真实路径" : `本地演示文件 / ${value.fileName}`}
+              {capabilities.backend !== "browser-mock" ? "已由桌面后端安全登记；Renderer 不持有真实路径" : `本地演示文件 / ${value.fileName}`}
             </p>
           </div>
           <button
@@ -132,7 +133,7 @@ export function FileDropzone({
         }}
         onDragEnter={(event) => {
           event.preventDefault();
-          if (!disabled) setDragging(true);
+          if (!disabled && !browserReview) setDragging(true);
         }}
         onDragOver={(event) => event.preventDefault()}
         onDragLeave={() => setDragging(false)}
@@ -144,8 +145,8 @@ export function FileDropzone({
         <div className="mb-3 rounded-2xl border border-slate-200 bg-white p-3 text-slate-500 shadow-sm transition group-hover:-translate-y-0.5 group-hover:text-blue-600">
           {busy ? <LoaderCircle className="h-7 w-7 animate-spin" /> : <UploadCloud className="h-7 w-7" />}
         </div>
-        <p className="text-sm font-bold text-slate-800">{busy ? "正在安全登记文件…" : "拖入 Markdown，或点击选择文件"}</p>
-        <p className="mt-1.5 text-xs text-slate-500">支持 .md / .markdown 单文件 · 真实路径不会暴露给页面</p>
+        <p className="text-sm font-bold text-slate-800">{busy ? "正在安全登记文件…" : browserReview ? "点击选择 Markdown（Windows 原生窗口）" : "拖入 Markdown，或点击选择文件"}</p>
+        <p className="mt-1.5 text-xs text-slate-500">{browserReview ? "审查模式请使用原生选择窗口，以保留相对图片的本机目录。" : "支持 .md / .markdown 单文件 · 真实路径不会暴露给页面"}</p>
       </div>
       {error ? <p role="alert" className="mt-2 text-xs font-medium text-red-600">{error}</p> : null}
     </>

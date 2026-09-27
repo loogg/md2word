@@ -279,7 +279,7 @@ function TemplateEditor({
       key={current?.id ?? "new-template"}
       open={open}
       title={current ? "编辑模板配置" : "添加模板配置"}
-      description={adapter.runtimeCapabilities.backend === "electron" ? "DOCX 与 CSS 将由 Main 导入、隔离保存并交给 Worker 校验。" : "浏览器演示只保存文件名与 mock handle，不读取真实文档内容。"}
+      description={adapter.runtimeCapabilities.backend !== "browser-mock" ? "DOCX 与 CSS 将由 Main 导入、隔离保存并交给 Worker 校验。" : "浏览器演示只保存文件名与 mock handle，不读取真实文档内容。"}
       onClose={onClose}
       widthClass="max-w-2xl"
       footer={<><button type="button" onClick={onClose} disabled={busy} className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-600">取消</button><button type="button" onClick={() => void validate()} disabled={busy} className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700">校验配置</button><button type="button" onClick={() => void save()} disabled={busy} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-sm font-bold text-white disabled:bg-slate-300">{busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}{report?.status === "warning" && warningConfirmed ? "确认警告并保存" : "保存模板"}</button></>}

@@ -2,15 +2,15 @@
 
 把 Markdown 按指定的 Word 模板生成 DOCX，适合需要统一封面、标题、正文、列表和表格样式的文档。
 
-MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.7.0（Desktop MVP）**。选择一组 DOCX 模板与 CSS、添加 Markdown，再选择输出位置即可生成 Word 文档。文档内容在本机处理。
+MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.8.0（Desktop MVP）**。选择一组 DOCX 模板与 CSS、添加 Markdown，再选择输出位置即可生成 Word 文档。文档内容在本机处理。
 
 **[从源码部署](#source) · [工具使用说明](#usage) · [常见问题](#faq)**
 
-已有便携版可以直接阅读使用说明。浏览器预览仅模拟交互；真实转换需要 Windows 桌面版 Microsoft Word 和 Pandoc。
+已有便携版可以直接阅读使用说明。当前开发态 Browser Review 通过真实 Electron Main 和 Worker 转换；独立 mock 仅模拟交互。真实转换需要 Windows 桌面版 Microsoft Word 和 Pandoc。
 
 GitHub 的 `Windows release` 工作流会为版本标签构建 Portable ZIP 和 Setup EXE，并作为 Release 附件提供下载；手动运行时可从 Actions artifact 下载。操作与环境说明见 [GitHub 发布流程](doc/development/github-release.md)。
 
-**[`v0.7.0` 已公开发布](https://github.com/loogg/md2word/releases/tag/v0.7.0)**，Portable ZIP 和 Setup EXE 均包含离线模板制作指南；`v0.6.1` 与 `v0.6.0` 保持不变。
+下载当前与历史版本请查看 [GitHub Releases](https://github.com/loogg/md2word/releases)。`v0.7.0`、`v0.6.1` 与 `v0.6.0` 保持不变；Portable ZIP 和 Setup EXE 均包含离线模板制作指南。
 
 仓库与 Release 现已公开。发布内容仅含脱敏源码和公开合成模板，用户自己的文档与模板仍由本机管理。
 
@@ -83,10 +83,10 @@ npm run package:win
 
 | 产物 | 使用方式 |
 |---|---|
-| `MD2Word-0.7.0-win-x64-portable/` | 保留完整目录，运行其中的 `MD2Word.exe` |
-| `MD2Word-0.7.0-win-x64-portable.zip` | 解压后运行其中的 `MD2Word.exe` |
-| `MD2Word-0.7.0-win-x64-portable.exe` | 单文件启动器，与同级 `templates/` 一起分发 |
-| `MD2Word-0.7.0-win-x64-setup.exe` | 安装向导：当前用户安装，可选择目录并创建桌面/开始菜单快捷方式 |
+| `MD2Word-0.8.0-win-x64-portable/` | 保留完整目录，运行其中的 `MD2Word.exe` |
+| `MD2Word-0.8.0-win-x64-portable.zip` | 解压后运行其中的 `MD2Word.exe` |
+| `MD2Word-0.8.0-win-x64-portable.exe` | 单文件启动器，与同级 `templates/` 一起分发 |
+| `MD2Word-0.8.0-win-x64-setup.exe` | 安装向导：当前用户安装，可选择目录并创建桌面/开始菜单快捷方式 |
 | `templates/` | 单文件版配套模板库；基线包含公开参考模板 |
 | `MD2Word-支持能力说明.md` | 随包离线使用参考 |
 | `MD2Word-模板制作指南.md` | 从参考模板修改或空白 DOCX 开始制作的离线教程 |
@@ -97,7 +97,9 @@ npm run package:win
 
 ### 1.4 浏览器预览与开发检查
 
-只想查看界面时，安装 npm 依赖后运行 `npm run dev`，再打开终端显示的浏览器地址。此模式使用演示模板、模拟环境和模拟任务，**不会生成真实 DOCX**。
+安装 npm 依赖后运行 `npm run dev`（等同于 `npm run dev:browser-review`），再打开终端显示的 `http://127.0.0.1:4173/`。此命令构建并启动 Electron Main、C# Worker 与仅限开发态的本地 Bridge；浏览器页面通过统一 adapter 访问真实模板库、环境检测、原生文件对话框和转换队列，**可以生成真实 DOCX**。本机仍需 Word 与 Pandoc；开发审查使用隔离的 `output/browser-review-user-data` 模板库，公开参考模板会在首次启动时导入。浏览器拖放无法可靠取得本机路径，请点击选择文件以使用 Windows 原生对话框。完成 Renderer 审查后，还需在 `npm run dev:desktop` 中验证原生窗口、对话框和 Worker 生命周期。
+
+只为构造异常、空态或大数据量等特殊界面状态时使用 `npm run dev:mock`。它的合成数据和模拟任务不会生成 DOCX，也不能代替真实 Bridge 验收。Bridge 只绑定回环地址并由 Vite 同源代理访问，生产构建不会启动或打包它。
 
 修改代码后执行基本检查：
 
@@ -105,7 +107,9 @@ npm run package:win
 npm run typecheck
 npm run lint
 npm run test
+npm run test:bridge
 npm run build
+npm run check:bridge-production
 ```
 
 Worker、真实 Word/Mermaid、桌面交互和打包测试的完整命令及已运行结果见 [开发与验收说明](doc/uiPrototype/README.md#运行与检查)。
@@ -115,6 +119,8 @@ Worker、真实 Word/Mermaid、桌面交互和打包测试的完整命令及已�
 0.6.1 已通过本地类型检查、Lint、101 项前端/存储测试、Worker 常规测试、构建及带指南的打包检查；本次未重复真实 Word 和安装生命周期专项。GitHub 同版本构建与发布也已通过，发布的 ZIP 已下载核对版本、完整性及指南内容。
 
 0.7.0 新增 Windows 11 Fluent 浅色界面、“关于”与 GitHub 正式 Release 检查，以及图题居中视觉修复。类型检查、Lint、111 项前端/存储测试、Worker 常规测试、生产构建、协议 smoke、桌面壳与真实合成 Word 转换均已通过；Word 导出的单页 PDF 已目视复核。`package:win` 成功生成四种产物；便携目录启动、Setup 首次安装、同版本覆盖、0.6.1→0.7.0 跨版本升级、模板保留及卸载均在隔离目录通过。GitHub 标签工作流、Portable ZIP 与 Setup EXE 的上传和公开发布已通过，下载附件的 SHA-256 与 GitHub digest 一致。完整命令、截图和边界见 [开发与验收说明](doc/uiPrototype/README.md)与 [Setup 验收](doc/testing/setup-installation.md)。
+
+0.8.0 将 Browser Review Bridge 设为源码开发的默认审查后端：浏览器可通过隔离、仅限本机的开发服务访问真实 Electron Main 与 Word Worker；生产构建会检查并剔除 Bridge。公开参考模板与运行时合成 Markdown 已完成浏览器到 Worker 的真实转换，五页导航和模板管理也已检查。四种 Windows 本地产物已生成，便携包的真实 Word 转换、Setup 首装/覆盖/卸载及公开 0.7.0→0.8.0 升级在隔离目录通过；转换协议与用户模板存储规则保持原样。完整结果见 [开发与验收说明](doc/uiPrototype/README.md#080-开发态-browser-review-bridge-验收2026-09-27)和 [Setup 验收](doc/testing/setup-installation.md)。远端 GitHub Release 须以标签工作流实际结果为准。
 
 <a id="usage"></a>
 
@@ -182,7 +188,7 @@ DOCX 与 CSS 是一组配置。模板必须包含按顺序排列的 `MANUAL_BODY
 
 在“环境与设置”中可以打开当前模板库。安装版请通过这个入口管理模板，不要修改安装目录内的模板种子文件。升级不会覆盖已存在的模板包，也不会恢复你已在包内删除的模板。
 
-打开侧栏底部“关于”，点击“检查更新”可从 GitHub Releases 查询最新正式版；发现新版后通过“前往下载新版”到 GitHub 下载。Setup 版退出应用后覆盖安装；便携版解压新版到新目录，并按需迁移自己管理的模板库。此功能只检查并打开固定下载页，不会自动下载或安装，也不会上传 Markdown、DOCX 或模板。浏览器预览会明确标注模拟检查。
+打开侧栏底部“关于”，点击“检查更新”可从 GitHub Releases 查询最新正式版；发现新版后通过“前往下载新版”到 GitHub 下载。Setup 版退出应用后覆盖安装；便携版解压新版到新目录，并按需迁移自己管理的模板库。此功能只检查并打开固定下载页，不会自动下载或安装，也不会上传 Markdown、DOCX 或模板。Browser Review 使用真实 Main 检查，独立 mock 明确标注模拟检查。
 
 ![关于：当前版本、更新日志和检查更新](doc/uiPrototype/screenshots/about-1440x900.png)
 
@@ -225,13 +231,14 @@ templates/
 
 | 问题 | 处理方式 |
 |---|---|
-| 开发版模板列表为空 | 按 2.2 导入源码中的公开参考 DOCX 和配套 CSS；开发模式不会自动加载发布目录的模板库 |
+| 桌面开发版模板列表为空 | 按 2.2 导入源码中的公开参考 DOCX 和配套 CSS；`npm run dev:browser-review` 会在隔离模板库中导入公开参考模板 |
 | 模板校验失败 | 检查正文书签、DOCX/CSS 是否配对，以及 CSS 引用的样式是否存在 |
 | “生成 Word”不可用 | 确认已选模板和 Markdown、模板可用、必需环境就绪，且没有正在执行的任务 |
 | 找不到 Word 或 Pandoc | 确认安装的是桌面版 Word；在终端确认 Pandoc 可用，重启应用后再次检查环境 |
 | 构建提示缺少 Office Word PIA | 安装 Office 提供的 Word 互操作程序集；仅安装 .NET SDK 不够 |
 | 模板无法保存 | 确认模板库目录可写；便携版不会自动切换到另一套目录 |
-| 浏览器操作没有生成文件 | `npm run dev` 是模拟预览；真实转换请使用桌面版 |
+| Browser Review 无法连接 | 确认 `npm run dev:browser-review` 已启动并显示 ready；不要只启动 Vite。特殊状态演示可单独使用 `npm run dev:mock` |
+| Browser Review 拖放无效 | 点击 Markdown 区域，使用由 Electron Main 打开的 Windows 原生文件对话框 |
 | Mermaid 失败 | 检查 npx 与浏览器并查看日志；不需要图表时将模式改为 `off` |
 
 ### 2.8 更多文档

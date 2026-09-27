@@ -296,7 +296,7 @@ export interface CapabilityManifest {
   pendingLegacyParity: string[];
 }
 
-export type RuntimeBackend = "browser-mock" | "electron";
+export type RuntimeBackend = "browser-mock" | "browser-bridge" | "electron";
 
 export interface UpdateCheckResult {
   status: "available" | "up-to-date";

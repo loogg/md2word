@@ -5,11 +5,11 @@
 | 项目 | 内容 |
 |---|---|
 | 产品名 | MD2Word 文档生成器 |
-| 当前里程碑 | Desktop MVP 0.7.0（已公开发布） |
+| 当前里程碑 | Desktop MVP 0.8.0 |
 | 目标平台 | Windows |
 | 当前实现 | React Renderer + Electron Main (Node.js) + 独立 .NET 8 C# Word Worker |
 | 转换依赖 | 外部 Pandoc + Microsoft Word COM + Open XML |
-| 文档状态 | 0.7.0 Fluent 界面、更新检查与图题视觉收口，2026-09-27；保留历史验收记录 |
+| 文档状态 | 0.8.0 开发态真实 Browser Review 基线，2026-09-27；保留 0.7.0 及更早历史验收记录 |
 
 ## 2. 背景与目标
 
@@ -40,9 +40,15 @@
 
 ## 4. 当前里程碑范围
 
+### 0.8.0 开发态 Browser Review 基线
+
+`npm run dev` 默认同时启动未打包 Electron Main、真实 C# Worker、Vite 与开发专用本地 Bridge。同一套 Renderer 状态机通过 `AppAdapter` 在桌面模式使用安全 preload/IPC，在浏览器审查模式访问与 IPC 相同的 Main 服务处理器；模板、环境、能力清单、更新检查、原生文件选择及转换均为真实本机结果。审查模式使用隔离的模板库并导入公开参考模板，不读写正式用户模板库。浏览器文件拖放无法可靠保留本机目录，审查模式必须通过 Main 打开的原生对话框选择源文件。
+
+Bridge 仅限开发环境：仅绑定 `127.0.0.1`，由同源 Vite 代理注入进程内随机令牌，校验 Host、Origin 和命令白名单；禁止浏览器提交任意本机路径。生产 Renderer 必须剔除 Bridge adapter，Windows 安装/便携包不得包含 Bridge 服务脚本或启动入口。`npm run dev:mock` 仅用于难稳定复现的异常、空态和大数据量界面状态，所有模拟内容必须明确标示。Browser Review 的 Renderer 审核不能替代真实 Electron 对话框、文件系统、Worker 生命周期与外链验收。0.8.0 不改变正式转换协议或用户模板存储；`v0.7.0` 附件保持不变。
+
 ### 0.7.0 桌面体验与人工升级入口
 
-五页导航采用浅色 Windows 11 Fluent 风格，增加“关于”页。桌面 Main 从 `loogg/md2word` 的 GitHub Releases `latest` API 按需检查最新正式版，校验版本和 Release 地址后返回版本、摘要和状态；更新日志、仓库与下载入口只打开预设 GitHub 页面。用户自行下载并安装，应用不自动替换二进制或读取/上传文档。浏览器预览只提供明确标记的模拟检查结果。图题在 Word 收口后保持独立段落并居中，仍使用模板解析出的图题样式。`v0.7.0` 已公开发布，旧版 Release 保持不变。
+五页导航采用浅色 Windows 11 Fluent 风格，增加“关于”页。桌面 Main 从 `loogg/md2word` 的 GitHub Releases `latest` API 按需检查最新正式版，校验版本和 Release 地址后返回版本、摘要和状态；更新日志、仓库与下载入口只打开预设 GitHub 页面。用户自行下载并安装，应用不自动替换二进制或读取/上传文档。0.7.0 发布时的浏览器 mock 只提供明确标记的模拟检查；当前开发态 Browser Review 则通过 Bridge 请求真实 Main 检查。图题在 Word 收口后保持独立段落并居中，仍使用模板解析出的图题样式。`v0.7.0` 已公开发布，旧版 Release 保持不变。
 
 Windows x64 本地打包继续交付便携目录、ZIP、单文件 Portable EXE 和 Setup；打包优先复用版本核对后的已安装 Electron 分发目录。便携目录、Setup 隔离安装生命周期及 0.6.1→0.7.0 跨版本升级已在 0.7.0 验证；GitHub 标签工作流已发布 Portable ZIP 与 Setup EXE，下载附件与公开 digest 一致。
 
@@ -58,7 +64,7 @@ Setup 的受管模板库位于 `userData/templates`；首次启动复制安装�
 
 ### 4.1 包含
 
-- 五个桌面导航页面：生成 Word、模板管理、能力说明、环境与设置、关于；页面通过统一 adapter 同时支持 Electron 真实后端和浏览器 mock 预览。
+- 五个桌面导航页面：生成 Word、模板管理、能力说明、环境与设置、关于；页面通过统一 adapter 支持 Electron 真实后端、开发态真实 Browser Review Bridge 和特殊状态浏览器 mock。
 - Electron 安全壳、受控 preload API、Windows 原生文件/另存为对话框、opaque 文件句柄、IPC 来源与 schema 再校验。
 - Main 管理的模板库：DOCX/CSS 隔离复制、Worker 校验、fingerprint、原子索引更新、导入回滚、增删改和默认模板。
 - Main 全局 FIFO 单任务队列、每任务模板快照与临时目录、阶段/日志/取消/结果事件、最终输出原子替换及受控打开/定位。
@@ -92,7 +98,7 @@ Setup 的受管模板库位于 `userData/templates`；首次启动复制安装�
 
 | ID | 需求 |
 |---|---|
-| FR-G01 | 左侧固定导航显示产品标识和五个页面入口；Electron 显示“桌面版/桌面运行”，浏览器 mock 显示“原型/交互原型”。 |
+| FR-G01 | 左侧固定导航显示产品标识和五个页面入口；Electron 显示“桌面版/桌面运行”，默认 Browser Review 显示“浏览器审查/真实后端”，独立 mock 显示“原型/交互原型”。 |
 | FR-G02 | 页面切换不丢失当前选择与任务结果；Electron 模板由 Main 的模板索引恢复，浏览器演示模板由本地存储恢复。 |
 | FR-G03 | 所有 mock 能力必须标注“模拟”或“演示”；真实 Worker 也必须展示尚未完成的兼容警告，不得把生成成功等同于完整 WordDOM 一致。 |
 | FR-G04 | 破坏性操作有确认或明确撤销边界；按钮在不可执行时禁用并说明原因。 |
@@ -106,7 +112,7 @@ Setup 的受管模板库位于 `userData/templates`；首次启动复制安装�
 | FR-C02 | 支持拖入或选择单个 `.md` / `.markdown` 文件；其他类型给出明确错误。 |
 | FR-C03 | 文件卡显示文件名、大小和可移除操作。Electron Main 保留源文件绝对路径以解析相对资源，Renderer 只接收 handle 和必要元信息。 |
 | FR-C04 | 紧凑摘要显示名称、默认标识、校验状态、DOCX 与 CSS 模式；右侧“当前配置”显示最近校验时间、能力和问题摘要。无效模板可选中查看原因，但不能启动转换。 |
-| FR-C05 | 每次点击“生成 Word”都先打开“另存为”；取消对话框不得创建任务、日志或临时文件。Electron 使用 Windows 原生窗口，浏览器 mock 使用明确标注的模拟窗口。 |
+| FR-C05 | 每次点击“生成 Word”都先打开“另存为”；取消对话框不得创建任务、日志或临时文件。Electron 与 Browser Review 使用同一 Main 的 Windows 原生窗口，浏览器 mock 使用明确标注的模拟窗口。 |
 | FR-C06 | 输出扩展名固定为 `.docx`；覆盖已有文件必须由系统对话框确认。输入、模板和输出不得是同一文件。 |
 | FR-C07 | 任务按阶段显示：排队、准备、元数据、Pandoc、Mermaid/资源（如需要）、Word 导入与模板装配、Word/Open XML 收口、清理、完成。 |
 | FR-C08 | 显示有时间顺序的日志；普通用户看到可读信息，诊断详情可展开但不得包含文档正文或秘密信息。 |
@@ -202,14 +208,15 @@ admonition 固定色板如下，Worker 不提供 CSS 覆盖项：
 | FR-U01 | 显示来自 `package.json` 的当前版本、运行形式和明确的 GitHub 更新来源；提供“GitHub”“更新日志”“检查更新”按钮。 |
 | FR-U02 | 桌面检查只由 Main 访问固定 GitHub `latest` API；匿名 API 被限流时允许对固定 `/releases/latest` 发起 HEAD 并严格校验重定向标签，回退结果无版本说明。超时、网络或无效返回显示可重试错误；版本按数字语义比较，低于当前版本不提示降级。草稿、预发布或非本仓库 Release 地址均拒绝。 |
 | FR-U03 | 发现新版时显示最新版本和纯文本摘要，并提供“前往下载新版”；所有外链由 Main 打开固定仓库、Releases 或 latest 地址，Renderer 不传任意 URL。 |
-| FR-U04 | 明确提示 Setup 覆盖安装和便携版换目录解压的人工升级方式，升级前退出应用并保留用户模板；页面不自动下载、安装或修改文档。浏览器检查结果必须标“演示”。 |
+| FR-U04 | 明确提示 Setup 覆盖安装和便携版换目录解压的人工升级方式，升级前退出应用并保留用户模板；页面不自动下载、安装或修改文档。独立浏览器 mock 检查结果必须标“演示”；开发态 Browser Review 使用真实 Main 检查并标识真实后端。 |
 
 ### 5.7 界面与成品审核
 
 | ID | 需求 |
 |---|---|
 | FR-Q01 | UI 改动按 Windows 11 Fluent 设计体系审查五页与各按钮、输入、弹窗、滚动及 Empty/Loading/Error/Disabled/成功/取消状态；在 1100x720、1280x800、1440x900 与受影响断点两侧核对，E2E 不替代内置浏览器实操。 |
-| FR-Q02 | Browser Review 负责 Renderer，原生对话框、Main IPC、Worker 与升级外链还要在 Electron 验证。Word 输出变化使用公开合成 DOCX，同查 Open XML 和 Word 导出的逐页 PDF。 |
+| FR-Q02 | Browser Review 通过真实 Bridge 审查 Renderer；原生对话框、Main IPC、Worker 与升级外链还要在 Electron 验证。Word 输出变化使用公开合成 DOCX，同查 Open XML 和 Word 导出的逐页 PDF。 |
+| FR-Q03 | Bridge 仅在未打包开发态绑定回环地址，使用临时令牌、同源 Origin、命令白名单和 Main 原有校验；生产 Renderer/打包文件不含 Bridge 实现。Mock/Fixture 只构造难稳定复现的特殊状态，不作为默认浏览器审查后端。 |
 
 ## 6. 模板校验问题码基线
 

@@ -1,6 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import { build } from "esbuild";
 
+const devBridge = process.argv.includes("--dev-bridge");
 await mkdir("dist-electron", { recursive: true });
 
 const shared = {
@@ -18,6 +19,8 @@ await Promise.all([
     entryPoints: ["electron/main.ts"],
     outfile: "dist-electron/main.js",
     format: "esm",
+    define: { __MD2WORD_ENABLE_BROWSER_REVIEW__: devBridge ? "true" : "false" },
+    minifySyntax: true,
   }),
   build({
     ...shared,

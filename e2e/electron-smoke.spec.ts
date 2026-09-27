@@ -79,7 +79,7 @@ test("desktop shell exposes only the narrow API and keeps the five-page workflow
     const environment = await window.evaluate(() => window.md2word!.environment.check());
     expect(environment.items.filter((item) => item.required).every((item) => item.status === "ready")).toBe(true);
     const capabilities = await window.evaluate(() => window.md2word!.capabilities.describe());
-    expect(capabilities).toMatchObject({ schemaVersion: "1.1", productVersion: "0.7.0", protocolVersion: "1.0" });
+    expect(capabilities).toMatchObject({ schemaVersion: "1.1", productVersion: "0.8.0", protocolVersion: "1.0" });
     expect(capabilities.frontMatter.map((item) => item.key)).toContain("word_heading_numbering");
 
     await window.getByRole("button", { name: "模板管理 管理 DOCX 与 CSS", exact: true }).click();
@@ -111,8 +111,8 @@ test("desktop shell exposes only the narrow API and keeps the five-page workflow
         ok: true,
         value: {
           status: "available",
-          currentVersion: "0.7.0",
-          latestVersion: "0.8.0",
+          currentVersion: "0.8.0",
+          latestVersion: "0.9.0",
           releaseNotes: "合成测试版本说明",
           checkedAt: new Date().toISOString(),
         },
@@ -122,7 +122,7 @@ test("desktop shell exposes only the narrow API and keeps the five-page workflow
       Object.defineProperty(shell, "openExternal", { configurable: true, value: async (url: string) => { links.push(url); } });
     });
     await window.getByRole("button", { name: "检查更新" }).click();
-    await expect(window.getByText(/发现新版本 v0.8.0/)).toBeVisible();
+    await expect(window.getByText(/发现新版本 v0.9.0/)).toBeVisible();
     await window.getByRole("button", { name: "GitHub", exact: true }).click();
     await window.getByRole("button", { name: "更新日志" }).click();
     await window.getByRole("button", { name: "前往下载新版" }).click();

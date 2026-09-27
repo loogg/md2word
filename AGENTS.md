@@ -2,9 +2,9 @@
 
 ## 项目定位
 
-- 当前里程碑是 **Desktop MVP 0.7.0**：Windows 桌面应用，同时保留浏览器交互预览；`v0.7.0` 已公开发布。
+- 当前里程碑是 **Desktop MVP 0.8.0**：Windows 桌面应用与开发专用 Browser Review Bridge。`v0.7.0` 是上一公开版本；发布状态以 GitHub Releases 为准。
 - 正式产品只面向 Windows，链路为 `React Renderer -> Electron Main (Node.js) -> C# Word Worker -> Word COM`。
-- 不得把浏览器模拟转换、模拟环境检测或文件选择描述成真实 Electron/C# 能力。
+- Renderer 通过统一 `AppAdapter` 访问后端；不得把独立 mock 的模拟转换、环境检测或文件选择描述成真实 Electron/C# 能力。
 
 ## 开始工作前
 
@@ -17,7 +17,7 @@
 
 - 涉及界面修改时采用 Windows 11 Fluent 风格：浅色 Surface、适度圆角与留白、中性色、系统风格强调色；保持桌面工程工具的信息密度，不套用 Web 仪表盘布局。
 - UI 完成后启动 Browser Review Mode，使用内置浏览器逐页实际点击、输入、滚动并审查所有受影响的按钮、菜单、弹窗及 Empty、Loading、Error、Disabled、成功和取消状态。响应式覆盖 Electron 最小窗口 1100x720、目标 1280x800、典型 1440x900，以及受影响断点两侧。
-- 优先使用真实 Bridge；只有难稳定复现的特殊状态才用 Mock/Fixture，并在记录中标明。Browser Review 只验 Renderer；原生对话框、文件系统、更新外链与 Worker 等能力还需真实 Electron 验证。自动 E2E 不能代替目视和实操审查。
+- 默认 `npm run dev` 启动真实 Browser Review Bridge；只有难稳定复现的特殊状态才用 `npm run dev:mock` / Fixture，并在记录中标明。Browser Review 负责 Renderer 目视与交互；原生对话框、文件系统、更新外链与 Worker 仍须在真实 Electron 上验证。自动 E2E 不能代替目视和实操审查。
 - 发现可见问题后直接修复并复审。功能和按钮检查结果、截图及未覆盖项写入 [UI 验收说明](doc/uiPrototype/README.md)，不可把未执行的项目记作通过。
 
 ## Word 成品审查
@@ -43,17 +43,18 @@
 
 - Renderer 不得启用 Node 集成，不得直接访问文件系统、启动进程或操作 Word。
 - Electron 必须启用 `contextIsolation` 与 `sandbox`，关闭 `nodeIntegration`；preload 只暴露窄接口，不得暴露原始 `ipcRenderer`。
+- Browser Review Bridge 只在未打包开发态启动，绑定回环地址，经 Vite 同源代理、临时令牌和 Origin 校验调用与 IPC 相同的 Main 服务处理器；打包文件和生产 Renderer 不得包含 Bridge 实现或入口。Bridge 不接收浏览器提供的任意本机文件路径。
 - 所有 IPC 入参必须在 Electron Main 再次校验；文件选择必须来自受控原生对话框或已登记模板记录。
 - Node.js 只负责窗口、对话框、模板库、串行队列、日志和 Worker 生命周期，不直接使用 `winax` 等原生 COM 模块。
 - Word COM 只在独立 C# Worker 的 STA 线程中运行。转换任务全局串行；成功、失败、超时和取消都必须关闭文档、退出 Word 并释放 COM 引用。
 - 模板 DOCX 与 CSS 是一个不可拆分的配置单元。导入、编辑和转换前都要校验二者及其书签/样式契约。
 
-### 原型与正式实现
+### 浏览器审查与正式实现
 
-- 原型数据通过 mock adapter 与浏览器本地存储维护；页面不得直接耦合未来 Electron IPC。
+- 正式 Renderer、真实 Browser Review 与特殊状态 mock 共用 `AppAdapter` 页面状态机：Electron 使用窄 preload/IPC，Browser Review 使用开发态 Bridge 访问同一 Main/Worker 服务；独立 mock 只维护合成数据和浏览器本地存储。
 - 共用契约 `TemplateProfile`、`TemplateValidationReport`、`ConversionRequest`、`ConversionEvent`、`ConversionResult`、`EnvironmentStatus` 的语义应与架构文档一致。
 - 原型中的延迟、进度、日志、路径和环境状态均须明确标注为“演示”或“模拟”。
-- 后续接入 Electron 时优先替换 adapter，不重写页面业务状态机。
+- 接入或调整原生能力时先扩展共用契约与 Main 校验，再分别适配 IPC 和开发态 Bridge；不在页面中直接添加运行时访问。
 
 ## 文档必须实时同步
 
@@ -72,7 +73,7 @@
 
 ## 版本与 Git
 
-- `package.json` 是应用版本的单一真源；当前版本为 `0.7.0`。版本变化时同步 README 和里程碑说明。
+- `package.json` 是应用版本的单一真源；当前版本为 `0.8.0`。版本变化时同步 README 和里程碑说明。
 - 使用语义化版本：修复为 patch，向后兼容功能为 minor，破坏性契约变化为 major；原型阶段仍需记录破坏性变更。
 - 默认分支为 `master`，功能开发使用短期分支。提交信息采用 Conventional Commits，例如 `feat: initialize md2word UI prototype`。
 - 提交前至少运行类型检查、Lint、单元测试和生产构建；UI 变化还要完成浏览器交互与目标尺寸视觉检查。

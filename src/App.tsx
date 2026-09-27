@@ -43,22 +43,30 @@ export default function App() {
   const [capabilityError, setCapabilityError] = useState<string | null>(null);
   const [capabilityFocusId, setCapabilityFocusId] = useState<string | null>(null);
   const [markdown, setMarkdown] = useState<SelectedMarkdown | null>(null);
+  const [startupError, setStartupError] = useState<string | null>(null);
+  const [startupLoading, setStartupLoading] = useState(!seed);
+  const [startupRetry, setStartupRetry] = useState(0);
   const [task, dispatchTask] = useReducer(conversionTaskReducer, initialConversionTaskState);
   const pendingCancelRef = useRef(false);
 
   useEffect(() => {
     if (adapter.initialState) return undefined;
     let active = true;
+    setStartupLoading(true);
+    setStartupError(null);
     void Promise.all([adapter.templates.list(), adapter.environment.check()]).then(([nextTemplates, nextEnvironment]) => {
       if (!active) return;
       setTemplates(nextTemplates);
       setSelectedTemplateId((current) => preferredTemplateId(nextTemplates, current));
       setEnvironment(nextEnvironment);
-    }).catch(() => {
-      // Page-level retry actions surface operational failures; the seed remains usable for the browser mock.
+      setStartupLoading(false);
+    }).catch((reason: unknown) => {
+      if (!active) return;
+      setStartupLoading(false);
+      setStartupError(errorFrom(reason, "BACKEND_UNAVAILABLE").message);
     });
     return () => { active = false; };
-  }, [adapter]);
+  }, [adapter, startupRetry]);
 
   const loadCapabilities = useCallback(async () => {
     setCapabilityLoading(true);
@@ -196,6 +204,8 @@ export default function App() {
 
   return (
     <AppLayout page={page} onPageChange={changePage} wordEnvironmentReady={wordEnvironmentReady} capabilities={adapter.runtimeCapabilities}>
+      {startupLoading && adapter.runtimeCapabilities.backend === "browser-bridge" ? <div role="status" className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-800">正在连接桌面后端…</div> : null}
+      {startupError ? <div role="alert" className="mb-4 flex items-center justify-between gap-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800"><span>{startupError}</span><button type="button" onClick={() => setStartupRetry((value) => value + 1)} className="fluent-button shrink-0">重试连接</button></div> : null}
       {page === "generate" ? (
         <GeneratePage
           templates={templates}

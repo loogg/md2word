@@ -213,12 +213,7 @@ export function CapabilitiesPage({ manifest, loading, error, focusId, onRetry }:
         </div>
       </section>
 
-      <section className="grid grid-cols-4 gap-4">
-        <div className="panel p-4"><p className="text-2xl font-bold text-slate-900">{featureCount}</p><p className="mt-1 text-xs text-slate-500">转换能力条目</p></div>
-        <div className="panel p-4"><p className="text-2xl font-bold text-emerald-700">{supportedCount}</p><p className="mt-1 text-xs text-slate-500">已实现能力</p></div>
-        <div className="panel p-4"><p className="text-2xl font-bold text-violet-700">{manifest.frontMatter.length}</p><p className="mt-1 text-xs text-slate-500">Front Matter 键</p></div>
-        <div className="panel p-4"><p className="text-2xl font-bold text-amber-700">{manifest.limitations.length}</p><p className="mt-1 text-xs text-slate-500">已声明边界</p></div>
-      </section>
+      <p className="text-xs text-slate-500">{featureCount} 项转换能力 · {supportedCount} 项已实现 · {manifest.frontMatter.length} 个 Front Matter 键 · {manifest.limitations.length} 项已声明边界</p>
 
       <section className="panel overflow-hidden">
         <div className="flex items-center justify-between gap-6 border-b border-slate-100 px-5 py-4">

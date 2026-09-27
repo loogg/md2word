@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { AppLayout } from "./components/AppLayout";
+import { AboutPage } from "./pages/AboutPage";
 import { createAppAdapter } from "./lib/appAdapter";
 import { conversionTaskReducer, initialConversionTaskState, isActiveConversionStatus } from "./lib/conversionState";
 import { EnvironmentPage } from "./pages/EnvironmentPage";
@@ -243,6 +244,7 @@ export default function App() {
           }}
         />
       ) : null}
+      {page === "about" ? <AboutPage adapter={adapter} /> : null}
     </AppLayout>
   );
 }

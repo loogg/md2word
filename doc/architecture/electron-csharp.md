@@ -2,7 +2,7 @@
 
 ## 1. 状态与决策
 
-本文同时记录目标边界与 **Desktop MVP 0.6.1 的实际实现**。Electron 安全壳、受控 preload、Main 模板库/原生对话框/串行队列、JSONL Worker 客户端，以及 .NET 8 C# STA Word Worker 已经接通；浏览器运行仍通过同一页面状态机使用 mock adapter。
+本文同时记录目标边界与 **Desktop MVP 0.7.0 的当前开发实现**。Electron 安全壳、受控 preload、Main 模板库/原生对话框/串行队列、JSONL Worker 客户端，以及 .NET 8 C# STA Word Worker 已经接通；浏览器运行仍通过同一页面状态机使用 mock adapter。
 
 采用以下分层：
 
@@ -42,7 +42,7 @@ Electron Main / Node.js
 - 只允许序列化数据，不把 Electron 对象或 Node Buffer 直接交给 Renderer。
 - 当前实现还使用响应 envelope 保留跨 `contextBridge` 的稳定 `code/message/stage/retryable`，并在 Renderer 侧拒绝无效响应结构。
 
-0.5.0 公共 API：
+0.7.0 公共 API（新增 `updates`，旧方法保持兼容）：
 
 ```ts
 interface Md2WordApi {
@@ -78,6 +78,12 @@ interface Md2WordApi {
   };
   environment: { check(): Promise<EnvironmentStatus> };
   capabilities: { describe(): Promise<CapabilityManifest> };
+  updates: {
+    check(): Promise<UpdateCheckResult>;
+    openRepository(): Promise<void>;
+    openReleases(): Promise<void>;
+    openLatestRelease(): Promise<void>;
+  };
   shell: {
     openOutput(jobId: string): Promise<void>;
     revealOutput(jobId: string): Promise<void>;
@@ -87,6 +93,8 @@ interface Md2WordApi {
 ```
 
 `capabilities.describe()` 不接受参数；Main 从当前安装 Worker 查询并缓存已经深校验的能力清单。`shell` 只接受已登记的 `jobId` 或固定应用目录，不接受 Renderer 提供的任意路径。
+
+`updates` 全部无参数。Main 的 `ReleaseUpdateService` 在用户点击检查时请求固定的 `https://api.github.com/repos/loogg/md2word/releases/latest`，8 秒超时，要求正式版语义版本与本仓库精确 Release URL，按数值比较当前版本；返回状态、版本、检查时间与最多 2000 字的纯文本摘要。匿名 API 返回 403/429 时，对固定 `/releases/latest` 发起最多 15 秒的 HEAD 并只接受本仓库的语义版本标签重定向；该回退不提供版本说明。`openRepository/openReleases/openLatestRelease` 只让系统浏览器打开 Main 内建的三个 GitHub URL。浏览器 adapter 的检查结果是明确标记的模拟数据。不会自动下载、安装或传输文档。
 
 `PickedFile` 与 `PickedOutput` 只包含 Main 签发的 opaque handle、文件名、大小和已脱敏展示信息；Renderer 启动转换时只提交 `templateId + sourceHandle + outputHandle`。拖入文件由 preload 使用 Electron `webUtils.getPathForFile()` 解析后交 Main 登记，IPC 不接受 Renderer 直接提供的任意路径。带真实路径的 `ConversionRequest` 仅由 Main 在句柄、模板 fingerprint、扩展名和同文件约束全部通过后构造。
 
@@ -101,6 +109,7 @@ interface Md2WordApi {
 - 解析可用的 npx 与本机 Microsoft Edge/Google Chrome 路径；为 Worker 创建并传入应用 `userData` 下私有、持久化的 Mermaid npm cache 与 `mermaid-browser-cache`；`required` 模式在消费一次性输出 handle 前检查 Mermaid 环境，缺失时返回稳定错误。
 - 将发布包唯一的只读 `resources/conversion` 绝对根目录通过受控 Worker 环境传入；Renderer 不能提供或覆盖该路径。
 - 通过无参数 Worker 命令读取版本化能力清单，缓存成功结果并经专用 IPC channel 返回；失败不缓存，允许页面重试。
+- 按需检查 GitHub 正式 Release，并只经固定外链调用 `shell.openExternal`；Renderer 不能提交 URL 或程序安装路径。
 - 记录脱敏应用日志；Worker 的 stderr 只作为诊断来源，不当作协议解析。
 
 上述窗口、对话框、模板存储、队列、Worker 生命周期和结果打开/定位已经在 0.4.0 实现。当前 Main 启动时清理应用 `userData/jobs` 下的旧运行目录；持久日志、保留期和诊断导出仍是后续项。
@@ -118,6 +127,7 @@ interface Md2WordApi {
 - 通过参数数组调用 npx 中固定的 `@mermaid-js/mermaid-cli@11.16.0` 与 `puppeteer@25.3.0`，清除继承的 Windows 兼容层标记后复用 Main 解析出的本地 Edge/Chrome；若浏览器仍启动失败，显式准备对应 `chrome-headless-shell` 到应用私有缓存并重试一次。不让 Renderer 提供可执行文件路径。
 - 转换模板、Lua filters、默认 CSS 和能力清单只从 Main 传入的绝对 `MD2WORD_CONVERSION_RESOURCES` 根目录读取；Worker 对拼接结果做根目录包含检查，缺失或越界返回稳定错误。直接运行 Worker 的开发/测试回退目录为可执行文件旁的 `resources/conversion`。
 - Open XML 后处理只处理 Worker 自己的临时输出，不原地修改用户模板。
+- 0.7.0 图题角色在应用模板已解析段落样式并清除 HTML 直接格式后，单独写入居中 `w:jc`；图片段继续保留居中和自动行距，表题角色不受此固定图题对齐规则影响。
 
 0.4.0 Worker 已实现 `diagnose`、`validate-template`、`convert` 和运行中 `cancel`；采用外部 Pandoc，并把四个 Lua filter、HTML 模板、默认 CSS 与能力清单作为受控资源打包。Worker 项目对开发/直接运行目录设置 `CopyToPublishDirectory=Always` 与 `ExcludeFromSingleFile=true`，使资源在单文件 Worker 发布后仍以可读文件保留，并避免重复发布到同一目录时遗失；协议 smoke 会检查这些发布资源。Electron 发布包只保留一份顶层 `resources/conversion`，由 Main 受控传给 Worker。packaged E2E 会先检查模板/manifest，再实际完成 Mermaid -> Word 转换，而不只检查进程能启动。Mermaid 服务只接受 Pandoc 生成的 `pre.mermaid`，将通过校验的 PNG/SVG 原子写入任务资源目录，再交给 Word 导入和离线资源嵌入。标题编号配置在 Word 装配阶段映射为原生多级列表，重复表头配置在包级收口阶段限定到正文书签范围。专用 Word PID 从本任务创建的窗口取得，只有正常 COM 退出超时且 PID 归属可确认时才兜底结束，不能结束未验证的用户 Word 进程。
 
@@ -133,7 +143,7 @@ NSIS `customInstall` 写入安装目录的 `resources/md2word-installed`，内�
 
 安装器默认不删除 AppData；升级重建应用目录时，用户模板仍保留在外部用户数据目录。未来公开种子更新不会覆盖用户已经编辑的同名包，用户可另行导入需要的新版本。详见 [Setup 安装验收](../testing/setup-installation.md)。
 
-`build.publish=null`，不生成自动更新服务配置；当前未实现自动更新。Setup 与 Portable 各有独立文件名，发布目录整理保留四种交付物及配套离线说明、模板目录。
+`build.publish=null`，不生成自动更新服务配置；0.7.0 只提供检查新版本与人工下载入口，未实现自动下载或静默安装。Setup 与 Portable 各有独立文件名，发布目录整理保留四种交付物及配套离线说明、模板目录。
 
 GitHub 发布由独立 Actions 工作流完成，不启用应用自动更新。托管 Windows runner 使用 Visual Studio 官方 Word PIA，经现有 `OfficeInteropWordPath` 编译属性传入；Word COM 仍只在用户本机 Worker 的 STA 线程运行。CI 不安装或模拟 Word 来宣称真实转换通过。
 
@@ -486,7 +496,7 @@ sequenceDiagram
 - Worker 路径来自打包 resources，不接受 Renderer 指定；启动参数不经 shell 拼接，使用参数数组与 stdin。
 - npx 与 Mermaid 浏览器路径只由 Main 的受控环境解析产生；Worker 使用固定包规格和参数数组，不执行图源拼接出的命令。外部 CLI stderr 不进入用户日志，图源不进入日志或协议事件。
 - 日志不记录文档正文、front matter 原值或用户目录；路径显示需脱敏，诊断导出需用户明确操作。
-- 自动更新和代码签名在正式发布阶段接入；更新包必须验证签名，不能从任意 URL 加载 Renderer。
+- 自动安装与代码签名仍是后续工作；将来若接入自动安装，更新包必须验证签名，不能从任意 URL 加载 Renderer。当前人工下载入口只通向固定 GitHub Releases 页面。
 
 ## 8. 实现状态、迁移与测试
 
@@ -510,7 +520,7 @@ sequenceDiagram
 | 多列复杂比例、不规则网格、合并表格高级固定列宽、完整视觉一致性 | 待迁移/验收 |
 | Windows x64 候选 | 0.5.0 用 `package:win` 直接生成 `release` 基线：包含带版本/架构的未压缩 Portable 目录、单文件 Portable EXE、Portable ZIP、离线能力说明与同级 `templates/reference`。基线按 1 个模板通过能力查询与 packaged 启动；模板存储测试已覆盖任意多个包的发现、跨包冲突和合并 |
 
-后续顺序：先在仓库外固化旧 Python 私有基准样本；再扩展 Mermaid 图型/跨 Office 视觉矩阵并逐项补齐图片、表格和链接；每项同时比较 Open XML 结构与 Word/PDF/截图视觉，最后完成代码签名、升级、崩溃恢复和私有发布流程。
+后续顺序：先在仓库外固化旧 Python 私有基准样本；再扩展 Mermaid 图型/跨 Office 视觉矩阵并逐项补齐图片、表格和链接；每项同时比较 Open XML 结构与 Word/PDF/截图视觉，最后完成代码签名、自动安装升级、崩溃恢复和私有发布流程。
 
 最低测试层次：
 

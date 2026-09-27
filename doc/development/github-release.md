@@ -4,7 +4,7 @@
 
 ## 触发与产物
 
-- 推送与 `package.json` 一致的版本标签，例如 `v0.6.1`，在 GitHub 托管的 `windows-2022` 上执行检查和构建，并创建 Release。
+- 推送与 `package.json` 一致的版本标签，例如当前待发布的 `v0.7.0`，在 GitHub 托管的 `windows-2022` 上执行检查和构建，并创建 Release。
 - 针对分支（通常为 `master`）手动运行 `Windows release` 时只生成 Actions artifact；针对匹配版本的标签运行时，同样创建 Release。
 - Actions artifact 和 Release 附件只包含 `MD2Word-<version>-win-x64-portable.zip` 与 `MD2Word-<version>-win-x64-setup.exe`。本机 `package:win` 仍保留四种交付形式。
 - Release 先建立草稿，两个附件上传成功后再发布。已发布的版本不覆盖，应修改版本后使用新标签。
@@ -26,8 +26,8 @@ Lua 资源包含字节指纹，checkout 前关闭自动换行转换，避免构�
 
 ```powershell
 git push origin master
-git tag v0.6.1
-git push origin v0.6.1
+git tag v0.7.0
+git push origin v0.7.0
 ```
 
 标签必须与 `package.json` 一致。查看 Actions 的 `Windows release` 运行，成功后在 GitHub Releases 下载附件。CI 失败时应修复原因并重新运行失败任务；不要把本机构建结果冒充 GitHub 构建结果。
@@ -35,10 +35,12 @@ git push origin v0.6.1
 首次切换默认分支等情况下，如果标签推送后没有产生任务，可以明确对该标签触发：
 
 ```powershell
-gh workflow run windows-release.yml --ref v0.6.1
+gh workflow run windows-release.yml --ref v0.7.0
 ```
 
 ## 当前状态
+
+0.7.0 仍在本地开发，尚未创建标签或 GitHub Release。下述 0.6.1 是最近公开发布的历史记录。
 
 2026-09-09，`v0.6.1` 已公开发布。标签推送自动触发 Actions run `34324497576`，构建提交为 `ee7bf61`。类型检查、Lint、101 项前端/存储测试、Worker 常规测试（126 通过、11 跳过）、打包、协议 smoke、上传和发布全部通过。
 

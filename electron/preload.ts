@@ -79,6 +79,12 @@ const api: Md2WordApi = {
   capabilities: {
     describe: () => invokeMain(IPC_CHANNELS.capabilitiesDescribe),
   },
+  updates: {
+    check: () => invokeMain(IPC_CHANNELS.updatesCheck),
+    openRepository: () => invokeMain(IPC_CHANNELS.updatesOpenRepository),
+    openReleases: () => invokeMain(IPC_CHANNELS.updatesOpenReleases),
+    openLatestRelease: () => invokeMain(IPC_CHANNELS.updatesOpenLatestRelease),
+  },
   shell: {
     openOutput: (jobId) => invokeMain(IPC_CHANNELS.shellOpenOutput, assertId(jobId, "任务 ID")),
     revealOutput: (jobId) => invokeMain(IPC_CHANNELS.shellRevealOutput, assertId(jobId, "任务 ID")),

@@ -17,7 +17,7 @@ test("Setup stores imported templates in userData and preserves them on restart"
   try {
     expect(await application.evaluate(({ app }) => app.getPath("userData"))).toBe(userDataPath);
     let window = await application.firstWindow();
-    await expect(window.getByRole("heading", { name: /Markdown.*Word 模板/ })).toBeVisible();
+    await expect(window.getByRole("heading", { name: "生成 Word", exact: true })).toBeVisible();
     expect(await window.evaluate(() => window.md2word!.capabilities.describe())).toMatchObject({ productVersion: version });
     expect(await window.evaluate(() => window.md2word!.templates.list())).toHaveLength(1);
     const registered = [];
@@ -49,7 +49,7 @@ test("Setup stores imported templates in userData and preserves them on restart"
     await application.close();
     application = await launch();
     window = await application.firstWindow();
-    await expect(window.getByRole("heading", { name: /Markdown.*Word 模板/ })).toBeVisible();
+    await expect(window.getByRole("heading", { name: "生成 Word", exact: true })).toBeVisible();
     expect(await window.evaluate(() => window.md2word!.templates.list())).toEqual([
       expect.objectContaining({ id: imported.id, isDefault: true }),
     ]);

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { bundledCapabilityManifest } from "../data/capabilityManifest";
 import { CapabilitiesPage } from "./CapabilitiesPage";
+import { vi } from "vitest";
 
 describe("CapabilitiesPage", () => {
   it("shows the versioned catalog and searchable Front Matter metadata", () => {
@@ -15,7 +16,7 @@ describe("CapabilitiesPage", () => {
     );
 
     expect(screen.getByRole("heading", { name: "MD2Word 支持能力说明" })).toBeInTheDocument();
-    expect(screen.getByText("v0.6.1")).toBeInTheDocument();
+    expect(screen.getByText("v0.7.0")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: /Front Matter/ }));
     fireEvent.change(screen.getByLabelText("搜索能力说明"), { target: { value: "word_heading_numbering" } });
@@ -38,5 +39,13 @@ describe("CapabilitiesPage", () => {
 
     expect(screen.getByRole("tab", { name: /Front Matter/ })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByText("word_repeat_table_headers")).toBeInTheDocument();
+  });
+
+  it("shows catalog errors and wires the retry button", () => {
+    const retry = vi.fn();
+    render(<CapabilitiesPage manifest={null} loading={false} error="演示读取失败" focusId={null} onRetry={retry} />);
+    expect(screen.getByText("演示读取失败")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "重新读取" }));
+    expect(retry).toHaveBeenCalledOnce();
   });
 });

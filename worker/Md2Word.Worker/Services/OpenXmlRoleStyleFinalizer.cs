@@ -92,6 +92,12 @@ internal static partial class OpenXmlRoleStyleFinalizer
             {
                 properties.SpacingBetweenLines = AutoImageLineSpacing();
             }
+            if (role == StyleRoles.Caption)
+            {
+                // Word's HTML importer can leave figure captions left aligned
+                // even after the image has been split into its own centered paragraph.
+                properties.Justification = new Justification { Val = JustificationValues.Center };
+            }
             if (role == StyleRoles.Admonition)
             {
                 ApplyAdmonitionPresentation(properties, ResolveAdmonitionPresentation(roles));

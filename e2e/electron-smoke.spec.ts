@@ -26,7 +26,7 @@ async function selectSaveDialogFile(application: ElectronApplication, selectedPa
   }, selectedPath);
 }
 
-test("desktop shell exposes only the narrow API and keeps the four-page workflow usable", async () => {
+test("desktop shell exposes only the narrow API and keeps the five-page workflow usable", async () => {
   const userDataPath = path.resolve("output/e2e-user-data");
   await fs.rm(userDataPath, { recursive: true, force: true });
   const packagedExecutable = process.env.MD2WORD_E2E_EXECUTABLE;
@@ -49,7 +49,7 @@ test("desktop shell exposes only the narrow API and keeps the four-page workflow
 
   try {
     const window = await application.firstWindow();
-    await expect(window.getByRole("heading", { name: /Markdown.*Word 模板/ })).toBeVisible();
+    await expect(window.getByRole("heading", { name: "生成 Word", exact: true })).toBeVisible();
 
     const boundary = await window.evaluate(() => ({
       hasApi: typeof window.md2word === "object",
@@ -62,7 +62,7 @@ test("desktop shell exposes only the narrow API and keeps the four-page workflow
       hasApi: true,
       nodeProcess: "undefined",
       nodeRequire: "undefined",
-      apiKeys: ["capabilities", "conversions", "environment", "files", "runtimeCapabilities", "shell", "templates"],
+      apiKeys: ["capabilities", "conversions", "environment", "files", "runtimeCapabilities", "shell", "templates", "updates"],
     });
 
     const structuredError = await window.evaluate(async () => {
@@ -79,17 +79,59 @@ test("desktop shell exposes only the narrow API and keeps the four-page workflow
     const environment = await window.evaluate(() => window.md2word!.environment.check());
     expect(environment.items.filter((item) => item.required).every((item) => item.status === "ready")).toBe(true);
     const capabilities = await window.evaluate(() => window.md2word!.capabilities.describe());
-    expect(capabilities).toMatchObject({ schemaVersion: "1.1", productVersion: "0.6.1", protocolVersion: "1.0" });
+    expect(capabilities).toMatchObject({ schemaVersion: "1.1", productVersion: "0.7.0", protocolVersion: "1.0" });
     expect(capabilities.frontMatter.map((item) => item.key)).toContain("word_heading_numbering");
 
     await window.getByRole("button", { name: "模板管理 管理 DOCX 与 CSS", exact: true }).click();
-    await expect(window.getByRole("heading", { name: /模板和 CSS/ })).toBeVisible();
+    await expect(window.getByRole("heading", { name: "模板管理", exact: true })).toBeVisible();
 
     await window.getByRole("button", { name: "能力说明 语法、元数据与边界", exact: true }).click();
     await expect(window.getByRole("heading", { name: "MD2Word 支持能力说明", exact: true })).toBeVisible();
 
     await window.getByRole("button", { name: "环境与设置 依赖检查与偏好", exact: true }).click();
-    await expect(window.getByRole("heading", { name: "在启动 Word 前先把环境说清楚", exact: true })).toBeVisible();
+    await expect(window.getByRole("heading", { name: "环境与设置", exact: true })).toBeVisible();
+    await application.evaluate(({ shell }) => {
+      (globalThis as typeof globalThis & { md2wordOpenedLibrary?: string }).md2wordOpenedLibrary = "";
+      Object.defineProperty(shell, "openPath", {
+        configurable: true,
+        value: async (absolutePath: string) => {
+          (globalThis as typeof globalThis & { md2wordOpenedLibrary?: string }).md2wordOpenedLibrary = absolutePath;
+          return "";
+        },
+      });
+    });
+    await window.getByRole("button", { name: "打开模板库目录" }).click();
+    expect(await application.evaluate(() => (globalThis as typeof globalThis & { md2wordOpenedLibrary?: string }).md2wordOpenedLibrary))
+      .toMatch(/templates$/i);
+    await window.getByRole("button", { name: "关于 版本与软件更新", exact: true }).click();
+    await expect(window.getByRole("heading", { name: "关于", exact: true })).toBeVisible();
+    await application.evaluate(({ ipcMain, shell }) => {
+      ipcMain.removeHandler("md2word:updates:check");
+      ipcMain.handle("md2word:updates:check", async () => ({
+        ok: true,
+        value: {
+          status: "available",
+          currentVersion: "0.7.0",
+          latestVersion: "0.8.0",
+          releaseNotes: "合成测试版本说明",
+          checkedAt: new Date().toISOString(),
+        },
+      }));
+      const links: string[] = [];
+      (globalThis as typeof globalThis & { md2wordOpenedLinks?: string[] }).md2wordOpenedLinks = links;
+      Object.defineProperty(shell, "openExternal", { configurable: true, value: async (url: string) => { links.push(url); } });
+    });
+    await window.getByRole("button", { name: "检查更新" }).click();
+    await expect(window.getByText(/发现新版本 v0.8.0/)).toBeVisible();
+    await window.getByRole("button", { name: "GitHub", exact: true }).click();
+    await window.getByRole("button", { name: "更新日志" }).click();
+    await window.getByRole("button", { name: "前往下载新版" }).click();
+    expect(await application.evaluate(() => (globalThis as typeof globalThis & { md2wordOpenedLinks?: string[] }).md2wordOpenedLinks))
+      .toEqual([
+        "https://github.com/loogg/md2word",
+        "https://github.com/loogg/md2word/releases",
+        "https://github.com/loogg/md2word/releases/latest",
+      ]);
   } finally {
     await application.close();
     await fs.rm(userDataPath, { recursive: true, force: true });
@@ -138,7 +180,7 @@ test("desktop IPC stack performs a real synthetic Word conversion with lists, Me
 
   try {
     const window = await application.firstWindow();
-    await expect(window.getByRole("heading", { name: /Markdown.*Word 模板/ })).toBeVisible();
+    await expect(window.getByRole("heading", { name: "生成 Word", exact: true })).toBeVisible();
 
     await selectOpenDialogFile(application, templatePath);
     const templateFile = await window.evaluate(() => window.md2word!.files.pickTemplateDocx());
@@ -238,6 +280,21 @@ test("desktop IPC stack performs a real synthetic Word conversion with lists, Me
     await expect(fs.stat(outputPath)).resolves.toMatchObject({ size: expect.any(Number) });
     expect((await fs.stat(outputPath)).size).toBeGreaterThan(0);
     await fs.copyFile(outputPath, acceptanceOutputPath);
+
+    if (process.env.MD2WORD_UPDATE_SUCCESS_SCREENSHOT === "1") {
+      await window.reload();
+      await application.evaluate(({ BrowserWindow }) => { BrowserWindow.getAllWindows()[0]?.setContentSize(1440, 900); });
+      await selectOpenDialogFile(application, markdownPath);
+      await window.getByRole("button", { name: /拖入 Markdown/ }).click();
+      await expect(window.getByText("synthetic-lists.md", { exact: true })).toBeVisible();
+      await selectSaveDialogFile(application, path.join(temporaryOutputRoot, "desktop-success-screen.docx"));
+      await window.getByRole("button", { name: "生成 Word", exact: true }).click();
+      await expect(window.getByText("生成完成", { exact: true })).toBeVisible({ timeout: 90_000 });
+      await expect(window.getByRole("button", { name: "打开文件" })).toBeVisible();
+      await expect(window.getByRole("button", { name: "在文件夹中显示" })).toBeVisible();
+      await window.getByRole("button", { name: "在文件夹中显示" }).scrollIntoViewIfNeeded();
+      await window.screenshot({ path: path.resolve("doc/uiPrototype/screenshots/readme-success.png"), animations: "disabled", scale: "css" });
+    }
   } finally {
     await application.close();
     await fs.rm(userDataPath, { recursive: true, force: true });

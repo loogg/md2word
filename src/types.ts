@@ -1,4 +1,4 @@
-export type PageId = "generate" | "templates" | "capabilities" | "environment";
+export type PageId = "generate" | "templates" | "capabilities" | "environment" | "about";
 
 export type ValidationStatus = "valid" | "warning" | "invalid";
 export type IssueSeverity = "info" | "warning" | "error";
@@ -298,6 +298,15 @@ export interface CapabilityManifest {
 
 export type RuntimeBackend = "browser-mock" | "electron";
 
+export interface UpdateCheckResult {
+  status: "available" | "up-to-date";
+  currentVersion: string;
+  latestVersion: string;
+  releaseNotes: string;
+  publishedAt?: string;
+  checkedAt: string;
+}
+
 export interface RuntimeCapabilities {
   backend: RuntimeBackend;
   fileDialogs: "mock" | "native";
@@ -338,6 +347,12 @@ export interface Md2WordApi {
   };
   capabilities: {
     describe(): Promise<CapabilityManifest>;
+  };
+  updates: {
+    check(): Promise<UpdateCheckResult>;
+    openRepository(): Promise<void>;
+    openReleases(): Promise<void>;
+    openLatestRelease(): Promise<void>;
   };
   shell: {
     openOutput(jobId: string): Promise<void>;

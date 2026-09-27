@@ -39,7 +39,7 @@ test("refreshes the Desktop MVP screenshot acceptance set", async () => {
 
   try {
     const window = await application.firstWindow();
-    await expect(window.getByRole("heading", { name: /Markdown.*Word 模板/ })).toBeVisible();
+    await expect(window.getByRole("heading", { name: "生成 Word", exact: true })).toBeVisible();
 
     await application.evaluate(({ dialog }, filePath) => {
       Object.defineProperty(dialog, "showOpenDialog", {
@@ -109,7 +109,7 @@ test("refreshes the Desktop MVP screenshot acceptance set", async () => {
     await window.keyboard.press("Escape");
 
     await window.getByRole("button", { name: "模板管理 管理 DOCX 与 CSS", exact: true }).click();
-    await expect(window.getByRole("heading", { name: /模板和 CSS/ })).toBeVisible();
+    await expect(window.getByRole("heading", { name: "模板管理", exact: true })).toBeVisible();
     const statusColumnLeftEdges = await window.locator("article").evaluateAll((rows) => rows.map((row) => {
       const badge = [...row.querySelectorAll("span")].find((element) => element.textContent?.trim() === "校验通过");
       if (!badge) throw new Error("Template status badge is missing");
@@ -143,12 +143,15 @@ test("refreshes the Desktop MVP screenshot acceptance set", async () => {
     expect(editorBounds!.y).toBeGreaterThanOrEqual(0);
     expect(editorBounds!.x + editorBounds!.width).toBeLessThanOrEqual(minimumViewport.width);
     expect(editorBounds!.y + editorBounds!.height).toBeLessThanOrEqual(minimumViewport.height);
+    await window.keyboard.press("Escape");
+    const templateActionRightEdges = await window.locator(".template-row button").evaluateAll((buttons) =>
+      buttons.map((button) => button.getBoundingClientRect().right));
+    expect(Math.max(...templateActionRightEdges)).toBeLessThanOrEqual(minimumViewport.width);
 
     await application.evaluate(({ BrowserWindow }) => {
       BrowserWindow.getAllWindows()[0]?.setContentSize(1440, 900);
     });
     await window.waitForTimeout(300);
-    await window.keyboard.press("Escape");
 
     await window.getByRole("button", { name: "能力说明 语法、元数据与边界", exact: true }).click();
     await expect(window.getByRole("heading", { name: "MD2Word 支持能力说明", exact: true })).toBeVisible();
@@ -156,13 +159,18 @@ test("refreshes the Desktop MVP screenshot acceptance set", async () => {
     await window.screenshot({ path: path.join(screenshotDirectory, "capabilities-1440x900.png"), animations: "disabled", scale: "css" });
 
     await window.getByRole("button", { name: "环境与设置 依赖检查与偏好", exact: true }).click();
-    await expect(window.getByRole("heading", { name: "在启动 Word 前先把环境说清楚", exact: true })).toBeVisible();
+    await expect(window.getByRole("heading", { name: "环境与设置", exact: true })).toBeVisible();
     await window.screenshot({ path: path.join(screenshotDirectory, "settings-1440x900.png"), animations: "disabled", scale: "css" });
+
+    await window.getByRole("button", { name: "关于 版本与软件更新", exact: true }).click();
+    await expect(window.getByRole("heading", { name: "关于", exact: true })).toBeVisible();
+    await window.screenshot({ path: path.join(screenshotDirectory, "about-1440x900.png"), animations: "disabled", scale: "css" });
+    await window.getByRole("button", { name: "环境与设置 依赖检查与偏好", exact: true }).click();
 
     await window.getByRole("button", { name: "打开模板库目录", exact: true }).scrollIntoViewIfNeeded();
     await expect(window.getByText("便携版使用 EXE 同级 templates；安装版使用用户数据目录，由 Main 原子维护。", { exact: true })).toBeVisible();
     await window.screenshot({ path: path.join(screenshotDirectory, "settings-template-storage-1440x900.png"), animations: "disabled", scale: "css" });
-    await window.getByRole("heading", { name: "在启动 Word 前先把环境说清楚", exact: true }).scrollIntoViewIfNeeded();
+    await window.getByRole("heading", { name: "环境与设置", exact: true }).scrollIntoViewIfNeeded();
 
     await application.evaluate(({ ipcMain }) => {
       ipcMain.removeHandler("md2word:environment:check");
@@ -175,7 +183,7 @@ test("refreshes the Desktop MVP screenshot acceptance set", async () => {
             { id: "windows", name: "Windows", version: "Windows 11 · x64", detail: "当前系统可运行桌面版。", status: "ready", required: true },
             { id: "word", name: "Microsoft Word", version: "未检测到", detail: "未发现可用的 Microsoft Word。", status: "blocked", required: true },
             { id: "pandoc", name: "Pandoc", version: "已检测", detail: "已通过本机命令检查。", status: "ready", required: true },
-            { id: "worker", name: "C# Word Worker", version: "0.6.1", detail: "Worker JSONL 协议可用。", status: "ready", required: true },
+            { id: "worker", name: "C# Word Worker", version: "0.7.0", detail: "Worker JSONL 协议可用。", status: "ready", required: true },
             { id: "mermaid", name: "Mermaid CLI", version: "不可用", detail: "可选组件未安装。", status: "optional-missing", required: false },
           ],
         },

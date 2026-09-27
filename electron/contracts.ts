@@ -40,6 +40,7 @@ export type {
   TemplateValidationIssue,
   TemplateValidationReport,
   UpdateTemplateInput,
+  UpdateCheckResult,
   ValidateTemplateInput,
   ValidationStatus,
   WordStyleMapping,

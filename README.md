@@ -2,7 +2,7 @@
 
 把 Markdown 按指定的 Word 模板生成 DOCX，适合需要统一封面、标题、正文、列表和表格样式的文档。
 
-MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.6.1（Desktop MVP）**。选择一组 DOCX 模板与 CSS、添加 Markdown，再选择输出位置即可生成 Word 文档。文档内容在本机处理。
+MD2Word 是 **Windows 本地桌面工具**，当前源码版本为 **0.7.0（Desktop MVP，开发中）**。选择一组 DOCX 模板与 CSS、添加 Markdown，再选择输出位置即可生成 Word 文档。文档内容在本机处理。
 
 **[从源码部署](#source) · [工具使用说明](#usage) · [常见问题](#faq)**
 
@@ -10,7 +10,7 @@ MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.6.1（Desktop M
 
 GitHub 的 `Windows release` 工作流会为版本标签构建 Portable ZIP 和 Setup EXE，并作为 Release 附件提供下载；手动运行时可从 Actions artifact 下载。操作与环境说明见 [GitHub 发布流程](doc/development/github-release.md)。
 
-**`v0.6.1` 已公开发布**，Portable ZIP 和 Setup EXE 均包含离线模板制作指南；原有 `v0.6.0` 保持不变。
+**最近公开版本为 `v0.6.1`**，Portable ZIP 和 Setup EXE 均包含离线模板制作指南；`v0.7.0` 还未发布。原有 `v0.6.0` 保持不变。
 
 仓库与 Release 现已公开。发布内容仅含脱敏源码和公开合成模板，用户自己的文档与模板仍由本机管理。
 
@@ -83,10 +83,10 @@ npm run package:win
 
 | 产物 | 使用方式 |
 |---|---|
-| `MD2Word-0.6.1-win-x64-portable/` | 保留完整目录，运行其中的 `MD2Word.exe` |
-| `MD2Word-0.6.1-win-x64-portable.zip` | 解压后运行其中的 `MD2Word.exe` |
-| `MD2Word-0.6.1-win-x64-portable.exe` | 单文件启动器，与同级 `templates/` 一起分发 |
-| `MD2Word-0.6.1-win-x64-setup.exe` | 安装向导：当前用户安装，可选择目录并创建桌面/开始菜单快捷方式 |
+| `MD2Word-0.7.0-win-x64-portable/` | 保留完整目录，运行其中的 `MD2Word.exe` |
+| `MD2Word-0.7.0-win-x64-portable.zip` | 解压后运行其中的 `MD2Word.exe` |
+| `MD2Word-0.7.0-win-x64-portable.exe` | 单文件启动器，与同级 `templates/` 一起分发 |
+| `MD2Word-0.7.0-win-x64-setup.exe` | 安装向导：当前用户安装，可选择目录并创建桌面/开始菜单快捷方式 |
 | `templates/` | 单文件版配套模板库；基线包含公开参考模板 |
 | `MD2Word-支持能力说明.md` | 随包离线使用参考 |
 | `MD2Word-模板制作指南.md` | 从参考模板修改或空白 DOCX 开始制作的离线教程 |
@@ -113,6 +113,8 @@ Worker、真实 Word/Mermaid、桌面交互和打包测试的完整命令及已�
 0.6.0 已通过类型检查、Lint、101 项前端/存储测试、Worker 常规测试、真实桌面转换和四种交付物构建；Setup 的安装、同版本覆盖安装、用户模板保留及默认卸载也已实际验证。范围与限制见 [Setup 验收记录](doc/testing/setup-installation.md)。
 
 0.6.1 已通过本地类型检查、Lint、101 项前端/存储测试、Worker 常规测试、构建及带指南的打包检查；本次未重复真实 Word 和安装生命周期专项。GitHub 同版本构建与发布也已通过，发布的 ZIP 已下载核对版本、完整性及指南内容。
+
+0.7.0 正在开发：新增 Windows 11 Fluent 浅色界面、“关于”与 GitHub 正式 Release 检查，以及图题居中视觉修复。类型检查、Lint、111 项前端/存储测试、Worker 常规测试、生产构建、协议 smoke、桌面壳与真实合成 Word 转换均已通过；Word 导出的单页 PDF 已目视复核。`package:win` 现已成功生成四种产物；便携目录启动、Setup 首次安装、同版本覆盖、0.6.1→0.7.0 跨版本升级、模板保留及卸载均在隔离目录通过。完整命令、截图和边界见 [开发与验收说明](doc/uiPrototype/README.md)与 [Setup 验收](doc/testing/setup-installation.md)。本源码版本尚无对应 GitHub Release，页面不会把 0.6.1 当成升级目标。
 
 <a id="usage"></a>
 
@@ -180,6 +182,10 @@ DOCX 与 CSS 是一组配置。模板必须包含按顺序排列的 `MANUAL_BODY
 
 在“环境与设置”中可以打开当前模板库。安装版请通过这个入口管理模板，不要修改安装目录内的模板种子文件。升级不会覆盖已存在的模板包，也不会恢复你已在包内删除的模板。
 
+打开侧栏底部“关于”，点击“检查更新”可从 GitHub Releases 查询最新正式版；发现新版后通过“前往下载新版”到 GitHub 下载。Setup 版退出应用后覆盖安装；便携版解压新版到新目录，并按需迁移自己管理的模板库。此功能只检查并打开固定下载页，不会自动下载或安装，也不会上传 Markdown、DOCX 或模板。浏览器预览会明确标注模拟检查。
+
+![关于：当前版本、更新日志和检查更新](doc/uiPrototype/screenshots/about-1440x900.png)
+
 ![环境与设置：打开当前模板库，便携版与安装版使用各自的存储位置](doc/uiPrototype/screenshots/settings-template-storage-1440x900.png)
 
 界面导入的模板会复制为：
@@ -239,4 +245,4 @@ templates/
 | [Electron + C# 架构](doc/architecture/electron-csharp.md) | 分层、IPC、存储与安全边界 |
 | [WordDOM 兼容审计](doc/architecture/legacy-pipeline-audit.md) | 兼容基线与已知差异 |
 
-协作规则见 [AGENTS.md](AGENTS.md)。请勿将用户模板、业务文档或转换产物提交到仓库；公开示例和截图只使用合成内容。
+协作规则见 [AGENTS.md](AGENTS.md) 与 [Agent 协作说明](doc/development/agent-collaboration.md)。请勿将用户模板、业务文档或转换产物提交到仓库；公开示例和截图只使用合成内容。

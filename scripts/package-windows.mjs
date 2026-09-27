@@ -9,6 +9,8 @@ const projectRoot = path.resolve(scriptsDirectory, "..");
 const stageRoot = path.join(projectRoot, "templates", "local");
 const publicTemplateSourceRoot = path.join(projectRoot, "resources", "templates");
 const workerPath = path.join(projectRoot, "worker", "publish", "win-x64", "Md2Word.Worker.exe");
+const electronPackageRoot = path.join(projectRoot, "node_modules", "electron");
+const electronDistRoot = path.join(electronPackageRoot, "dist");
 const packageMetadata = JSON.parse(await fs.readFile(path.join(projectRoot, "package.json"), "utf8"));
 const npmCliPath = process.env.npm_execpath && path.isAbsolute(process.env.npm_execpath)
   ? path.resolve(process.env.npm_execpath)
@@ -39,6 +41,28 @@ async function pathExists(target) {
     if (error?.code === "ENOENT") return false;
     throw error;
   }
+}
+
+async function verifyInstalledElectronDist() {
+  if (process.platform !== "win32" || process.arch !== "x64") {
+    throw new Error("Windows x64 packaging requires a Windows x64 Node.js host.");
+  }
+  const stat = await fs.lstat(electronDistRoot);
+  const realDistRoot = await fs.realpath(electronDistRoot);
+  if (!stat.isDirectory() || stat.isSymbolicLink()
+    || path.normalize(realDistRoot).toLowerCase() !== path.normalize(electronDistRoot).toLowerCase()) {
+    throw new Error("The installed Electron distribution must be a local, non-linked directory.");
+  }
+  const electronPackage = JSON.parse(await fs.readFile(path.join(electronPackageRoot, "package.json"), "utf8"));
+  const distributionVersion = (await fs.readFile(path.join(electronDistRoot, "version"), "utf8")).trim();
+  if (distributionVersion !== electronPackage.version) {
+    throw new Error("The installed Electron binary version does not match the Electron package.");
+  }
+  const executable = await fs.stat(path.join(electronDistRoot, "electron.exe"));
+  if (!executable.isFile() || executable.size === 0) {
+    throw new Error("The installed Electron distribution has no usable Windows executable.");
+  }
+  return { path: electronDistRoot, version: distributionVersion };
 }
 
 async function cleanupLegacyReleaseLayout() {
@@ -79,6 +103,9 @@ async function packageWindows() {
     if (!npmCliPath) throw new Error("Run Windows packaging through npm run package:win.");
     await cleanupLegacyReleaseLayout();
     await run(process.execPath, [npmCliPath, "run", "build:desktop"]);
+    // Electron 43 installs its binary lazily. A clean `npm ci` on CI has the
+    // package and its checksums but may not yet have node_modules/electron/dist.
+    await run(process.execPath, [path.join(electronPackageRoot, "install.js")]);
     await stagePublicTemplateCatalog({
       projectRoot,
       stageRoot,
@@ -86,6 +113,8 @@ async function packageWindows() {
       workerPath,
     });
     process.stdout.write("Tracked public template packages Worker-validated and staged under templates/.\n");
+    const electronDist = await verifyInstalledElectronDist();
+    process.stdout.write(`Using the installed Electron ${electronDist.version} distribution.\n`);
     const artifactName = "MD2Word-${version}-win-${arch}-portable.${ext}";
     await run(process.execPath, [
       npmCliPath,
@@ -98,6 +127,7 @@ async function packageWindows() {
       "nsis",
       "--x64",
       "--config.directories.output=release",
+      `--config.electronDist=${electronDist.path}`,
       `--config.win.artifactName=${artifactName}`,
       `--config.portable.artifactName=${artifactName}`,
     ]);

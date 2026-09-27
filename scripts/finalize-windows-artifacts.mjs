@@ -95,7 +95,19 @@ if (await pathExists(unpackedDirectory)) {
     await validatePortableDirectoryLocation(portableDirectory);
     await fs.rm(portableDirectory, { recursive: true, force: true });
   }
-  await fs.rename(unpackedDirectory, portableDirectory);
+  try {
+    await fs.rename(unpackedDirectory, portableDirectory);
+  } catch (error) {
+    if (!["EPERM", "EACCES"].includes(error?.code) || await pathExists(portableDirectory)) throw error;
+    // Windows security scanners can keep a handle on the freshly built
+    // directory and deny its rename even though its files are readable.
+    // Copy only this validated build directory, verify the copy, then remove
+    // the staging directory before publishing the final release layout.
+    await fs.cp(unpackedDirectory, portableDirectory, { recursive: true, force: false, errorOnExist: true });
+    await validatePortableDirectory(portableDirectory);
+    await fs.rm(unpackedDirectory, { recursive: true, force: true, maxRetries: 15, retryDelay: 500 });
+    process.stdout.write("Windows denied renaming the staged app; verified a copied portable directory instead.\n");
+  }
 }
 await validatePortableDirectory(portableDirectory);
 

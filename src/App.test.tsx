@@ -2,13 +2,13 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import App from "./App";
 
 describe("MD2Word prototype", () => {
-  it("navigates between the four primary pages", () => {
+  it("navigates between all five pages", () => {
     render(<App />);
 
-    expect(screen.getByRole("heading", { name: "把 Markdown 交给正确的 Word 模板" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "生成 Word" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /模板管理/ }));
-    const templatesHeading = screen.getByRole("heading", { name: "让模板和 CSS 永远保持正确配对" });
+    const templatesHeading = screen.getByRole("heading", { name: "模板管理" });
     expect(templatesHeading).toBeInTheDocument();
     expect(templatesHeading).toHaveFocus();
 
@@ -16,7 +16,10 @@ describe("MD2Word prototype", () => {
     expect(screen.getByRole("heading", { name: "MD2Word 支持能力说明" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /环境与设置/ }));
-    expect(screen.getByRole("heading", { name: "在启动 Word 前先把环境说清楚" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "环境与设置" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /关于 版本与软件更新/ }));
+    expect(screen.getByRole("heading", { name: "关于" })).toBeInTheDocument();
   });
 
   it("adds a validated template profile and keeps DOCX/CSS as one profile", async () => {

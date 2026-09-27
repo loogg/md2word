@@ -7,7 +7,11 @@ test("Setup stores imported templates in userData and preserves them on restart"
   const { version } = JSON.parse(await fs.readFile(path.resolve("package.json"), "utf8")) as { version: string };
   const executablePath = path.resolve(process.env.MD2WORD_SETUP_EXE ?? "output/setup-install-test/MD2Word.exe");
   const installRoot = path.dirname(executablePath);
-  const userDataPath = path.resolve("output/e2e-setup-user-data");
+  const userDataPath = path.resolve(process.env.MD2WORD_SETUP_USER_DATA ?? "output/e2e-setup-user-data");
+  const outputRoot = path.resolve("output");
+  if (!userDataPath.startsWith(`${outputRoot}${path.sep}`)) {
+    throw new Error("Setup E2E user data must stay under the workspace output directory.");
+  }
   await fs.rm(userDataPath, { recursive: true, force: true });
   expect(await fs.readFile(path.join(installRoot, "resources", "md2word-installed"), "utf8")).toBe("setup");
   const installedIndexPath = path.join(installRoot, "templates", "reference", "index.json");
@@ -17,7 +21,7 @@ test("Setup stores imported templates in userData and preserves them on restart"
   try {
     expect(await application.evaluate(({ app }) => app.getPath("userData"))).toBe(userDataPath);
     let window = await application.firstWindow();
-    await expect(window.getByRole("heading", { name: /Markdown.*Word 模板/ })).toBeVisible();
+    await expect(window.getByRole("heading", { name: "生成 Word", exact: true })).toBeVisible();
     expect(await window.evaluate(() => window.md2word!.capabilities.describe())).toMatchObject({ productVersion: version });
     expect(await window.evaluate(() => window.md2word!.templates.list())).toHaveLength(1);
     const registered = [];
@@ -49,7 +53,7 @@ test("Setup stores imported templates in userData and preserves them on restart"
     await application.close();
     application = await launch();
     window = await application.firstWindow();
-    await expect(window.getByRole("heading", { name: /Markdown.*Word 模板/ })).toBeVisible();
+    await expect(window.getByRole("heading", { name: "生成 Word", exact: true })).toBeVisible();
     expect(await window.evaluate(() => window.md2word!.templates.list())).toEqual([
       expect.objectContaining({ id: imported.id, isDefault: true }),
     ]);

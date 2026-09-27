@@ -1,11 +1,12 @@
 import type { IpcMainInvokeEvent, WebContents } from "electron";
-import type { CapabilityManifest, EnvironmentStatus, TemplateProfile, TemplateValidationReport } from "./contracts";
+import type { CapabilityManifest, EnvironmentStatus, TemplateProfile, TemplateValidationReport, UpdateCheckResult } from "./contracts";
 import type { ConversionCoordinator } from "./conversion-coordinator";
 import type { EnvironmentService } from "./environment-service";
 import { AppError, toPublicError } from "./errors";
 import type { FileDialogService } from "./file-dialog-service";
 import type { HandleRegistry, JobResultRegistry } from "./handle-registry";
 import { IPC_CHANNELS } from "./ipc-channels";
+import { RELEASES_URL, REPOSITORY_URL } from "./release-update-service";
 import type { TemplateStore } from "./template-store";
 import type { TemplateDraftValidationService } from "./template-validation-service";
 import {
@@ -23,6 +24,7 @@ export interface IpcMainPort {
 
 export interface NativeShellPort {
   openPath(absolutePath: string): Promise<string>;
+  openExternal(url: string): Promise<void>;
   showItemInFolder(absolutePath: string): void;
 }
 
@@ -37,6 +39,7 @@ export interface RegisterIpcOptions {
   conversions: ConversionCoordinator;
   environment: EnvironmentService;
   describeCapabilities: () => Promise<CapabilityManifest>;
+  checkForUpdates: () => Promise<UpdateCheckResult>;
   shell: NativeShellPort;
 }
 
@@ -128,6 +131,10 @@ export function registerIpcHandlers(options: RegisterIpcOptions): () => void {
   });
   register(IPC_CHANNELS.environmentCheck, (): Promise<EnvironmentStatus> => options.environment.check());
   register(IPC_CHANNELS.capabilitiesDescribe, (): Promise<CapabilityManifest> => options.describeCapabilities());
+  register(IPC_CHANNELS.updatesCheck, (): Promise<UpdateCheckResult> => options.checkForUpdates());
+  register(IPC_CHANNELS.updatesOpenRepository, () => options.shell.openExternal(REPOSITORY_URL));
+  register(IPC_CHANNELS.updatesOpenReleases, () => options.shell.openExternal(RELEASES_URL));
+  register(IPC_CHANNELS.updatesOpenLatestRelease, () => options.shell.openExternal(`${RELEASES_URL}/latest`));
 
   register(IPC_CHANNELS.shellOpenOutput, async (ownerId, value) => {
     const outputPath = options.results.resolve(assertId(value, "任务 ID"), ownerId);

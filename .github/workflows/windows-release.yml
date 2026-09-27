@@ -110,7 +110,10 @@ jobs:
           $tag = $env:GITHUB_REF_NAME
           $zip = "release/MD2Word-${env:RELEASE_VERSION}-win-x64-portable.zip"
           $setup = "release/MD2Word-${env:RELEASE_VERSION}-win-x64-setup.exe"
-          @'
+          if ($env:RELEASE_VERSION -eq '0.7.0') {
+            Copy-Item -LiteralPath doc/development/release-notes-0.7.0.md -Destination release-notes.md
+          } else {
+            @'
           Windows x64 packages: Portable ZIP and Setup installer.
 
           Includes the offline template authoring guide (MD2Word-模板制作指南.md), covering Word bookmarks, paragraph styles, CSS mapping, and validation.
@@ -119,6 +122,7 @@ jobs:
 
           Packages are unsigned. GitHub Actions runs compilation and tests without Word COM; real Word conversion and installer lifecycle checks are performed separately on a Windows Word host.
           '@ | Set-Content -LiteralPath release-notes.md -Encoding utf8
+          }
           $existing = gh release view $tag --repo $env:GITHUB_REPOSITORY --json isDraft 2>$null
           if ($LASTEXITCODE -eq 0) {
             if (-not ($existing | ConvertFrom-Json).isDraft) { throw 'Release is already published; use a new version tag' }

@@ -110,7 +110,7 @@ sequenceDiagram
 
 正式契约以 `caption` 为规范拼写，并兼容旧链路曾使用的 `cation`。新链路只在注释是 Mermaid 代码块后的下一个非空白节点时绑定；两者之间只能有空白，正文、HTML 元素或其他注释都中断绑定。旧脚本曾把较松散的全局 caption 注释后置转换为 `p.manual-figure-caption`，无法可靠证明归属并可能产生孤立图注；改为严格相邻绑定是本次明确收紧的兼容边界。
 
-成功绑定后生成 figure/image/figcaption；图注既作为图片替代文本，也作为 Word 图注纯文本。无图注 Mermaid 成功时只生成图片。渲染完成后才统一运行图号 filter，因此普通带图注图片与成功且带绑定图注的 Mermaid 按文档顺序获得 `图 X.Y 标题`，失败后保留的代码块不占图号。图注经 `figcaption` / `p.manual-figure-caption` 的 CSS `mso-style-name` 映射到模板 Caption/“图注”等既有段落样式；`figure_captions: false` 关闭图注和图号。
+成功绑定后生成 figure/image/figcaption；图注既作为图片替代文本，也作为 Word 图注纯文本。无图注 Mermaid 成功时只生成图片。渲染完成后才统一运行图号 filter，因此普通带图注图片与成功且带绑定图注的 Mermaid 按文档顺序获得 `图 X.Y 标题`，失败后保留的代码块不占图号。图注经 `figcaption` / `p.manual-figure-caption` 的 CSS `mso-style-name` 映射到模板 Caption/“图注”等既有段落样式；`figure_captions: false` 关闭图注和图号。0.7.0 的真实 Word/PDF 审查发现独立图题段在最小合成模板中仍左对齐：Word 导入后处理清除了直接段落格式，且模板的合成图题样式未定义居中。现在图题角色在保留已解析样式的同时显式写入居中对齐；图片段原有居中和自动行距不变。此固定图题几何仅作用于图题角色，不扩展到表题。
 
 版本表规则：
 

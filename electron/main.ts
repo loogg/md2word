@@ -12,6 +12,7 @@ import { AppError } from "./errors";
 import { FileDialogService, type DialogPort } from "./file-dialog-service";
 import { HandleRegistry, JobResultRegistry } from "./handle-registry";
 import { IPC_CHANNELS } from "./ipc-channels";
+import { ReleaseUpdateService } from "./release-update-service";
 import { registerIpcHandlers } from "./ipc";
 import { createMainWindow } from "./main-window";
 import { sanitizeWorkerEvent } from "./sanitize";
@@ -277,6 +278,7 @@ async function createRuntime(): Promise<{
     emit: sendPublicEvent,
   });
   const dialogs = new FileDialogService({ dialog: createDialogPort(), handles });
+  const updates = new ReleaseUpdateService(app.getVersion());
 
   const createWindow = async () => {
     const preloadOverride = !app.isPackaged ? process.env.MD2WORD_PRELOAD_PATH : undefined;
@@ -303,6 +305,7 @@ async function createRuntime(): Promise<{
           conversions: coordinator,
           environment,
           describeCapabilities,
+          checkForUpdates: () => updates.check(),
           shell,
         });
         const ownerId = createdWindow.webContents.id;

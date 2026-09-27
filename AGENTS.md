@@ -2,7 +2,7 @@
 
 ## 项目定位
 
-- 当前里程碑是 **Desktop MVP 0.6.1**：Windows 桌面应用，同时保留浏览器交互预览。
+- 当前开发里程碑是 **Desktop MVP 0.7.0**：Windows 桌面应用，同时保留浏览器交互预览；最近公开版本为 0.6.1。
 - 正式产品只面向 Windows，链路为 `React Renderer -> Electron Main (Node.js) -> C# Word Worker -> Word COM`。
 - 不得把浏览器模拟转换、模拟环境检测或文件选择描述成真实 Electron/C# 能力。
 
@@ -12,6 +12,23 @@
 2. 涉及进程、IPC、模板存储或转换协议时，阅读 [Electron/C# 架构](doc/architecture/electron-csharp.md)。
 3. 涉及 WordDOM 兼容性时，阅读 [旧链路审计](doc/architecture/legacy-pipeline-audit.md)，不要只凭 Pandoc 或 Word 经验推断旧行为。
 4. 涉及原型状态、截图或验收时，阅读 [UI 原型说明](doc/uiPrototype/README.md)。
+
+## 界面设计与实操审查
+
+- 涉及界面修改时采用 Windows 11 Fluent 风格：浅色 Surface、适度圆角与留白、中性色、系统风格强调色；保持桌面工程工具的信息密度，不套用 Web 仪表盘布局。
+- UI 完成后启动 Browser Review Mode，使用内置浏览器逐页实际点击、输入、滚动并审查所有受影响的按钮、菜单、弹窗及 Empty、Loading、Error、Disabled、成功和取消状态。响应式覆盖 Electron 最小窗口 1100x720、目标 1280x800、典型 1440x900，以及受影响断点两侧。
+- 优先使用真实 Bridge；只有难稳定复现的特殊状态才用 Mock/Fixture，并在记录中标明。Browser Review 只验 Renderer；原生对话框、文件系统、更新外链与 Worker 等能力还需真实 Electron 验证。自动 E2E 不能代替目视和实操审查。
+- 发现可见问题后直接修复并复审。功能和按钮检查结果、截图及未覆盖项写入 [UI 验收说明](doc/uiPrototype/README.md)，不可把未执行的项目记作通过。
+
+## Word 成品审查
+
+- 涉及转换、模板或 CSS 输出效果时，用公开合成夹具生成真实 DOCX；同时检查 Open XML 结构与 Word 导出的逐页 PDF/截图。关注标题、编号、图题、表格、图片、页眉页脚和分页，不凭单测通过宣称视觉正确。
+- 使用真实用户模板或文档进行私有验收时，所有输入、DOCX、PDF 与截图仅留在仓库外或被忽略的 `output/`，不得提交或写入普通日志。
+
+## Agent 协作
+
+- 主 Agent 负责确认需求边界、集成改动、运行验收和审查 Word 成品。独立、边界清楚且不写同一文件的研究或审查任务才适合派发 subagent；交接时写明目标、文件范围、完成标准与证据。
+- 跨 Renderer/Main/Worker 的契约、版本和发布安全由主 Agent 最终核对。协作实践与提示词范例见 [Agent 协作说明](doc/development/agent-collaboration.md)。
 
 ## 不可违反的规则
 
@@ -55,7 +72,7 @@
 
 ## 版本与 Git
 
-- `package.json` 是应用版本的单一真源；当前版本为 `0.6.1`。版本变化时同步 README 和里程碑说明。
+- `package.json` 是应用版本的单一真源；当前开发版本为 `0.7.0`。版本变化时同步 README 和里程碑说明。
 - 使用语义化版本：修复为 patch，向后兼容功能为 minor，破坏性契约变化为 major；原型阶段仍需记录破坏性变更。
 - 默认分支为 `master`，功能开发使用短期分支。提交信息采用 Conventional Commits，例如 `feat: initialize md2word UI prototype`。
 - 提交前至少运行类型检查、Lint、单元测试和生产构建；UI 变化还要完成浏览器交互与目标尺寸视觉检查。

@@ -1,4 +1,4 @@
-# Setup 安装版验收（0.6.0）
+# Setup 安装版验收（0.6.0 / 0.7.0）
 
 ## 范围与数据
 
@@ -17,11 +17,13 @@ $ErrorActionPreference = 'Stop'
 npm run package:win
 $version = (Get-Content package.json | ConvertFrom-Json).version
 $installer = (Resolve-Path "release/MD2Word-$version-win-x64-setup.exe").Path
-$installDir = [IO.Path]::GetFullPath((Join-Path (Get-Location) 'output/setup-install-test'))
-Start-Process -FilePath $installer -ArgumentList "/S /D=$installDir" -WindowStyle Hidden -Wait
+$installDir = [IO.Path]::GetFullPath((Join-Path (Get-Location) "output/setup-install-test-$version"))
+$install = Start-Process -FilePath $installer -ArgumentList "/S /D=$installDir" -WindowStyle Hidden -Wait -PassThru
+if ($install.ExitCode -ne 0) { throw "Setup 安装失败：$($install.ExitCode)" }
 
 $env:MD2WORD_RUN_SETUP_E2E = '1'
 $env:MD2WORD_SETUP_EXE = Join-Path $installDir 'MD2Word.exe'
+$env:MD2WORD_SETUP_USER_DATA = [IO.Path]::GetFullPath((Join-Path (Get-Location) "output/e2e-setup-$version-user-data"))
 npx playwright test --config playwright.electron.config.ts e2e/electron-installed.spec.ts
 ```
 
@@ -32,6 +34,19 @@ npx playwright test --config playwright.electron.config.ts e2e/electron-installe
 另外执行便携目录版 packaged E2E、真实 Word 转换和截图检查，确保增加安装版不改变便携版的 EXE 同级模板路径。
 
 ## 结果
+
+### 0.7.0 本机验收（2026-09-27）
+
+- 安装前确认没有已登记的 MD2Word 安装或运行进程，使用 `output/setup-install-test-0.7.0` 与 `output/e2e-setup-0.7.0-user-data`，未覆盖用户安装。
+- `npm run package:win` 完成四种产物，最终 `release` 只有便携目录、Portable EXE/ZIP、Setup EXE、公开模板容器和两份离线说明；无 `win-unpacked` 或 builder 元数据。此前本机的 `win-unpacked.tmp` 重命名 `EPERM` 由已安装 Electron 分发目录复制规避，最终便携目录的同类 `EPERM` 由复验后复制回退解决。Electron 43 在干净 `npm ci` 后尚无 `dist` 时，打包先用包内安装脚本准备官方二进制；已用无 `dist` 的隔离副本实测。旧本地 0.6.1 产物保存在忽略目录。
+- 便携目录 `e2e/electron-packaged.spec.ts` 通过：内置 Worker、能力版本 0.7.0、窄 preload API、参考模板校验与必需环境就绪。
+- Setup 首次静默安装返回 0，安装标记存在；`e2e/electron-installed.spec.ts` 通过：首次种子、合成模板导入、安装目录不变、删除参考模板后重启不恢复且导入模板保持默认。
+- 对同一专用目录覆盖安装返回 0，隔离用户模板库 4 个文件的 SHA-256 全部不变；`e2e/electron-installed-retention.spec.ts` 再次启动并确认唯一导入模板仍为默认。
+- 使用保留的公开 0.6.1 Setup 在另一专用目录安装，`e2e/electron-upgrade.spec.ts` 的 seed 阶段导入合成模板、设为默认并删除参考模板；随后用 0.7.0 Setup 覆盖安装返回 0，4 个模板库文件 SHA-256 不变。verify 阶段确认应用版本为 0.7.0、模板校验通过且唯一导入模板仍为默认，已删除的参考模板未恢复。
+- 专用卸载器 `/currentuser /S` 返回 0，安装 EXE、注册项、桌面/开始菜单快捷方式均不存在；4 个用户模板文件仍存在且 SHA-256 未变。
+- 两组专用安装均已卸载且用户模板数据保留。这是本机 0.6.1→0.7.0 跨版本验收；代码签名和 GitHub 发布未在本记录中宣称通过。构建仍报告既有 `AngleSharp 1.3.0` 的 `NU1902` 告警。
+
+### 0.6.0 历史验收（2026-09-09）
 
 2026-09-09，0.6.0 实际结果：
 

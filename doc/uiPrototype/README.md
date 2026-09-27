@@ -2,7 +2,7 @@
 
 ## 目的与运行边界
 
-当前里程碑是 **Desktop MVP 0.6.1**。同一套 React 页面通过 adapter 选择运行后端：
+当前开发里程碑是 **Desktop MVP 0.7.0**，最近公开版为 0.6.1。同一套 React 页面通过 adapter 选择运行后端：
 
 - Electron 中使用真实 preload、Main、模板库、原生对话框、C# Worker、Word COM 和受控 shell 动作。
 - 普通浏览器中使用 mock adapter，保留 UI 预览、合成模板、本地存储和模拟任务；不会生成 DOCX。
@@ -28,6 +28,7 @@
 | 模板管理 | DOCX/CSS 成组导入、Worker 校验、CSS 显式映射/Word 原生回退来源、warning 二次确认、默认模板和原子存储 |
 | 能力说明 | 当前安装 Worker 的产品/清单/协议版本；语法、Front Matter、模板契约、限制和环境四类信息；搜索与模板问题深链 |
 | 环境与设置 | Word/Pandoc/Worker 必需项与 Mermaid npx + 本地 Edge/Chrome 可选项区分；真实重新检测和受控打开模板库 |
+| 关于 | 当前版本、正式 Release 检查、新版/最新/失败状态、固定仓库/日志/下载外链；浏览器结果标“演示” |
 
 详细布局和文案规则见 [UI 规格](../requirement/ui-spec.md)。
 
@@ -47,7 +48,8 @@
 10. 分别检查 Mermaid `off` 保留代码、`auto` 单图失败保留对应代码并显示稳定告警、`required` 任一图失败且不产生部分成品；环境卡缺 npx 或本机 Edge/Chrome 时按模式阻止或降级。
 11. 在转换中请求取消，确认先显示安全取消，最终不保留部分输出，任务结束后没有本任务残留的 WINWORD、Mermaid CLI 或浏览器子进程。
 12. 进入“环境与设置”重新检查；Word、Pandoc 或 Worker 缺失时必须阻止生成，Mermaid 缺失只按当前模板模式影响任务。
-13. 在 1440x900 与 1280x800 检查四页、模板选择弹层、warning、运行、成功、失败和取消状态，并重新生成 0.5.0 桌面截图。仅 Worker 成品视觉变化且 Renderer 布局/状态未变化时，无需更新现有页面截图。
+13. 在 1100x720、1279x800、1280x800 与 1440x900 检查五页、各按钮、输入、弹层、滚动、warning、运行、成功、失败、禁用和取消状态，尤其确认窄窗口模板行的全部操作可见。先用内置浏览器逐页实操，再用真实 Electron 检查原生能力；自动 E2E 不代替目视判断。
+14. 在“关于”检查新版/最新/加载/错误；桌面版只从固定 GitHub latest API 获取正式版，仓库、日志与下载按钮只打开固定 GitHub 地址。浏览器 mock 的结果不得被当作真实更新检查。
 
 只预览浏览器 mock 时，可以继续使用两个合成演示模板、模拟另存为、模拟失败/取消和“重置演示数据”；这些结论不能替代上述桌面验收。
 
@@ -181,7 +183,7 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 
 2026-09-09 的 README 文档整理将首页改为“从源码部署”和“工具使用说明”两部分；架构、完整能力契约和历史验收结果由本文及相应专项文档承接。通过 Computer Use 在现有 0.5.0 便携目录版完成了选择合成 Markdown、原生另存为和真实 Word 转换，页面显示“生成完成”及兼容提示，并补拍结果区域。README 的 17 个本地链接/入口及全部 npm 脚本名称检查通过，4 张配图均存在，Pandoc GFM HTML 预览生成通过，`git diff --check` 通过。此轮仅修改文档和截图，没有修改应用代码，也未重跑整套构建或测试；前述测试结果属于此前的代码验证。
 
-以下文件已于 2026-09-09 使用中性样式的运行时合成 DOCX/CSS/Markdown 和真实 Electron 页面重拍并逐张复核，不含组织标识、用户名、真实路径或业务正文：
+以下 0.7.0 截图于 2026-09-27 使用中性合成 DOCX/CSS/Markdown 和真实 Electron 页面重拍并逐张复核，不含组织标识、用户名、真实路径或业务正文：
 
 | 文件 | 尺寸 | 当前内容 | 状态 |
 |---|---:|---|---|
@@ -191,40 +193,61 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 | `screenshots/template-editor-1440x900.png` | 1440x900 | 添加模板字段、文件选择与底部操作 | 已通过 1440x900 / 1100x720 视口完整可见断言及人工复核 |
 | `screenshots/capabilities-1440x900.png` | 1440x900 | 当前 Worker 版本、四类能力说明与 Front Matter 元数据 | 已自动生成并人工复核 |
 | `screenshots/settings-1440x900.png` | 1440x900 | 真实 Word/Pandoc/Worker/Mermaid 诊断，CLI 显示固定 11.16.0 | 已自动生成并人工复核 |
+| `screenshots/about-1440x900.png` | 1440x900 | 关于页的当前版本、升级说明与检查入口 | 已自动生成并人工复核 |
 | `screenshots/settings-template-storage-1440x900.png` | 1440x900 | 0.6.0：便携版/安装版模板位置提示与打开模板库入口 | 已自动断言文案可见并视觉复核 |
 | `screenshots/settings-word-missing-1440x900.png` | 1440x900 | 受控注入的 Word 缺失阻塞态 | 已自动生成并人工复核 |
 | `screenshots/generate-word-1280x800.png` | 1280x800 | 最小目标尺寸桌面生成页 | 已自动生成并人工复核 |
-| `screenshots/readme-success.png` | 1429x895 | README：公开参考模板完成合成文档转换，滚动到结果和输出操作区域 | Computer Use 实际窗口截图，原始 JPEG 无裁切转存 PNG，已视觉复核 |
+| `screenshots/readme-success.png` | 1440x900 | README：桌面合成文档完成转换，滚动到结果和输出操作区域 | 真实 Electron UI 转换后生成并视觉复核 |
 
-### 当前桌面页面预览（0.6.1；README 成功示例为此前的通用流程）
+### 当前桌面页面预览（0.7.0 开发版）
 
-![0.6.1 生成 Word 紧凑模板摘要](screenshots/generate-word-1440x900.png)
+![0.7.0 生成 Word 紧凑模板摘要](screenshots/generate-word-1440x900.png)
 
-![0.6.1 模板搜索选择弹层](screenshots/template-selector-1440x900.png)
+![0.7.0 模板搜索选择弹层](screenshots/template-selector-1440x900.png)
 
-![0.6.1 模板管理与校验状态对齐](screenshots/templates-1440x900.png)
+![0.7.0 模板管理与校验状态对齐](screenshots/templates-1440x900.png)
 
-![0.6.1 添加模板窗口完整显示](screenshots/template-editor-1440x900.png)
+![0.7.0 添加模板窗口完整显示](screenshots/template-editor-1440x900.png)
 
-![0.6.1 Front Matter 能力说明](screenshots/capabilities-1440x900.png)
+![0.7.0 Front Matter 能力说明](screenshots/capabilities-1440x900.png)
 
-![0.6.1 真实环境与设置](screenshots/settings-1440x900.png)
+![0.7.0 真实环境与设置](screenshots/settings-1440x900.png)
 
-![0.6.1 Word 环境缺失](screenshots/settings-word-missing-1440x900.png)
+![0.7.0 关于与升级](screenshots/about-1440x900.png)
 
-![0.6.1 最小尺寸生成页](screenshots/generate-word-1280x800.png)
+![0.7.0 Word 环境缺失](screenshots/settings-word-missing-1440x900.png)
+
+![0.7.0 最小目标尺寸生成页](screenshots/generate-word-1280x800.png)
 
 ## Adapter 边界
 
 - `createAppAdapter()` 检测 `window.md2word`：存在时使用 Electron API，否则使用浏览器 mock。
 - 页面只提交 `templateId + sourceHandle + outputHandle`；路径型 `ConversionRequest` 仅由 Main 构造并发送给 Worker。
-- Electron preload 暴露模板、文件、转换、环境、能力说明和 shell 的显式方法；不暴露原始 `ipcRenderer`。
+- Electron preload 暴露模板、文件、转换、环境、能力说明、更新检查和 shell 的显式方法；不暴露原始 `ipcRenderer`。
 - Electron 能力页经 Main 查询当前 Worker；browser mock 与生成式离线说明导入同一机器清单。
 - mock adapter 只保存合成配置与状态，不读取 DOCX 或执行本地转换。
 
 后续扩展 Mermaid 视觉矩阵、图片和高级表格时继续替换 Worker 阶段，不重写页面业务状态机。
 
 ## 维护规则
+
+### 0.7.0 Fluent、升级入口与 Word 成品验收（2026-09-27）
+
+- `npm run typecheck`、`npm run lint`、`npm run test`（26 文件、111 项）、`npm run test:worker`（126 通过、11 项需要显式 Word/Mermaid 环境而跳过）、`npm run build`、`npm run test:protocol` 和常规 `npm run test:e2e` 已通过。桌面壳 E2E 验证五页导航、窄 preload API、模板库打开与固定 GitHub 外链；新版状态由受控合成 IPC 响应驱动，不冒充线上 Release。
+- `npm run screenshots:desktop` 通过，以真实 Electron 和公开合成模板重拍十张页面截图；模板编辑窗口在 1100x720 内完整可见，模板操作按钮在最小窗口内未裁切。README 的成功截图由真实桌面 UI 再次转换后生成，警告摘要与打开/定位按钮同时可见。
+- 内置浏览器 Browser Review 已逐页实操：生成页的模板弹层、搜索/清空、Markdown 选择与移除、模拟另存为取消、成功/失败/重试/安全取消、日志和结果操作；模板页的搜索、DOCX/CSS 选择、校验、增删改、设默认与确认/取消；能力页四个分类与搜索空态；环境页检查、Word 缺失/恢复和重置；关于页三个 GitHub 链接、检查、版本说明。测试发现并移除模拟另存为中无动作的“浏览目录”按钮。
+- 真实网络检查使用 `ReleaseUpdateService` 对固定 GitHub 仓库查询，得到已公开的 `v0.6.1`，对当前 0.7.0 源码正确返回 `up-to-date`；匿名 API 限流的固定页面 HEAD 回退与越域重定向拒绝由单元测试覆盖。此检查不代表 0.7.0 已发布。
+- 响应式实际检查 1100x720、1279x800、1280x800 和 1440x900；模板行在 1280 断点两侧无水平溢出，1279/1280 时最右操作分别落在 1230/1231px 内。关于和环境页在最小窗口没有横向滚动。
+- 真实 `Electron → Main → Worker → Word` 合成转换 E2E 通过。将生成 DOCX 用 Word 导出单页 PDF 后目视发现图题左对齐；修复后结构测试验证 `w:jc=center`，重新导出的 PDF 确认图题居中位于 Mermaid 图片下方，列表、图片、正文没有可见裁切或重叠。该最小样本不能替代复杂业务模板或多 Office 版本验收；PDF、DOCX 和 PNG 只保存在被忽略的 `output/`。
+- `npm run package:win` 已成功生成 0.7.0 便携目录、ZIP、单文件 Portable EXE、Setup EXE 及公开模板/离线说明。打包先运行 Electron 包的官方安装脚本，再从版本匹配的分发目录复制；没有 `dist` 的隔离副本已实测可准备 43.1.1 二进制，覆盖干净 `npm ci` 情况。该路径避开下载解压目录的 Windows `EPERM`；收尾遇到 `win-unpacked` 目录重命名被拒时，先复验复制后的便携目录再清理暂存。便携目录 packaged E2E、Setup 首次安装/模板导入/重启、同版本覆盖、0.6.1→0.7.0 跨版本升级与卸载均已在隔离目录通过；四个用户模板文件在覆盖安装及卸载后 SHA-256 不变。0.7.0 仍未创建标签或 GitHub Release，原有本地 0.6.1 产物保存在忽略目录。细节见 [Setup 验收](../testing/setup-installation.md)。
+
+| 页面 | 状态与控件 | 内置浏览器 / Electron 证据 |
+|---|---|
+| 生成 Word | 空态、禁用、文件/模板选择、另存为、成功/失败/取消、日志 | 浏览器实际点击；Electron 原生对话框、真实 Worker 与成功截图另验 |
+| 模板管理 | 搜索空态、DOCX/CSS 文件选择、校验、添加、编辑、设默认、删除与确认 | 浏览器实际点击；桌面合成模板导入及窄窗口弹窗 E2E |
+| 能力说明 | 四类切换、搜索匹配/无结果、问题深链、加载失败重试 | 浏览器实际点击；单元测试覆盖深链与重试 |
+| 环境与设置 | 真实/模拟检查、阻塞/可选、模板库打开、演示重置 | 浏览器实际点击；Electron 打开目录 IPC E2E |
+| 关于 | 待机、加载、失败、最新、新版、版本摘要与外链 | 浏览器实际点击；单元测试与 Electron IPC/固定外链 E2E |
 
 ### 0.6.1 发布准备验证（2026-09-09）
 

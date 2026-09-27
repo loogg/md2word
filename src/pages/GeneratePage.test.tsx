@@ -100,6 +100,9 @@ describe("GeneratePage template validation boundary", () => {
 
     const warnings = screen.getByLabelText("转换警告");
     expect(warnings).toHaveTextContent("已生成，但有 2 条警告");
+    expect(warnings).not.toHaveAttribute("open");
+    fireEvent.click(screen.getByText(/已生成，但有 2 条警告/));
+    expect(warnings).toHaveAttribute("open");
     expect(warnings).toHaveTextContent("代码块样式使用了回退值。");
     expect(warnings).toHaveTextContent("图注编号需要人工复核。");
   });

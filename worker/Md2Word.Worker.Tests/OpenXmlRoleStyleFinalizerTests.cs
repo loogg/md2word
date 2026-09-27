@@ -225,12 +225,14 @@ public sealed class OpenXmlRoleStyleFinalizerTests
     public void AppliesExtendedNativeFallbackRolesAndKeepsImageLayoutOverrides()
     {
         const string figureMarker = "__MD2WORD_ROLE_33333333333333333333333333333333_figure-image__";
+        const string captionMarker = "__MD2WORD_ROLE_77777777777777777777777777777777_caption__";
         const string headingFiveMarker = "__MD2WORD_ROLE_44444444444444444444444444444444_h5__";
         const string admonitionMarker = "__MD2WORD_ROLE_55555555555555555555555555555555_admonition__";
         const string tableMarker = "__MD2WORD_ROLE_66666666666666666666666666666666_table__";
         var roleStyles = new Dictionary<string, ResolvedStyle>
         {
             [StyleRoles.FigureImage] = new("Normal", "Normal"),
+            [StyleRoles.Caption] = new("CaptionStyle", "示例 图示"),
             [StyleRoles.Heading5] = new("Heading5", "heading 5"),
             [StyleRoles.Admonition] = new("IntenseQuote", "Intense Quote"),
             [StyleRoles.Table] = new("Normal", "Normal"),
@@ -276,6 +278,11 @@ public sealed class OpenXmlRoleStyleFinalizerTests
                         new Justification { Val = JustificationValues.Center }),
                     new Run(new Text(figureMarker + "Figure image"))),
                 new Paragraph(
+                    new ParagraphProperties(
+                        new ParagraphStyleId { Val = "ImportedCaption" },
+                        new Justification { Val = JustificationValues.Left }),
+                    new Run(new Text(captionMarker + "Figure caption"))),
+                new Paragraph(
                     new ParagraphProperties(new ParagraphStyleId { Val = "ImportedHeading" }),
                     new Run(
                         new RunProperties(
@@ -302,7 +309,7 @@ public sealed class OpenXmlRoleStyleFinalizerTests
 
         var result = OpenXmlRoleStyleFinalizer.Finalize(path, roleStyles, bodyOnly: true);
 
-        Assert.Equal(4, result.StylesApplied);
+        Assert.Equal(5, result.StylesApplied);
         using var document = WordprocessingDocument.Open(path, false);
         var paragraphs = document.MainDocumentPart!.Document!.Body!.Descendants<Paragraph>().ToArray();
         var image = paragraphs.Single(paragraph => paragraph.InnerText == "Figure image");
@@ -312,6 +319,10 @@ public sealed class OpenXmlRoleStyleFinalizerTests
         Assert.Equal(
             LineSpacingRuleValues.Auto,
             image.ParagraphProperties?.SpacingBetweenLines?.LineRule?.Value);
+
+        var caption = paragraphs.Single(paragraph => paragraph.InnerText == "Figure caption");
+        Assert.Equal("CaptionStyle", caption.ParagraphProperties?.ParagraphStyleId?.Val?.Value);
+        Assert.Equal(JustificationValues.Center, caption.ParagraphProperties?.Justification?.Val?.Value);
 
         var heading = paragraphs.Single(paragraph => paragraph.InnerText == "Heading five");
         Assert.Equal("Heading5", heading.ParagraphProperties?.ParagraphStyleId?.Val?.Value);

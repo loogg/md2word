@@ -38,7 +38,7 @@ test("packaged Windows app boots with the bundled Worker and narrow preload API"
 
   try {
     const window = await application.firstWindow();
-    await expect(window.getByRole("heading", { name: /Markdown.*Word 模板/ })).toBeVisible();
+    await expect(window.getByRole("heading", { name: "生成 Word", exact: true })).toBeVisible();
     await expect(window.getByText("桌面正式接入", { exact: true })).toBeVisible();
     const runtime = await window.evaluate(async (templateId) => ({
       capabilities: window.md2word!.runtimeCapabilities,
@@ -56,8 +56,8 @@ test("packaged Windows app boots with the bundled Worker and narrow preload API"
       templateValidation: "worker",
       conversion: "worker",
     });
-    expect(runtime.apiKeys).toEqual(["capabilities", "conversions", "environment", "files", "runtimeCapabilities", "shell", "templates"]);
-    expect(runtime.capabilityCatalog).toMatchObject({ schemaVersion: "1.1", productVersion: "0.6.1", protocolVersion: "1.0" });
+    expect(runtime.apiKeys).toEqual(["capabilities", "conversions", "environment", "files", "runtimeCapabilities", "shell", "templates", "updates"]);
+    expect(runtime.capabilityCatalog).toMatchObject({ schemaVersion: "1.1", productVersion: "0.7.0", protocolVersion: "1.0" });
     expect(runtime.capabilityCatalog.frontMatter.map((item) => item.key)).toContain("word_heading_numbering");
     expect(runtime.nodeProcess).toBe("undefined");
     expect(runtime.environment.items.filter((item) => item.required).every((item) => item.status === "ready")).toBe(true);

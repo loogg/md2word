@@ -1,4 +1,5 @@
 import { DEMO_ENVIRONMENT } from "../data/demoData";
+import packageInfo from "../../package.json";
 import { bundledCapabilityManifest } from "../data/capabilityManifest";
 import type {
   AddTemplateInput,
@@ -428,6 +429,20 @@ export function createBrowserMockAdapter(): AppAdapter {
       async describe() {
         return clone(bundledCapabilityManifest);
       },
+    },
+    updates: {
+      async check() {
+        return {
+          status: "available",
+          currentVersion: packageInfo.version,
+          latestVersion: "0.8.0",
+          releaseNotes: "演示：新增版本说明。浏览器预览不会查询 GitHub，也不会下载更新。",
+          checkedAt: new Date().toISOString(),
+        };
+      },
+      async openRepository() { window.open("https://github.com/loogg/md2word", "_blank", "noopener,noreferrer"); },
+      async openReleases() { window.open("https://github.com/loogg/md2word/releases", "_blank", "noopener,noreferrer"); },
+      async openLatestRelease() { window.open("https://github.com/loogg/md2word/releases/latest", "_blank", "noopener,noreferrer"); },
     },
     shell: {
       async openOutput() {},

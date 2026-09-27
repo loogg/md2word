@@ -10,7 +10,7 @@ MD2Word 是 **Windows 本地桌面工具**，当前版本为 **0.8.0（Desktop M
 
 GitHub 的 `Windows release` 工作流会为版本标签构建 Portable ZIP 和 Setup EXE，并作为 Release 附件提供下载；手动运行时可从 Actions artifact 下载。操作与环境说明见 [GitHub 发布流程](doc/development/github-release.md)。
 
-下载当前与历史版本请查看 [GitHub Releases](https://github.com/loogg/md2word/releases)。`v0.7.0`、`v0.6.1` 与 `v0.6.0` 保持不变；Portable ZIP 和 Setup EXE 均包含离线模板制作指南。
+**[`v0.8.0` 已公开发布](https://github.com/loogg/md2word/releases/tag/v0.8.0)**；`v0.7.0`、`v0.6.1` 与 `v0.6.0` 保持不变。Portable ZIP 和 Setup EXE 均包含离线模板制作指南。
 
 仓库与 Release 现已公开。发布内容仅含脱敏源码和公开合成模板，用户自己的文档与模板仍由本机管理。
 
@@ -120,7 +120,7 @@ Worker、真实 Word/Mermaid、桌面交互和打包测试的完整命令及已�
 
 0.7.0 新增 Windows 11 Fluent 浅色界面、“关于”与 GitHub 正式 Release 检查，以及图题居中视觉修复。类型检查、Lint、111 项前端/存储测试、Worker 常规测试、生产构建、协议 smoke、桌面壳与真实合成 Word 转换均已通过；Word 导出的单页 PDF 已目视复核。`package:win` 成功生成四种产物；便携目录启动、Setup 首次安装、同版本覆盖、0.6.1→0.7.0 跨版本升级、模板保留及卸载均在隔离目录通过。GitHub 标签工作流、Portable ZIP 与 Setup EXE 的上传和公开发布已通过，下载附件的 SHA-256 与 GitHub digest 一致。完整命令、截图和边界见 [开发与验收说明](doc/uiPrototype/README.md)与 [Setup 验收](doc/testing/setup-installation.md)。
 
-0.8.0 将 Browser Review Bridge 设为源码开发的默认审查后端：浏览器可通过隔离、仅限本机的开发服务访问真实 Electron Main 与 Word Worker；生产构建会检查并剔除 Bridge。公开参考模板与运行时合成 Markdown 已完成浏览器到 Worker 的真实转换，五页导航和模板管理也已检查。四种 Windows 本地产物已生成，便携包的真实 Word 转换、Setup 首装/覆盖/卸载及公开 0.7.0→0.8.0 升级在隔离目录通过；转换协议与用户模板存储规则保持原样。完整结果见 [开发与验收说明](doc/uiPrototype/README.md#080-开发态-browser-review-bridge-验收2026-09-27)和 [Setup 验收](doc/testing/setup-installation.md)。远端 GitHub Release 须以标签工作流实际结果为准。
+0.8.0 将 Browser Review Bridge 设为源码开发的默认审查后端：浏览器可通过隔离、仅限本机的开发服务访问真实 Electron Main 与 Word Worker；生产构建会检查并剔除 Bridge。公开参考模板与运行时合成 Markdown 已完成浏览器到 Worker 的真实转换，五页导航和模板管理也已检查。四种 Windows 本地产物已生成，便携包的真实 Word 转换、Setup 首装/覆盖/卸载及公开 0.7.0→0.8.0 升级在隔离目录通过；转换协议与用户模板存储规则保持原样。`v0.8.0` 标签工作流、附件上传和公开发布已通过，下载的 ZIP/Setup SHA-256 与 GitHub digest 一致。完整结果见 [开发与验收说明](doc/uiPrototype/README.md#080-开发态-browser-review-bridge-验收2026-09-27)和 [Setup 验收](doc/testing/setup-installation.md)。
 
 <a id="usage"></a>
 

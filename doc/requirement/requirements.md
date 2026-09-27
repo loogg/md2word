@@ -5,7 +5,7 @@
 | 项目 | 内容 |
 |---|---|
 | 产品名 | MD2Word 文档生成器 |
-| 当前里程碑 | Desktop MVP 0.8.0 |
+| 当前里程碑 | Desktop MVP 0.8.0（已公开发布） |
 | 目标平台 | Windows |
 | 当前实现 | React Renderer + Electron Main (Node.js) + 独立 .NET 8 C# Word Worker |
 | 转换依赖 | 外部 Pandoc + Microsoft Word COM + Open XML |

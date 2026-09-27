@@ -42,6 +42,7 @@ npx playwright test --config playwright.electron.config.ts e2e/electron-installe
 - 在没有现有 MD2Word 安装或运行进程时，0.8.0 Setup 首次静默安装到 `output/setup-install-test-0.8.0` 返回 0；安装版 E2E 在隔离 `userData` 中导入公开合成模板、删除参考模板、设默认并重启，状态正常。同版本覆盖安装返回 0，四个模板文件 SHA-256 不变，retention E2E 通过。专用安装卸载返回 0，应用 EXE 移除，四个模板文件仍在且哈希不变。
 - 跨版本验收使用先前下载、SHA-256 与 GitHub digest `261ef7c344e7ca38941a5c2fb27e42664401cc2b90271ee5654a44275f5362da` 一致的公开 0.7.0 Setup。将其安装到另一个 `output` 专用目录后，`e2e/electron-upgrade.spec.ts` 的 seed 阶段导入合成模板、删除参考模板并设默认；0.8.0 Setup 覆盖返回 0，四个模板文件 SHA-256 不变。verify 阶段确认版本 0.8.0、模板校验通过、唯一导入模板仍为默认且删除的参考模板未恢复。专用卸载成功，模板哈希仍不变。没有覆盖用户已有安装或删除用户数据。
 - 本地 ZIP 为 170,636,932 字节、Setup 为 112,947,572 字节；本地 SHA-256 分别为 `c628f4b7230882ec2fc163bf875a99ce2e68f60ad9932e8a2c017adddb6795ce`、`db52ac2f3ffb50d866f385fa8a58c258cc7045bac9b8c29211b9f3ac6abf214c`。这些是本机构建值，不冒充 GitHub 标签工作流产物或 digest。安装包仍未签名，构建报告既有 `AngleSharp 1.3.0` 的 `NU1902` 告警。
+- `v0.8.0` GitHub 标签工作流和公开 Release 后续均通过；已分别下载远端 ZIP/Setup，比对其 GitHub digest。远端附件与本地构建大小、SHA 不必相同；远端结果与本地 Word/安装生命周期验收分开记录，详见 [发布记录](../development/github-release.md)。
 
 ### 0.7.0 本机验收（2026-09-27）
 

@@ -253,7 +253,11 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 - `npm run dev` 已在 Windows x64 启动未打包 Electron、真实 Worker 与回环 Bridge，内置浏览器逐页查看生成、模板、能力、环境和关于页。实操确认公开参考模板由隔离真实模板库加载、真实依赖与能力清单可见；升级版本号前的 0.7.0 本机 About 检查 GitHub 正式 Release 返回当时的 `v0.7.0/up-to-date`，版本摘要可展开。模板搜索空态、添加弹窗输入/CSS 切换、缺少 DOCX 的错误与取消操作可见。生成页在 1100x720、1279x800、1280x800 和 1440x900 目视复核，视口宽度无横向溢出；0.8.0 Browser Review PNG 使用同一真实后端与公开参考模板重拍。
 - `npm run test:browser-review` 在独立 `output/e2e-browser-review-user-data` 与系统临时目录中生成一段明确标为合成、无业务内容的最小 Markdown，使用仓库公开参考 DOCX/CSS，经过浏览器 UI → Vite 同源代理 → Main 原生文件对话框和句柄 → C# Worker/Word，实际生成非空 DOCX。测试还覆盖另存为取消、真实环境、输出打开/定位的受控路径、模板搜索/导入/校验/保存/设默认/重新校验/编辑/删除、能力分类与搜索空态、环境重新检查与模板库打开、关于页固定 GitHub 外链；测试结束删除临时 Markdown、DOCX 和隔离库，未提交文档夹具或转换产物。`e2e/browser-review-bridge.spec.ts` 只在显式 Word 开关下运行，常规 E2E 跳过。
 - `npm run typecheck`、`npm run lint`、`npm run test`（26 文件、111 项）、`npm run test:bridge`（令牌、Origin、命令与 SSE）、`npm run test:worker`（126 通过、11 项环境专项跳过）、`npm run test:protocol`、`npm run test:e2e`（1 通过、8 项按开关跳过）和 `npm run build` 均已通过。生产构建内的 `check:bridge-production` 核对 Renderer、Electron Main 及打包文件白名单均无开发 Bridge 入口；开发 E2E 后再次运行生产构建恢复该状态。构建仍报告既有 AngleSharp 1.3.0 的 `NU1902` 中等级依赖告警，本次未改动该 Worker 依赖。
-- 0.8.0 版本同步后重新运行上述类型/Lint/111 项前端测试、126 项 Worker 常规测试、协议 smoke、真实 Browser Review 转换与桌面截图。`npm run package:win` 完成四种新交付物；便携目录 packaged E2E 及真实 Electron → Main → Worker → Word 合成转换通过。Setup 首次安装、同版本覆盖、公开 0.7.0 Setup → 0.8.0 升级及两次专用卸载均在隔离目录通过，用户模板四文件 SHA-256 保持不变；详见 [Setup 验收](../testing/setup-installation.md)。GitHub 标签构建和远端 Release 结果须在推送标签后单独核对，不能把本机通过写成远端通过。
+- 0.8.0 版本同步后重新运行上述类型/Lint/111 项前端测试、126 项 Worker 常规测试、协议 smoke、真实 Browser Review 转换与桌面截图。`npm run package:win` 完成四种新交付物；便携目录 packaged E2E 及真实 Electron → Main → Worker → Word 合成转换通过。Setup 首次安装、同版本覆盖、公开 0.7.0 Setup → 0.8.0 升级及两次专用卸载均在隔离目录通过，用户模板四文件 SHA-256 保持不变；详见 [Setup 验收](../testing/setup-installation.md)。GitHub 标签构建和远端 Release 在下节另行验收，未用本机结果代替远端结果。
+
+### 0.8.0 GitHub 公开发布验证（2026-09-27）
+
+功能分支 Windows 预演 [run 36323686093](https://github.com/loogg/md2word/actions/runs/36323686093) 通过，合并后的 `master` 与预演分支 Git 树相同。`v0.8.0` 标签 [run 36324211708](https://github.com/loogg/md2word/actions/runs/36324211708) 完成类型检查、Lint、前端/存储、Bridge 和 Worker 常规测试、打包、协议 smoke、ZIP/Setup 上传及 [Release 发布](https://github.com/loogg/md2word/releases/tag/v0.8.0)。Release 非草稿/预发布，仓库保持 Public。两份附件已下载并核对 SHA-256 与 GitHub digest 一致；ZIP 内能力版本 0.8.0、公开参考模板和无 Bridge 脚本也已检查。远端附件大小与 digest 见 [GitHub 发布记录](../development/github-release.md)，CI 不宣称真实 Word 或安装生命周期通过。
 
 ### 0.7.0 Fluent、升级入口与 Word 成品验收（2026-09-27）
 

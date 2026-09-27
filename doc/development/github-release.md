@@ -40,9 +40,18 @@ $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
 gh workflow run windows-release.yml --ref "v$version"
 ```
 
-## 0.8.0 本机发布候选（2026-09-27）
+## 0.8.0 公开发布（2026-09-27）
 
-0.8.0 已同步 `package.json`、能力清单和离线说明；类型检查、Lint、111 项前端测试、Bridge 安全测试、126 项 Worker 常规测试、协议 smoke、真实 Browser Review 与便携版 Word 转换均通过。`package:win` 完成四种本地产物，Setup 首次安装、同版本覆盖、公开 0.7.0→0.8.0 升级及卸载在隔离目录完成，四个合成模板文件哈希不变。0.8.0 Release 使用 [专用说明](release-notes-0.8.0.md)。GitHub 标签工作流、远端附件和公开可见性将在推送后核对；本节不把本机构建当作远端发布。
+0.8.0 已同步 `package.json`、能力清单和离线说明；本机类型检查、Lint、111 项前端测试、Bridge 安全测试、126 项 Worker 常规测试、协议 smoke、真实 Browser Review 与便携版 Word 转换均通过。`package:win` 完成四种本地产物，Setup 首次安装、同版本覆盖、公开 0.7.0→0.8.0 升级及卸载在隔离目录完成，四个合成模板文件哈希不变。细节见 [Setup 验收](../testing/setup-installation.md)。
+
+功能分支的 Windows `workflow_dispatch` 预演 [run 36323686093](https://github.com/loogg/md2word/actions/runs/36323686093) 通过；合并提交 `1995257` 与该分支 Git 树相同，`master` 和 `v0.8.0` 标签均指向它。标签 [run 36324211708](https://github.com/loogg/md2word/actions/runs/36324211708) 完成类型检查、Lint、前端/存储与 Bridge 安全测试、Worker 常规测试、打包、协议 smoke、ZIP/Setup 上传和 [Release 发布](https://github.com/loogg/md2word/releases/tag/v0.8.0)。Release 非草稿、非预发布，仓库保持 Public，旧版 Release 未覆盖。发布说明来自 [专用文件](release-notes-0.8.0.md)。
+
+| 0.8.0 远端附件 | 字节数 | GitHub SHA-256 digest |
+|---|---:|---|
+| `MD2Word-0.8.0-win-x64-portable.zip` | 170,605,948 | `c8daa47baaf9dc2e60dc30d72c56b777494420f8ad5e87e9bf686176dc655ded` |
+| `MD2Word-0.8.0-win-x64-setup.exe` | 112,938,307 | `c85f9e48772b7cc6fa56cb0e73202888b5d651a4ab1e765d9999c2be7002dfd2` |
+
+两份附件已下载到被忽略的验收目录，SHA-256 与 GitHub digest 一致。ZIP 内能力版本为 0.8.0，含公开参考模板，无开发 Bridge 脚本。托管 CI 不运行 Word COM 或安装生命周期；真实 Word 和安装升级测试均在本机隔离目录单独完成。
 
 ## 历史发布状态
 

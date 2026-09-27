@@ -2,7 +2,7 @@
 
 ## 项目定位
 
-- 当前里程碑是 **Desktop MVP 0.8.0**：Windows 桌面应用与开发专用 Browser Review Bridge。`v0.7.0` 是上一公开版本；发布状态以 GitHub Releases 为准。
+- 当前里程碑是 **Desktop MVP 0.8.0**：Windows 桌面应用与开发专用 Browser Review Bridge；`v0.8.0` 已公开发布，旧版 Release 保持不变。
 - 正式产品只面向 Windows，链路为 `React Renderer -> Electron Main (Node.js) -> C# Word Worker -> Word COM`。
 - Renderer 通过统一 `AppAdapter` 访问后端；不得把独立 mock 的模拟转换、环境检测或文件选择描述成真实 Electron/C# 能力。
 

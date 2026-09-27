@@ -1,6 +1,6 @@
 # MD2Word UI 规格
 
-本文对应 **Desktop MVP 0.8.0**。React 页面共用 `AppAdapter`：Electron 使用真实 Main/Worker，默认浏览器审查使用真实本地 Bridge，独立 mock 只用于特殊状态。界面必须按运行时能力切换文案与控件；浏览器 Renderer 审查不能代替桌面原生能力验收。
+本文对应已公开发布的 **Desktop MVP 0.8.0**。React 页面共用 `AppAdapter`：Electron 使用真实 Main/Worker，默认浏览器审查使用真实本地 Bridge，独立 mock 只用于特殊状态。界面必须按运行时能力切换文案与控件；浏览器 Renderer 审查不能代替桌面原生能力验收。
 
 ## 1. 设计目标
 

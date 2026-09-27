@@ -2,7 +2,7 @@
 
 ## 1. 状态与决策
 
-本文同时记录目标边界与 **Desktop MVP 0.8.0** 的实际实现。Electron 安全壳、受控 preload、Main 模板库/原生对话框/串行队列、JSONL Worker 客户端，以及 .NET 8 C# STA Word Worker 已经接通；同一页面状态机还可通过开发专用 Bridge 使用这些真实服务。独立 mock 留作特殊界面状态夹具；该 Bridge 不在正式包中，也不在已发布的 0.7.0 附件中。
+本文同时记录目标边界与已公开发布的 **Desktop MVP 0.8.0** 的实际实现。Electron 安全壳、受控 preload、Main 模板库/原生对话框/串行队列、JSONL Worker 客户端，以及 .NET 8 C# STA Word Worker 已经接通；同一页面状态机还可通过开发专用 Bridge 使用这些真实服务。独立 mock 留作特殊界面状态夹具；该 Bridge 不在正式包中，也不在已发布的 0.7.0 附件中。
 
 采用以下分层：
 

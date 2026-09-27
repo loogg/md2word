@@ -145,7 +145,7 @@ NSIS `customInstall` 写入安装目录的 `resources/md2word-installed`，内�
 
 `build.publish=null`，不生成自动更新服务配置；0.7.0 只提供检查新版本与人工下载入口，未实现自动下载或静默安装。Setup 与 Portable 各有独立文件名，发布目录整理保留四种交付物及配套离线说明、模板目录。
 
-Windows 打包使用 `electronDist` 指向已安装的 `node_modules/electron/dist`，先核对 Windows x64 主机、分发目录不是链接、`dist/version` 与 Electron 包版本一致，以及 `electron.exe` 非空，再由 electron-builder 复制该分发。这样避开本机对新解压目录执行 `*.tmp -> win-unpacked` 重命名时的 `EPERM`。最终收尾仍先校验 `win-unpacked` 的应用、Worker、能力资源、公开模板和离线文档；若 Windows 拒绝将整个目录改名为便携目录，则只在 `EPERM/EACCES` 且目标尚不存在时复制、复验目标并清理暂存。正常路径继续使用原子重命名，最终 `release` 不保留 `win-unpacked` 或 builder 元数据。
+Windows 打包先运行已安装 Electron 包自带的 `install.js`：Electron 43 在干净 `npm ci` 后可能尚无 `dist`，该脚本会使用包内校验清单准备官方二进制。随后使用 `electronDist` 指向 `node_modules/electron/dist`，核对 Windows x64 主机、分发目录不是链接、`dist/version` 与 Electron 包版本一致，以及 `electron.exe` 非空，再由 electron-builder 复制该分发。这样避开本机对新解压目录执行 `*.tmp -> win-unpacked` 重命名时的 `EPERM`。最终收尾仍先校验 `win-unpacked` 的应用、Worker、能力资源、公开模板和离线文档；若 Windows 拒绝将整个目录改名为便携目录，则只在 `EPERM/EACCES` 且目标尚不存在时复制、复验目标并清理暂存。正常路径继续使用原子重命名，最终 `release` 不保留 `win-unpacked` 或 builder 元数据。
 
 GitHub 发布由独立 Actions 工作流完成，不启用应用自动更新。托管 Windows runner 使用 Visual Studio 官方 Word PIA，经现有 `OfficeInteropWordPath` 编译属性传入；Word COM 仍只在用户本机 Worker 的 STA 线程运行。CI 不安装或模拟 Word 来宣称真实转换通过。
 

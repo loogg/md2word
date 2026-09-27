@@ -239,7 +239,7 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 - 真实网络检查使用 `ReleaseUpdateService` 对固定 GitHub 仓库查询，得到已公开的 `v0.6.1`，对当前 0.7.0 源码正确返回 `up-to-date`；匿名 API 限流的固定页面 HEAD 回退与越域重定向拒绝由单元测试覆盖。此检查不代表 0.7.0 已发布。
 - 响应式实际检查 1100x720、1279x800、1280x800 和 1440x900；模板行在 1280 断点两侧无水平溢出，1279/1280 时最右操作分别落在 1230/1231px 内。关于和环境页在最小窗口没有横向滚动。
 - 真实 `Electron → Main → Worker → Word` 合成转换 E2E 通过。将生成 DOCX 用 Word 导出单页 PDF 后目视发现图题左对齐；修复后结构测试验证 `w:jc=center`，重新导出的 PDF 确认图题居中位于 Mermaid 图片下方，列表、图片、正文没有可见裁切或重叠。该最小样本不能替代复杂业务模板或多 Office 版本验收；PDF、DOCX 和 PNG 只保存在被忽略的 `output/`。
-- `npm run package:win` 已成功生成 0.7.0 便携目录、ZIP、单文件 Portable EXE、Setup EXE 及公开模板/离线说明。打包从已安装且版本匹配的 Electron 分发目录复制，避开下载解压目录的 Windows `EPERM`；收尾遇到 `win-unpacked` 目录重命名被拒时，先复验复制后的便携目录再清理暂存。便携目录 packaged E2E、Setup 首次安装/模板导入/重启、同版本覆盖、0.6.1→0.7.0 跨版本升级与卸载均已在隔离目录通过；四个用户模板文件在覆盖安装及卸载后 SHA-256 不变。0.7.0 仍未创建标签或 GitHub Release，原有本地 0.6.1 产物保存在忽略目录。细节见 [Setup 验收](../testing/setup-installation.md)。
+- `npm run package:win` 已成功生成 0.7.0 便携目录、ZIP、单文件 Portable EXE、Setup EXE 及公开模板/离线说明。打包先运行 Electron 包的官方安装脚本，再从版本匹配的分发目录复制；没有 `dist` 的隔离副本已实测可准备 43.1.1 二进制，覆盖干净 `npm ci` 情况。该路径避开下载解压目录的 Windows `EPERM`；收尾遇到 `win-unpacked` 目录重命名被拒时，先复验复制后的便携目录再清理暂存。便携目录 packaged E2E、Setup 首次安装/模板导入/重启、同版本覆盖、0.6.1→0.7.0 跨版本升级与卸载均已在隔离目录通过；四个用户模板文件在覆盖安装及卸载后 SHA-256 不变。0.7.0 仍未创建标签或 GitHub Release，原有本地 0.6.1 产物保存在忽略目录。细节见 [Setup 验收](../testing/setup-installation.md)。
 
 | 页面 | 状态与控件 | 内置浏览器 / Electron 证据 |
 |---|---|

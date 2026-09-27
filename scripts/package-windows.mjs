@@ -103,6 +103,9 @@ async function packageWindows() {
     if (!npmCliPath) throw new Error("Run Windows packaging through npm run package:win.");
     await cleanupLegacyReleaseLayout();
     await run(process.execPath, [npmCliPath, "run", "build:desktop"]);
+    // Electron 43 installs its binary lazily. A clean `npm ci` on CI has the
+    // package and its checksums but may not yet have node_modules/electron/dist.
+    await run(process.execPath, [path.join(electronPackageRoot, "install.js")]);
     await stagePublicTemplateCatalog({
       projectRoot,
       stageRoot,

@@ -38,7 +38,7 @@ npx playwright test --config playwright.electron.config.ts e2e/electron-installe
 ### 0.7.0 本机验收（2026-09-27）
 
 - 安装前确认没有已登记的 MD2Word 安装或运行进程，使用 `output/setup-install-test-0.7.0` 与 `output/e2e-setup-0.7.0-user-data`，未覆盖用户安装。
-- `npm run package:win` 完成四种产物，最终 `release` 只有便携目录、Portable EXE/ZIP、Setup EXE、公开模板容器和两份离线说明；无 `win-unpacked` 或 builder 元数据。此前本机的 `win-unpacked.tmp` 重命名 `EPERM` 由已安装 Electron 分发目录复制规避，最终便携目录的同类 `EPERM` 由复验后复制回退解决。旧本地 0.6.1 产物保存在忽略目录。
+- `npm run package:win` 完成四种产物，最终 `release` 只有便携目录、Portable EXE/ZIP、Setup EXE、公开模板容器和两份离线说明；无 `win-unpacked` 或 builder 元数据。此前本机的 `win-unpacked.tmp` 重命名 `EPERM` 由已安装 Electron 分发目录复制规避，最终便携目录的同类 `EPERM` 由复验后复制回退解决。Electron 43 在干净 `npm ci` 后尚无 `dist` 时，打包先用包内安装脚本准备官方二进制；已用无 `dist` 的隔离副本实测。旧本地 0.6.1 产物保存在忽略目录。
 - 便携目录 `e2e/electron-packaged.spec.ts` 通过：内置 Worker、能力版本 0.7.0、窄 preload API、参考模板校验与必需环境就绪。
 - Setup 首次静默安装返回 0，安装标记存在；`e2e/electron-installed.spec.ts` 通过：首次种子、合成模板导入、安装目录不变、删除参考模板后重启不恢复且导入模板保持默认。
 - 对同一专用目录覆盖安装返回 0，隔离用户模板库 4 个文件的 SHA-256 全部不变；`e2e/electron-installed-retention.spec.ts` 再次启动并确认唯一导入模板仍为默认。

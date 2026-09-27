@@ -43,11 +43,14 @@ export interface RegisterIpcOptions {
   shell: NativeShellPort;
 }
 
-type Handler = (ownerId: number, ...args: unknown[]) => unknown;
+export type BackendCommandHandler = (ownerId: number, ...args: unknown[]) => unknown;
 
-export function registerIpcHandlers(options: RegisterIpcOptions): () => void {
+export function registerIpcHandlers(
+  options: RegisterIpcOptions,
+  onBackendCommand?: (channel: string, handler: BackendCommandHandler) => void,
+): () => void {
   const registered: string[] = [];
-  const register = (channel: string, handler: Handler) => {
+  const register = (channel: string, handler: BackendCommandHandler) => {
     options.ipcMain.handle(channel, async (event, ...args) => {
       try {
         const trusted = options.getTrustedWebContents();
@@ -59,6 +62,7 @@ export function registerIpcHandlers(options: RegisterIpcOptions): () => void {
         return { ok: false as const, error: toPublicError(error) };
       }
     });
+    onBackendCommand?.(channel, handler);
     registered.push(channel);
   };
 

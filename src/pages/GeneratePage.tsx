@@ -153,7 +153,7 @@ export function GeneratePage({
         <div className="flex items-center gap-2 rounded-lg bg-[#e8f1fb] px-3 py-2 text-[#174b78]">
           <Info className="h-4 w-4" />
           <div>
-            <p className="text-xs font-semibold">{capabilities.backend === "electron" ? "桌面正式接入" : "当前为交互原型"}</p>
+            <p className="text-xs font-semibold">{capabilities.backend === "electron" ? "桌面正式接入" : capabilities.backend === "browser-bridge" ? "浏览器审查 · 真实后端" : "当前为交互原型"}</p>
             <p className="text-[11px]">{capabilities.conversion === "worker" ? "C# Worker 执行" : "演示转换，不写入文件"}</p>
           </div>
         </div>

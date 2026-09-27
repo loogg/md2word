@@ -2,12 +2,13 @@
 
 ## 目的与运行边界
 
-当前里程碑是 **Desktop MVP 0.7.0**，已公开发布。同一套 React 页面通过 adapter 选择运行后端：
+正式里程碑是 **Desktop MVP 0.7.0**，已公开发布；当前开发分支新增开发态 Browser Review Bridge，不在已发布附件中。同一套 React 页面通过 adapter 选择运行后端：
 
 - Electron 中使用真实 preload、Main、模板库、原生对话框、C# Worker、Word COM 和受控 shell 动作。
-- 普通浏览器中使用 mock adapter，保留 UI 预览、合成模板、本地存储和模拟任务；不会生成 DOCX。
+- 默认 Browser Review 中通过仅限开发态的本地 Bridge 使用上述同一 Main 服务、Worker、模板库与原生对话框；转换可生成真实 DOCX，模板库存于隔离的开发目录。
+- `npm run dev:mock` 中使用 mock adapter，保留合成模板、本地存储和模拟任务，仅用于异常、空态和大数据量等难稳定复现的界面状态；不会生成 DOCX。
 
-界面会显示“桌面版/桌面运行”或“原型/交互原型”。浏览器 mock 的选择、校验、环境、转换、打开文件和定位目录均为模拟；Electron 中相应动作是真实本机能力，但仍受 0.5.0 的转换兼容范围限制。
+界面分别显示“桌面版/桌面运行”“浏览器审查/真实后端”或“原型/交互原型”。独立 mock 的选择、校验、环境、转换、打开文件和定位目录均为模拟；Electron 与 Browser Review 的对应动作是真实本机能力，但仍受 0.5.0 的转换兼容范围限制。浏览器拖放无法可靠保留本机目录，Browser Review 中请点击原生文件选择入口。
 
 ### 桌面转换边界
 
@@ -28,7 +29,7 @@
 | 模板管理 | DOCX/CSS 成组导入、Worker 校验、CSS 显式映射/Word 原生回退来源、warning 二次确认、默认模板和原子存储 |
 | 能力说明 | 当前安装 Worker 的产品/清单/协议版本；语法、Front Matter、模板契约、限制和环境四类信息；搜索与模板问题深链 |
 | 环境与设置 | Word/Pandoc/Worker 必需项与 Mermaid npx + 本地 Edge/Chrome 可选项区分；真实重新检测和受控打开模板库 |
-| 关于 | 当前版本、正式 Release 检查、新版/最新/失败状态、固定仓库/日志/下载外链；浏览器结果标“演示” |
+| 关于 | 当前版本、正式 Release 检查、新版/最新/失败状态、固定仓库/日志/下载外链；独立 mock 结果标“演示”，Bridge 使用真实 Main 检查 |
 
 详细布局和文案规则见 [UI 规格](../requirement/ui-spec.md)。
 
@@ -49,9 +50,9 @@
 11. 在转换中请求取消，确认先显示安全取消，最终不保留部分输出，任务结束后没有本任务残留的 WINWORD、Mermaid CLI 或浏览器子进程。
 12. 进入“环境与设置”重新检查；Word、Pandoc 或 Worker 缺失时必须阻止生成，Mermaid 缺失只按当前模板模式影响任务。
 13. 在 1100x720、1279x800、1280x800 与 1440x900 检查五页、各按钮、输入、弹层、滚动、warning、运行、成功、失败、禁用和取消状态，尤其确认窄窗口模板行的全部操作可见。先用内置浏览器逐页实操，再用真实 Electron 检查原生能力；自动 E2E 不代替目视判断。
-14. 在“关于”检查新版/最新/加载/错误；桌面版只从固定 GitHub latest API 获取正式版，仓库、日志与下载按钮只打开固定 GitHub 地址。浏览器 mock 的结果不得被当作真实更新检查。
+14. 在“关于”检查新版/最新/加载/错误；桌面版及 Browser Review 只从固定 GitHub latest API 获取正式版，仓库、日志与下载按钮只打开固定 GitHub 地址。独立浏览器 mock 的结果不得被当作真实更新检查。
 
-只预览浏览器 mock 时，可以继续使用两个合成演示模板、模拟另存为、模拟失败/取消和“重置演示数据”；这些结论不能替代上述桌面验收。
+只有在难稳定复现的特殊状态审查时才运行浏览器 mock；其中可使用两个合成演示模板、模拟另存为、模拟失败/取消和“重置演示数据”。这些结论不能替代真实 Bridge 与桌面验收。
 
 ## 运行与检查
 
@@ -65,10 +66,16 @@ GitHub 的标签发布与手动构建见 [GitHub 发布流程](../development/gi
 npm install
 ```
 
-浏览器 mock：
+默认浏览器真实 Bridge（需要本机 Word 与 Pandoc；启动后打开终端提示的浏览器地址）：
 
 ```powershell
 npm run dev
+```
+
+特殊状态 mock：
+
+```powershell
+npm run dev:mock
 ```
 
 桌面开发版：
@@ -83,12 +90,17 @@ npm run dev:desktop
 npm run typecheck
 npm run lint
 npm run test
+npm run test:bridge
 npm run capabilities:check
 npm run test:worker
 npm run build:worker
 npm run test:protocol
 npm run build
+npm run check:bridge-production
 npm run test:e2e
+
+# 在已安装 Word 的本机验证 Browser -> Bridge -> Main -> Worker -> DOCX
+npm run test:browser-review
 
 # 生成只有公开参考模板的基线包
 npm run package:win
@@ -197,6 +209,7 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 | `screenshots/settings-template-storage-1440x900.png` | 1440x900 | 0.6.0：便携版/安装版模板位置提示与打开模板库入口 | 已自动断言文案可见并视觉复核 |
 | `screenshots/settings-word-missing-1440x900.png` | 1440x900 | 受控注入的 Word 缺失阻塞态 | 已自动生成并人工复核 |
 | `screenshots/generate-word-1280x800.png` | 1280x800 | 最小目标尺寸桌面生成页 | 已自动生成并人工复核 |
+| `screenshots/browser-review-1440x900.png` | 1440x900 | 发布后开发态 Browser Review、真实 Main/Worker 标识与公开参考模板 | 真实 Bridge 页面生成，已在内置浏览器同尺寸目视复核；不属于 0.7.0 发布附件 |
 | `screenshots/readme-success.png` | 1440x900 | README：桌面合成文档完成转换，滚动到结果和输出操作区域 | 真实 Electron UI 转换后生成并视觉复核 |
 
 ### 当前桌面页面预览（0.7.0）
@@ -219,17 +232,27 @@ README 使用说明的补充截图使用公开参考模板与运行时生成的 
 
 ![0.7.0 最小目标尺寸生成页](screenshots/generate-word-1280x800.png)
 
+### 发布后开发态 Browser Review
+
+![真实 Bridge 浏览器审查页面](screenshots/browser-review-1440x900.png)
+
 ## Adapter 边界
 
-- `createAppAdapter()` 检测 `window.md2word`：存在时使用 Electron API，否则使用浏览器 mock。
+- `createAppAdapter()` 检测 `window.md2word`：存在时使用 Electron API；未打包开发页且设置 `VITE_MD2WORD_BROWSER_REVIEW=1` 时使用真实 Bridge；其余独立预览使用 mock。
 - 页面只提交 `templateId + sourceHandle + outputHandle`；路径型 `ConversionRequest` 仅由 Main 构造并发送给 Worker。
-- Electron preload 暴露模板、文件、转换、环境、能力说明、更新检查和 shell 的显式方法；不暴露原始 `ipcRenderer`。
-- Electron 能力页经 Main 查询当前 Worker；browser mock 与生成式离线说明导入同一机器清单。
+- Electron preload 暴露模板、文件、转换、环境、能力说明、更新检查和 shell 的显式方法；不暴露原始 `ipcRenderer`。Bridge 以受限同源 HTTP/SSE 映射到相同的 Main 命令处理器，不把任意路径或令牌交给浏览器。
+- Electron 与 Browser Review 能力页经 Main 查询当前 Worker；browser mock 与生成式离线说明导入同一机器清单。
 - mock adapter 只保存合成配置与状态，不读取 DOCX 或执行本地转换。
 
 后续扩展 Mermaid 视觉矩阵、图片和高级表格时继续替换 Worker 阶段，不重写页面业务状态机。
 
 ## 维护规则
+
+### 发布后开发态 Browser Review Bridge 验收（2026-09-27）
+
+- `npm run dev` 已在 Windows x64 启动未打包 Electron、真实 Worker 与回环 Bridge，内置浏览器逐页查看生成、模板、能力、环境和关于页。实操确认公开参考模板由隔离真实模板库加载、真实依赖与能力清单可见、About 检查 GitHub 正式 Release 返回当时的 `v0.7.0/up-to-date`，版本摘要可展开；模板搜索空态、添加弹窗输入/CSS 切换、缺少 DOCX 的错误与取消操作可见。生成页在 1100x720、1279x800、1280x800 和 1440x900 目视复核，视口宽度无横向溢出；截图清单中的 Browser Review PNG 使用同一真实后端与公开参考模板。
+- `npm run test:browser-review` 在独立 `output/e2e-browser-review-user-data` 与系统临时目录中生成一段明确标为合成、无业务内容的最小 Markdown，使用仓库公开参考 DOCX/CSS，经过浏览器 UI → Vite 同源代理 → Main 原生文件对话框和句柄 → C# Worker/Word，实际生成非空 DOCX。测试还覆盖另存为取消、真实环境、输出打开/定位的受控路径、模板搜索/导入/校验/保存/设默认/重新校验/编辑/删除、能力分类与搜索空态、环境重新检查与模板库打开、关于页固定 GitHub 外链；测试结束删除临时 Markdown、DOCX 和隔离库，未提交文档夹具或转换产物。`e2e/browser-review-bridge.spec.ts` 只在显式 Word 开关下运行，常规 E2E 跳过。
+- `npm run typecheck`、`npm run lint`、`npm run test`（26 文件、111 项）、`npm run test:bridge`（令牌、Origin、命令与 SSE）、`npm run test:worker`（126 通过、11 项环境专项跳过）、`npm run test:protocol`、`npm run test:e2e`（1 通过、8 项按开关跳过）和 `npm run build` 均已通过。生产构建内的 `check:bridge-production` 核对 Renderer、Electron Main 及打包文件白名单均无开发 Bridge 入口；开发 E2E 后再次运行生产构建恢复该状态。构建仍报告既有 AngleSharp 1.3.0 的 `NU1902` 中等级依赖告警，本次未改动该 Worker 依赖。
 
 ### 0.7.0 Fluent、升级入口与 Word 成品验收（2026-09-27）
 

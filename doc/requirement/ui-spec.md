@@ -1,6 +1,6 @@
 # MD2Word UI 规格
 
-本文对应 **Desktop MVP 0.7.0**。同一套 React 页面通过 adapter 运行在两种后端：Electron 使用真实 Main/Worker 能力，普通浏览器使用 mock 预览。界面必须按运行时能力切换文案与控件，不能用浏览器演示结论代替桌面验收。
+本文以已发布的 **Desktop MVP 0.7.0** 为产品基线，并记录发布后开发态 Browser Review。React 页面共用 `AppAdapter`：Electron 使用真实 Main/Worker，默认浏览器审查使用真实本地 Bridge，独立 mock 只用于特殊状态。界面必须按运行时能力切换文案与控件；浏览器 Renderer 审查不能代替桌面原生能力验收。
 
 ## 1. 设计目标
 
@@ -15,16 +15,16 @@
 
 ### 1.1 运行模式标识
 
-| 能力 | Electron 桌面运行 | 浏览器 mock |
-|---|---|---|
-| 文件与另存为 | Windows 原生对话框，Renderer 只持有 handle | 浏览器文件选择与模拟另存为 |
-| 模板 | Main 隔离复制并由 Worker 校验 | localStorage 中的合成演示配置 |
-| 转换/环境 | C# Worker、Word 与 Pandoc 真实结果 | 定时器与合成状态 |
-| Mermaid | 本机 npx + Edge/Chrome 渲染 PNG/SVG；系统浏览器启动失败时可准备受管浏览器重试，按模式显示真实告警/错误 | 只演示阶段和状态，不宣称生成图片 |
-| 能力说明 | 通过 Main 查询当前安装 Worker 的版本化清单 | 直接导入同一份受版本控制清单 |
-| 输出操作 | 按 `jobId` 打开/定位真实结果 | 明确标注“模拟打开/定位” |
+| 能力 | Electron 桌面运行 | 默认 Browser Review Bridge | 特殊状态浏览器 mock |
+|---|---|---|---|
+| 文件与另存为 | Windows 原生对话框，Renderer 只持有 handle | 同一 Main 原生对话框；浏览器拖放不可登记路径 | 浏览器文件选择与模拟另存为 |
+| 模板 | Main 隔离复制并由 Worker 校验 | 隔离开发模板库与同一 Main/Worker 校验 | localStorage 中的合成演示配置 |
+| 转换/环境 | C# Worker、Word 与 Pandoc 真实结果 | 同一真实服务与 SSE 事件 | 定时器与合成状态 |
+| Mermaid | 本机 npx + Edge/Chrome 渲染 PNG/SVG；系统浏览器启动失败时可准备受管浏览器重试，按模式显示真实告警/错误 | 同一真实服务 | 只演示阶段和状态，不宣称生成图片 |
+| 能力说明 | 通过 Main 查询当前安装 Worker 的版本化清单 | 同一 Main 查询 | 直接导入同一份受版本控制清单 |
+| 输出操作 | 按 `jobId` 打开/定位真实结果 | 同一 Main 受控操作 | 明确标注“模拟打开/定位” |
 
-页头和侧栏必须持续显示“桌面版/桌面运行”或“原型/交互原型”。桌面 Worker 的兼容警告也必须显示，并准确区分已完成的正文随文图片缩小、内部链接 ASCII 安全书签重写和 admonition 固定背景/左线基础视觉，与仍待验收的丰富 admonition 布局、浮动/文本框/多栏/复杂表格单元格图片布局，不能因为它是真实转换就隐藏未迁移范围。
+页头和侧栏必须持续区分“桌面版/桌面运行”“浏览器审查/真实后端”和“原型/交互原型”。Bridge 中真实选择、环境、版本检查及转换不能标成演示，拖放区须提示点击调用 Windows 原生选择窗口；连接失败时显示可重试错误。桌面 Worker 的兼容警告也必须显示，并准确区分已完成的正文随文图片缩小、内部链接 ASCII 安全书签重写和 admonition 固定背景/左线基础视觉，与仍待验收的丰富 admonition 布局、浮动/文本框/多栏/复杂表格单元格图片布局，不能因为它是真实转换就隐藏未迁移范围。
 
 ## 2. 全局框架
 
@@ -33,7 +33,7 @@
 - 顶部：产品图标、`MD2Word`、副标题 `文档生成器`。
 - 主导航：`生成 Word`、`模板管理`、`能力说明`、`环境与设置`；底部单独放 `关于`。
 - 当前项有背景、高亮图标和左侧/内侧强调标识；所有项目支持键盘聚焦。
-- 底部按 adapter 说明“真实路径只由桌面进程管理”或“当前为浏览器模拟”。
+- 底部按 adapter 说明“真实路径只由桌面进程管理”或“当前为浏览器模拟”；Browser Review 也由真实 Main 管理路径。
 
 ### 2.2 主内容区
 
@@ -74,7 +74,7 @@
 ### 3.4 输出与另存为
 
 - 未开始时显示 `每次生成时选择保存位置`，不要求用户预先填写路径。
-- Electron 点击主按钮后打开 Windows 原生“另存为”；浏览器 mock 打开含建议文件名、`.docx` 提示、取消和确认的模拟窗口。
+- Electron 与 Browser Review 点击主按钮后打开同一 Main 的 Windows 原生“另存为”；浏览器 mock 打开含建议文件名、`.docx` 提示、取消和确认的模拟窗口。
 - 浏览器 mock 的模拟目录直接输入名称，不提供无法执行的“浏览目录”按钮。
 - 取消后返回原状态，不新增日志、`jobId`、Worker 或临时目录。
 - 确认后只向 Renderer 返回 output handle、文件名和脱敏展示信息，并进入排队/运行状态；真实路径保留在 Main。
@@ -133,7 +133,7 @@
 
 Mermaid 选项说明必须明确：`off` 保留代码；`auto` 单图失败会保留对应代码并在成功结果中显示警告；`required` 任一图失败都会终止任务。格式说明只承诺通过安全校验的 PNG/SVG。Markdown 图注写法为紧随 Mermaid fenced 代码块的 `<!-- caption: 标题 -->`，历史 `cation` 仅作兼容；中间出现任何非空白节点即不绑定。成功图注经 CSS 映射到模板 Caption/“图注”等既有样式，并与普通图片共用按章图号。
 
-浏览器 mock 文件选择只保存文件名和 mock handle，不读取 DOCX 内容。Electron 由 Main 执行原生选择、隔离复制和 Worker 校验，Renderer 不持有源路径。
+浏览器 mock 文件选择只保存文件名和 mock handle，不读取 DOCX 内容。Electron 与 Browser Review 均由 Main 执行原生选择、隔离复制和 Worker 校验，Renderer 不持有源路径；Browser Review 不接受浏览器拖放的路径登记。
 
 ### 4.3 删除与默认模板
 
@@ -171,15 +171,15 @@ Mermaid 选项说明必须明确：`off` 保留代码；`auto` 单图失败会�
 - 运行依赖使用紧凑列表展示 Windows、Microsoft Word、Pandoc、C# Worker、Mermaid；每行显示状态、版本摘要、必要性与解释。
 - Word/Pandoc/Worker 缺失为阻塞；Mermaid 可用需同时检测到 npx 和本机 Microsoft Edge 或 Google Chrome，缺失默认是可选警告，模板选择 `required` 时阻止生成。
 - Mermaid 卡说明固定使用 `@mermaid-js/mermaid-cli@11.16.0`、`puppeteer@25.3.0` 和本地浏览器；首次使用可能由 npx 获取固定工具包，系统浏览器启动失败时还可能获取受管 `chrome-headless-shell` 到应用私有缓存，但文档内容不会上传。不得向普通用户展示 npm stderr、图源正文或私人绝对路径。
-- `重新检查` 在 Electron 中调用真实环境检查，在浏览器中刷新合成状态，并显示检查时间。
-- Electron 模板库区说明 Portable 发布版位于 `MD2Word.exe` 同级 `templates`、当前目录由 Main 管理，并提供受控打开目录；开发运行与 Setup 安装版实际落到 `userData/templates`，浏览器只说明 localStorage，不伪造可打开路径。
+- `重新检查` 在 Electron 和 Browser Review 中调用真实环境检查，在独立 mock 中刷新合成状态，并显示检查时间。
+- Electron 模板库区说明 Portable 发布版位于 `MD2Word.exe` 同级 `templates`、当前目录由 Main 管理，并提供受控打开目录；Browser Review 显示隔离的真实开发模板库，独立 mock 只说明 localStorage，不伪造可打开路径。
 - `重置演示数据` 只在浏览器 mock 出现，确认后恢复两个初始模板和默认环境状态；桌面运行不提供一键删除真实模板的伪“重置”。
 
 ## 7. 关于与升级页面
 
 - 标题“关于”，显示当前版本、运行形式及来源 `loogg/md2word · GitHub Releases`。用户附图只作布局参考，不能继承图中产品名或仓库。
 - `GitHub` 打开固定仓库页，`更新日志` 打开固定 Releases 列表，`检查更新` 由桌面 Main 查询最新正式 Release。加载期间禁用并显示进度；失败显示可重试错误；无新版显示已是最新。
-- 发现新版时显示目标版本、可展开的纯文本说明和 `前往下载新版`；该按钮打开固定 `/releases/latest`，不自动下载或安装。浏览器预览检查结果始终标“演示”。
+- 发现新版时显示目标版本、可展开的纯文本说明和 `前往下载新版`；该按钮打开固定 `/releases/latest`，不自动下载或安装。独立浏览器 mock 的检查结果标“演示”，Browser Review 的 Main 查询标真实后端。
 - 帮助区说明 Setup 覆盖安装与便携版解压到新目录的人工升级方式；升级前退出应用并保留模板库。
 
 ## 8. 反馈与文案规则
@@ -191,7 +191,7 @@ Mermaid 选项说明必须明确：`off` 保留代码；`auto` 单图失败会�
 - 环境或模板问题使用具体名称，例如 `缺少正文结束书签 MANUAL_BODY_END`，不只写“校验失败”。
 - Mermaid `auto` 失败以“对应图已保留为代码 + 稳定错误码”说明；`required` 失败同时指出缺少 npx/浏览器、浏览器启动/受管安装失败、安装或渲染超时、输入越限、输出安全校验等可行动原因，不显示图源或外部工具原始 stderr。
 - `IMAGE_SIZE_FINALIZATION_FAILED` 只在正文图片确实超过可用版心 1pt 且 Word 缩放后仍无法落入相同容差时显示；不得因 COM 浮点误差对已经贴合版心的图片误报。
-- 浏览器 mock 统一使用 `模拟`、`演示` 标签；Electron 真实动作不加模拟标签，但必须保留 Worker 返回的兼容警告和能力边界说明。
+- 独立浏览器 mock 统一使用 `模拟`、`演示` 标签；Electron 和 Browser Review 的真实动作不加模拟标签，但必须保留 Worker 返回的兼容警告和能力边界说明。
 - 文件路径过长时保留文件名和末尾目录，悬停/聚焦可查看完整路径；日志默认脱敏用户目录。
 
 ## 9. 可访问性与交互细节
@@ -218,4 +218,4 @@ Mermaid 选项说明必须明确：`off` 保留代码；`auto` 单图失败会�
 | 1100x720 / 1279x800 / 1280x800 / 1440x900 | 模板、环境、关于 | 窄窗口模板行操作不裁切；环境列表、升级按钮和弹窗可用；断点两侧无横向溢出 |
 | 1440x900 | 关于待机/加载/新版/最新/错误 | 各按钮与版本说明有明确反馈，浏览器演示和桌面结果不混淆 |
 
-截图文件统一放在 `doc/uiPrototype/screenshots/`，命名和完成状态由 [UI 与桌面验收说明](../uiPrototype/README.md) 管理。0.7.0 的十张桌面截图使用中性合成资料重新生成，新增关于页；添加模板窗口在 1100x720 下断言位于视口内。涉及 UI 改动时用内置浏览器逐页、逐控件实操，再运行 Electron 专项和截图回归；自动 E2E 不替代目视判断。
+截图文件统一放在 `doc/uiPrototype/screenshots/`，命名和完成状态由 [UI 与桌面验收说明](../uiPrototype/README.md) 管理。0.7.0 的十张桌面截图使用中性合成资料重新生成；开发态 Browser Review 截图单独记录，不能被描述为已发布附件。添加模板窗口在 1100x720 下断言位于视口内。涉及 UI 改动时用内置浏览器逐页、逐控件实操，再运行 Electron 专项和截图回归；自动 E2E 不替代目视判断。

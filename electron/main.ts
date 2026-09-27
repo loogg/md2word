@@ -1,19 +1,19 @@
 import { execFile } from "node:child_process";
 import * as fs from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { app, dialog, ipcMain, shell, type BrowserWindow } from "electron";
 import type { CapabilityManifest, ConversionEvent, EnvironmentStatus, WorkerConversionEvent } from "./contracts";
 import { ConversionCoordinator } from "./conversion-coordinator";
 import { ConversionQueue } from "./conversion-queue";
 import { EnvironmentService, type EnvironmentProbeResult } from "./environment-service";
-import { AppError } from "./errors";
+import { AppError, toPublicError } from "./errors";
 import { FileDialogService, type DialogPort } from "./file-dialog-service";
 import { HandleRegistry, JobResultRegistry } from "./handle-registry";
 import { IPC_CHANNELS } from "./ipc-channels";
 import { ReleaseUpdateService } from "./release-update-service";
-import { registerIpcHandlers } from "./ipc";
+import { registerIpcHandlers, type BackendCommandHandler } from "./ipc";
 import { createMainWindow } from "./main-window";
 import { sanitizeWorkerEvent } from "./sanitize";
 import { resolveTemplateLibraryRoot } from "./runtime-paths";
@@ -26,9 +26,14 @@ const execFileAsync = promisify(execFile);
 const MERMAID_CLI_VERSION = "11.16.0";
 const delay = (milliseconds: number) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
+declare const __MD2WORD_ENABLE_BROWSER_REVIEW__: boolean;
+const browserReviewEnabled = __MD2WORD_ENABLE_BROWSER_REVIEW__ && !app.isPackaged && process.env.MD2WORD_BROWSER_REVIEW === "1";
+const browserReviewOwnerId = -1;
 const e2eUserDataPath = process.env.MD2WORD_E2E === "1" ? process.env.MD2WORD_E2E_USER_DATA : undefined;
 if (!app.isPackaged && e2eUserDataPath && path.isAbsolute(e2eUserDataPath)) {
   app.setPath("userData", path.resolve(e2eUserDataPath));
+} else if (browserReviewEnabled) {
+  app.setPath("userData", path.resolve(moduleDirectory, "..", "output", "browser-review-user-data"));
 }
 let mainWindow: BrowserWindow | undefined;
 let disposeIpc: (() => void) | undefined;
@@ -107,7 +112,8 @@ async function commandProbe(command: string | undefined, args: string[]): Promis
 
 function createDialogPort(): DialogPort {
   const requireOwnerWindow = (ownerId: number): BrowserWindow => {
-    if (!mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.id !== ownerId) {
+    if (!mainWindow || mainWindow.isDestroyed()
+      || (mainWindow.webContents.id !== ownerId && !(browserReviewEnabled && ownerId === browserReviewOwnerId))) {
       throw new AppError("IPC_FORBIDDEN", "文件对话框请求来源无效。");
     }
     return mainWindow;
@@ -120,6 +126,7 @@ function createDialogPort(): DialogPort {
 
 async function createRuntime(): Promise<{
   createWindow(): Promise<BrowserWindow>;
+  startBrowserReview(): Promise<void>;
   shutdown(): Promise<void>;
 }> {
   // In development Electron is launched with dist-electron/main.js, so app.getAppPath()
@@ -191,6 +198,8 @@ async function createRuntime(): Promise<{
   const templateValidator = new WorkerTemplateValidator(worker);
   if (isInstalled) {
     await seedInstalledTemplatePackages(path.join(path.dirname(process.execPath), "templates"), templatesRoot);
+  } else if (browserReviewEnabled) {
+    await seedInstalledTemplatePackages(path.join(appRoot, "resources", "templates"), templatesRoot);
   }
   const templates = new TemplateStore({ templatesRoot, builtinCssPath, validator: templateValidator });
   await templates.initialize();
@@ -258,7 +267,12 @@ async function createRuntime(): Promise<{
     },
   });
 
+  const browserReviewListeners = new Set<(event: ConversionEvent) => void>();
   const sendPublicEvent = (ownerId: number, event: ConversionEvent) => {
+    if (browserReviewEnabled && ownerId === browserReviewOwnerId) {
+      for (const listener of browserReviewListeners) listener(event);
+      return;
+    }
     if (!mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.id !== ownerId) return;
     mainWindow.webContents.send(IPC_CHANNELS.conversionsEvent, event);
   };
@@ -279,6 +293,7 @@ async function createRuntime(): Promise<{
   });
   const dialogs = new FileDialogService({ dialog: createDialogPort(), handles });
   const updates = new ReleaseUpdateService(app.getVersion());
+  const browserReviewCommands = new Map<string, BackendCommandHandler>();
 
   const createWindow = async () => {
     const preloadOverride = !app.isPackaged ? process.env.MD2WORD_PRELOAD_PATH : undefined;
@@ -307,7 +322,7 @@ async function createRuntime(): Promise<{
           describeCapabilities,
           checkForUpdates: () => updates.check(),
           shell,
-        });
+        }, (channel, handler) => browserReviewCommands.set(channel, handler));
         const ownerId = createdWindow.webContents.id;
         createdWindow.webContents.once("destroyed", () => {
           handles.revokeOwner(ownerId);
@@ -322,9 +337,44 @@ async function createRuntime(): Promise<{
     return window;
   };
 
+  let stopBrowserReview: (() => Promise<void>) | undefined;
+  const startBrowserReview = async () => {
+    if (!__MD2WORD_ENABLE_BROWSER_REVIEW__ || !browserReviewEnabled) return;
+    const secret = process.env.MD2WORD_BRIDGE_TOKEN ?? "";
+    const bridgeUrl = pathToFileURL(path.join(appRoot, "scripts", "dev-browser-bridge.mjs")).href;
+    const bridgeModule = await import(bridgeUrl) as {
+      startBrowserReviewBridge(options: {
+        secret: string;
+        invoke(channel: string, args: unknown[]): Promise<unknown>;
+        subscribe(listener: (event: ConversionEvent) => void): () => void;
+        toPublicError: typeof toPublicError;
+      }): Promise<() => Promise<void>>;
+    };
+    const allowedChannels = new Set<string>(Object.values(IPC_CHANNELS).filter((channel) =>
+      channel !== IPC_CHANNELS.filesRegisterMarkdownPath && channel !== IPC_CHANNELS.conversionsEvent));
+    stopBrowserReview = await bridgeModule.startBrowserReviewBridge({
+      secret,
+      invoke: async (channel, args) => {
+        if (!allowedChannels.has(channel)) throw new AppError("IPC_FORBIDDEN", "此操作不向浏览器审查模式开放。");
+        const handler = browserReviewCommands.get(channel);
+        if (!handler) throw new AppError("IPC_FORBIDDEN", "未知浏览器审查操作。");
+        return handler(browserReviewOwnerId, ...args);
+      },
+      subscribe: (listener) => {
+        browserReviewListeners.add(listener);
+        return () => browserReviewListeners.delete(listener);
+      },
+      toPublicError,
+    });
+  };
+
   let runtimeShutdown: Promise<void> | undefined;
   const shutdown = () => {
     runtimeShutdown ??= (async () => {
+      await stopBrowserReview?.();
+      handles.revokeOwner(browserReviewOwnerId);
+      results.revokeOwner(browserReviewOwnerId);
+      draftValidation.revokeOwner(browserReviewOwnerId);
       const graceful = (async () => {
         const conversionShutdown = coordinator.shutdown();
         await Promise.allSettled([templates.shutdown(), conversionShutdown]);
@@ -342,7 +392,7 @@ async function createRuntime(): Promise<{
     return runtimeShutdown;
   };
 
-  return { createWindow, shutdown };
+  return { createWindow, startBrowserReview, shutdown };
 }
 
 const singleInstance = app.requestSingleInstanceLock();
@@ -354,6 +404,7 @@ if (!singleInstance) {
       const createdRuntime = await createRuntime();
       runtime = createdRuntime;
       await createdRuntime.createWindow();
+      await createdRuntime.startBrowserReview();
       app.on("second-instance", () => {
         if (mainWindow) {
           if (mainWindow.isMinimized()) mainWindow.restore();

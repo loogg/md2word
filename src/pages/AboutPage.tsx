@@ -68,7 +68,7 @@ export function AboutPage({ adapter }: AboutPageProps) {
 
         <div className="mt-5 flex flex-wrap items-center gap-3 text-xs">
           <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-slate-600">当前版本 <strong className="font-semibold text-slate-900">v{packageInfo.version}</strong></span>
-          <span className="text-slate-500">运行形式：{isDemo ? "浏览器交互预览（模拟更新检查）" : "Windows 桌面应用"}</span>
+          <span className="text-slate-500">运行形式：{isDemo ? "浏览器交互预览（模拟更新检查）" : adapter.runtimeCapabilities.backend === "browser-bridge" ? "浏览器审查（真实桌面后端）" : "Windows 桌面应用"}</span>
         </div>
 
         <div className="mt-5 rounded-[10px] bg-[#e8f1fb] px-4 py-3 text-sm text-[#174b78]" role="status" aria-live="polite">
